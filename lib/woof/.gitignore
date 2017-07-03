@@ -1,0 +1,7 @@
+*~
+doc/
+.settings
+.project
+.idea
+*.sublime-project
+*.sublime-workspace

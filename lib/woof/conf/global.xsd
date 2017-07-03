@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:ac="http://alko.pol-litra.ru/schema/GC"
+	targetNamespace="http://alko.pol-litra.ru/schema/GC"
+	elementFormDefault="qualified">
+
+<annotation>
+	<documentation xml:lang="ru">
+		Schema для основного файла конфигурации.
+	</documentation>
+</annotation>
+
+<element name="project" type="ac:AlkoConfigType"/>
+
+<complexType name="AlkoConfigType">
+	<sequence>
+		<element name="serverType">
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="FCGI"/>
+					<enumeration value="PSGI"/>
+				</restriction>
+			</simpleType>
+		</element>
+		<element name="sql_master">
+			<simpleType>
+				<restriction base="integer">
+					<enumeration value="0"/>
+					<enumeration value="1"/>
+				</restriction>
+			</simpleType>
+		</element>
+		<element name="webserv"  type="string"/>
+		<element name="install"  type="string"/>
+		<element name="db"       type="ac:DB"/>
+		<element name="logLevel" type="string"/>
+		<element name="debug"    type="ac:Debug"/>
+	</sequence>
+</complexType>
+
+<complexType name="DB">
+	<sequence>
+		<element name="name" type="string"/>
+		<element name="location" type="ac:Socket"/>
+		<element name="role" type="ac:Role" minOccurs="2" maxOccurs="2"/>
+		<element name="connection" minOccurs="3" maxOccurs="3">
+			<complexType>
+				<sequence>
+					<element name="method" type="string"/>
+					<element name="option" minOccurs="0" maxOccurs="unbounded">
+						<complexType>
+							<simpleContent>
+								<extension base="boolean">
+									<attribute name="name" type="string" use="required"/>
+								</extension>
+							</simpleContent>
+						</complexType>
+					</element>
+				</sequence>
+				<attribute name="name" type="string" use="required"/>
+			</complexType>
+		</element>
+	</sequence>
+</complexType>
+
+<complexType name="Role">
+	<sequence>
+		<element name="login" type="Name"/>
+		<element name="password" type="string"/>
+	</sequence>
+	<attribute name="name" type="string" use="required"/>
+</complexType>
+
+<complexType name="Socket">
+	<sequence>
+		<element name="host" type="string"/>
+		<element name="port" type="unsignedShort"/>
+	</sequence>
+</complexType>
+
+<complexType name="Debug">
+	<sequence>
+		<element name="output">
+			<simpleType>
+				<restriction base="string">
+					<enumeration value="On"/>
+					<enumeration value="Off"/>
+				</restriction>
+			</simpleType>
+		</element>
+		<element name="layer" minOccurs="0" maxOccurs="unbounded">
+			<complexType>
+				<attribute name="name" use="required">
+					<simpleType>
+						<restriction base="string">
+							<enumeration value="APP"/>
+							<enumeration value="SRV"/>
+							<enumeration value="SQL"/>
+						</restriction>
+					</simpleType>
+				</attribute>
+			</complexType>
+		</element>
+	</sequence>
+</complexType>
+
+
+</schema>
