@@ -1,0 +1,104 @@
+#! /usr/bin/perl
+#
+# Start all the Starman's instances.
+#
+# Config file path stores in $WOOF_CONFIG environ or in '~/.woof' directory by default.
+#
+# ./starman.run [start|stop]
+
+use strict;
+use warnings;
+use 5.012;
+
+use XML::Simple;
+use ALKO::ProcDaemon;
+
+my $action = shift;
+$action and $action =~ /^start|stop|restart$/ or usage();
+
+# define config directory
+use constant {
+	WOOF_ENV_VAR         => 'WOOF_CONFIG',
+	DEFAULT_WOOF_CONFDIR => '~/.woof',
+	CONF_FILENAME        => 'global.xml',
+	PSGI_CONF_FILENAME   => 'psgi.xml',
+	PID_DIR              => 'pid',
+	PID_FILE             => 'starman.pid',
+	LOG_FILE             => 'alko.log',
+	PUBLIC_DIR           => 'public_html',
+	INDEX_FILE           => 'index.pl',
+};
+my $confdir = $ENV{+WOOF_ENV_VAR} || DEFAULT_WOOF_CONFDIR;
+my $piddir  = "$confdir/" . PID_DIR;
+
+# read config
+my $woof;
+eval '$woof = XMLin("$confdir/" . CONF_FILENAME, )';
+die "Can't read config: $@" if $@;
+
+# execute command
+{
+	no strict;
+	&{$action};
+}
+
+sub start {
+	if (-e "$confdir/" . PID_FILE) {
+		warn 'Starman is already running' ;
+	} else {
+		my $starman;
+		eval '$starman = XMLin("$confdir/" . PSGI_CONF_FILENAME, ForceArray => [qw/ location /])';
+		die "Can't read Starman config: $@" if $@;
+		
+		my $daemon   = ALKO::ProcDaemon->new;
+		my $logfile  = "$confdir/"  . LOG_FILE;
+		my @location = @{$starman->{location}};
+		my $pid      = $piddir . '/'. PID_FILE;
+
+		my (@command, @cwdir);
+		for (@location) {
+			my $dir = "$woof->{webserv}/" . PUBLIC_DIR . "$_->{path}";
+			my $script = "$dir/" . INDEX_FILE;
+			push @command, "starman --workers $_->{workers} --host $starman->{host} --port $_->{port} --error-log $logfile $script";
+			push @cwdir, $dir;
+		}
+
+		print @command . " processes have been launched\n";
+		$daemon->Init({
+			pid_file     => $pid,
+			exec_command => \@command,
+			cwdir        => \@cwdir,  # Our SPECIAL arg
+		});
+
+	}
+}
+
+sub stop {
+	print "Stop\n";
+	
+	my @files = <$piddir/starman*.pid>;
+	
+	for (@files) {
+		my $fh = new IO::File $_, "r" or die "Can't open $_: $!";
+		
+		my $pid = <$fh>;
+		$fh->close or die "Can't close $_: $!";
+		next unless $pid =~ /\d+/;
+
+		print "stop $&\n";
+		kill 15, $&;                   # остановить процесс starman
+		unlink;                        # удалить использованный файл
+	}
+	print @files . " processes have been stopped\n";
+}
+
+sub restart {
+	stop();
+	start();
+}
+
+sub usage {
+	die "usage: " . __FILE__ . " [start|stop]\n";
+}
+
+print "Go!\n";

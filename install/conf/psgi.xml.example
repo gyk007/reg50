@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server xmlns="http://alko.pol-litra.ru/schema/SC" host="alko.local">
+	<location>
+		<path>/</path>
+		<workers>1</workers>
+		<port>9001</port>
+	</location>
+	<location>
+		<path>/catalog</path>
+		<workers>2</workers>
+		<port>9002</port>
+	</location>
+	<location>
+		<path>/catalog/category</path>
+		<workers>3</workers>
+		<port>9003</port>
+	</location>
+</server>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- После изменения шаблона файла конфигурации не забудьте поменять ND метода WooF::C()
+     в части описания возвращаемого хеша.
+
+     Местоположение диры, содержащей этот файа, а также файл global.xsd задаётся переменной окружения WOOF_CONFIG.
+     Если $WOOF_CONFIG не определена, то по дефолту берется дира '~/.woof'.
+-->
+<project xmlns="http://alko.pol-litra.ru/schema/GC">
+	<!-- Тип сервера
+		FCGI - Apache + FastCGI
+		PSGI - NGINX + Starman
+	-->
+	<serverType>PSGI</serverType>
+
+	<!-- Можно ли менять сруктуру базы данных с помощью скриптов из каталога webserv/install/sql. 1 - можно, 0 - нельзя -->
+	<sql_master>1</sql_master>
+
+	<!-- Путь к скриптам вебсервера. Директория, содержащая public_html/ -->
+	<webserv>/home/pupkin/alko/site/backend</webserv>
+
+	<!-- Путь к инсталляционным скриптам. Они не обязательно хранятся внутри скриптов веб-сервера.
+	Есть возможность вынести инсталляторы в надпроект, так как скрипты могут относиться к любым частям большого проекта. -->
+	<install>/home/pupkin/alko/site/backend/install</install>
+
+	<!-- Параметры подключения к Базе данных -->
+	<db>
+		<!-- Имя Базы Данных -->
+		<name>alko</name>
+
+		<!-- Месторасположение Базы Данных -->
+		<location>
+			<!-- Имя хоста. Должно резольвиться. -->
+			<host>localhost</host>
+			<!-- Дефолтный порт для Postgres 5432 -->
+			<port>5432</port>
+		</location>
+
+		<!-- Юзер admin используется для изменения структуры базы и раздачи прав.
+			Применяется в инсталяторе. -->
+		<role name="admin">
+			<login>alko_admin</login>
+			<password>secret_admin</password>
+		</role>
+
+		<!-- Под ролью user выполняются все обычные операции -->
+		<role name="user">
+			<login>alko_user</login>
+			<password>secret_user</password>
+		</role>
+
+		<!-- Кешированное соединение для единичных запросов.
+			 Дефолтное для сервера. Недопустимо использовать транзакции на кэшированном соединении. -->
+		<connection name="share">
+			<method>connect_cached</method>
+			<option name="AutoCommit">1</option>
+
+			<!-- В будущем надо будет сообщения об ошибках обрабатывать самим -->
+			<option name="PrintError">1</option>
+			<option name="RaiseError">0</option>
+		</connection>
+
+		<!-- Изолированное (некешированное) соединение для транзакций Сервера.
+			 Commit должен выполняться вручную. -->
+		<connection name="transaction">
+			<method>connect</method>
+			<option name="AutoCommit">0</option>
+
+			<!-- В будущем надо будет сообщения об ошибках обрабатывать самим -->
+			<option name="PrintError">1</option>
+			<option name="RaiseError">0</option>
+		</connection>
+
+		<!-- Соединение для использования во внешних скриптах, не относящихся к Серверу.
+			 AutoCommit изначально включен, dbh изолирован (не кешируется).
+			 Можно было бы в этих случаях использовать и connect_cached, но не кошерно. -->
+		<connection name="homealone">
+			<method>connect</method>
+			<option name="AutoCommit">1</option>
+
+			<!-- В будущем надо будет сообщения об ошибках обрабатывать самим -->
+			<option name="PrintError">1</option>
+			<option name="RaiseError">0</option>
+		</connection>
+	</db>
+
+	<!-- В лог будут выводиться только варнинги со значениями, равными или меньше установленного здесь порога.
+	Уровень логирования никак не связан со слоями отладки и не влияет на стек ошибок.
+	Существующие уровни:
+		EMERG   0
+		ALERT   1
+		CRIT    2
+		ERR     3
+		WARNING 4 (default для кода Perl)
+		NOTICE  5
+		INFO    6 -->
+	<logLevel>WARNING</logLevel>
+
+	<!-- Отладочные сообщения -->
+	<debug>
+		<!-- Включить/выключить отладку On/Off 
+			по дефолту Off -->
+		<output>On</output>
+
+		
+		<!-- Отладочное сообщение принадлежит конкретному слою, каждый из которых имеет собственный флаги:
+			APP - слой приложения. дефолтный слой для функции debug()
+			SRV - логика работы сервера
+			SQL - запросы с параметрами -->
+		<layer name="APP"/>
+		<layer name="SRV"/>
+		<!-- <layer name="SQL"/> -->
+	</debug>
+</project>

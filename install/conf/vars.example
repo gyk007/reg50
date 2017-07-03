@@ -1,0 +1,2 @@
+export PERL5LIB='/home/pupkin/alko/site/backend/lib:/home/pupkin/alko/site/backen/lib/woof/lib'
+export WOOF_CONFIG='/home/pupkin/alko/opt/starman'
