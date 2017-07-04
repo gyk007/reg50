@@ -61,9 +61,9 @@ $Server->add_handler(CATEGORY => {
 		my $I = $S->I;
 		my $id = $I->{category};
 		
-		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => 'products') or return $S->fail("OBJECT: No such category id='$id'");
+		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => [qw/ products propgroups /]) or return $S->fail("OBJECT: No such category id='$id'");
 
-# 		$category->fill_products;
+		$category->complete_products;
 
 		
 		$S->O->{category} = $category;

@@ -13,6 +13,10 @@ Class: ALKO::Catalog::Category
 use strict;
 use warnings;
 
+use WooF::Debug;
+
+use WooF::Error;
+
 =begin nd
 Variable: %Attribute
 	Описание членов класса.
@@ -28,13 +32,28 @@ my %Attribute = (
 	description => undef,
 	name        => undef,
 	products    => {
-		type => 'cache',
+		type   => 'cache',
 		extern => 'ALKO::Catalog::Product',
-		maps => {
+		maps   => {
 			class  => 'ALKO::Catalog::Product::Link',
 			master => 'id_category',
 			slave  => 'id_product',
 			set    => {face => 'face_effective'},
+		},
+	},
+	propgroups  => {
+		type   => 'cache',
+		extern => 'ALKO::Catalog::Property::Group',
+		maps   => {
+			class  => 'ALKO::Catalog::Property::Group::Link',
+			master => 'id_category',
+			slave  => 'id_propgroup',
+			set    => {
+				face    => 'face_effective',
+				joint   => 'joint',
+				visible => 'visible',
+				weight  => 'weight',
+			},
 		},
 	},
 	visible     => undef,
@@ -51,6 +70,19 @@ Returns:
 	ссылку на описание членов класса
 =cut
 sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
+
+=begin nd
+Method: complete_products ( )
+=cut
+sub complete_products {
+	my $self = shift;
+	
+	my $product = $self->Has('products') or return warn "Category::complete_products() requires extended products";
+	
+	debug 'SELF_CATEGORY=', $self;
+	
+	$self;
+}
 
 =begin nd
 Method: Table ( )

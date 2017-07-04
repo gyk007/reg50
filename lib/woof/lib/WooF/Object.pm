@@ -670,8 +670,12 @@ Returns:
 sub Get {
 	my $either = shift;
 	my $class = ref $either || $either;
+	my @expand;  # связанные атрибуты, подлежащие расширению
 	
 	my ($filter, $expand) = _parse_args(@_);
+	if (defined $expand) {
+		@expand = ref $expand ? @$expand : $expand;
+	}
 	
 	return warn 'OBJECT|ERR: filter not defined' unless @$filter;
 
@@ -688,7 +692,7 @@ sub Get {
 	$self->{STATE} |= DWHLINK;
 	
 	# получить связанную коллекцию
-	if ($expand) {
+	for my $expand (@expand) {
 		my $attr = $class->Attribute;
 		my $expand_attr = $attr->{$expand};
 
@@ -707,9 +711,10 @@ sub Get {
 		
 		my $slave_class = $expand_attr->{extern};
 		my $slave_table = $slave_class->Table;
+		my $slave_attr = $slave_class->Attribute;
 		my @selected_fields;
-		while (my ($at, $des) = each %$attr) {
-			next if defined $des and exists $des->{type} and $des->{type} eq 'cache';
+		while (my ($at, $des) = each %$slave_attr) {
+			next if defined $des and ref $des eq 'HASH' and exists $des->{type} and $des->{type} eq 'cache';
 			
 			push @selected_fields, "$slave_table.$at $slave_table\$$at";
 		}
@@ -753,7 +758,7 @@ sub Get {
 			# если указан set, заполняем экземпляры коллекции соответствующим значением из таблицы связки
 			if (defined $maps->{set}) {
 				while (my ($src, $dst) = each %{$maps->{set}}) {
-					$slave_item{$dst} = $link_item{$src};
+					$slave_item{$dst} = $link_item{$src} if defined $link_item{$src};
 				}
 			}
 			
@@ -782,6 +787,23 @@ sub _get_method_name {
 	$full_name =~ /.*::(\w+)/o;
 
 	$1;
+}
+
+=begin nd
+Method: Has ($extended)
+	Расширен ли у экземпляра указанный атрибут.
+	
+Parameters:
+	$extended - имя атрибута
+	
+Returns:
+	Экземпляр или коллекцию, привязанную к атрибуту - если таковые имеются
+	undef - в противном случае
+=cut
+sub Has {
+	my ($self, $attr) = @_;
+	
+	exists $self->{extend} and exists $self->{extend}{$attr} ? $self->{extend}{$attr} : undef;
 }
 
 =begin nd
