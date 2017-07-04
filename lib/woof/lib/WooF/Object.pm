@@ -105,8 +105,6 @@ use warnings;
 
 use Clone qw/ clone /;
 
-use WooF::Debug;
-
 use WooF::Object::Constants;
 use WooF::Error;
 use WooF::DB;
