@@ -655,15 +655,19 @@ Method: Get (@filter, EXPAND => $expand)
 	
 	Хотя бы одно условие выборки должно присутствовать, иначе метод потерпит неудачу.
 	
-	
+	Если в аргументах присутствует $expand, он должен содержать имя члена класса, подлежащего "расширению".
+	Описание такого члена класса содержит данные для получения коллекции экземпляров другого класса,
+	связанного с текущим отношением многие-ко-многим.
 
 Parameters:
-	@filter - условия выборки. Более подробно см. в описании к методу parse_clause в классе WooF::DB::Query
+	@filter - условия выборки. Более подробно см. в описании к методу parse_clause в классе WooF::DB::Query.
+	$expand - строка с именем члена класса, подлежащего расширению.
 
 Returns:
 	Экземпляр класса в случае наличия единственного экземпляра.
 	undef в противном случае - если экземпляров, удовлетворяющих условию больше одного, нет ни одного,
 	или не задано условие выборки.
+	Если указано расширение, то коллекция будет помещена в хеш 'extend'.
 =cut
 sub Get {
 	my $either = shift;
@@ -673,6 +677,7 @@ sub Get {
 	
 	return warn 'OBJECT|ERR: filter not defined' unless @$filter;
 
+	# получаем основной экземпляр
 	my $table = $class->Table;
 	my $Q = WooF::DB::Query->new("SELECT * FROM $table ")->parse_clause($filter);
 
@@ -684,13 +689,12 @@ sub Get {
 	my $self = $class->new($row);
 	$self->{STATE} |= DWHLINK;
 	
+	# получить связанную коллекцию
 	if ($expand) {
-# 		debug 'GET_EXPAND=', $expand;
-		
-		
 		my $attr = $class->Attribute;
 		my $expand_attr = $attr->{$expand};
-# 		debug 'GET_ATTR=', $expand_attr;
+
+		# Существуют требования к расширяемому атрибуту
 		return warn "Can't Get() extended data for class=$class"
 			unless
 					$self->isa('WooF::Object::Simple')
@@ -733,11 +737,9 @@ sub Get {
 					$link_table.$maps->{master} = $self->{id}
 			};
 		}
-# 		debug 'QUERY=', $q;
 		$rows = $class->S->D->fetch_all($q);
-# 		debug 'ROWS=', $rows;
 		
-		my (@slave_src, @link_src);
+		my @slave_src;
 		for my $row (@$rows) {
 			my (%slave_item, %link_item);
 			while (my ($attr, $v) = each %$row) {
@@ -750,6 +752,7 @@ sub Get {
 				}
 			}
 			
+			# если указан set, заполняем экземпляры коллекции соответствующим значением из таблицы связки
 			if (defined $maps->{set}) {
 				while (my ($src, $dst) = each %{$maps->{set}}) {
 					$slave_item{$dst} = $link_item{$src};
@@ -757,20 +760,12 @@ sub Get {
 			}
 			
 			push @slave_src, \%slave_item;
-			push @link_src,  \%link_item;
 		}
-# 		debug 'ROWS2=', $rows;
-# 		debug 'SLAVE_SRC=', @slave_src;
-# 		debug 'LINK_SRC=',  @link_src;
-		
 		my $slave = WooF::Object::Collection->new($slave_class, \@slave_src)->Set_State(DWHLINK);
-		debug 'SLAVE_COLLECTION=', $slave;
 		
 		$self->{extend}{$expand} = $slave;
 	}
 	
-	debug 'SELF_GET=', $self;
-
 	$self;
 }
 
