@@ -28,6 +28,7 @@ Variable: %Attribute
 	name        - наименование
 	parents     - коллекция родительских категорий от корня до текущей, включая текушую
 	products    - товары, принадлежащие данной категории
+	propgroups  - группы свойств привязанные непосредственно к данной категрии; наследованные не включены
 	visible     - показывается ли при выводе данная категория со всеми своими потомками
 	              если любой из родителей категории скрыт, то переопределить видимость данным флагом невозможно
 =cut
@@ -66,8 +67,8 @@ my %Attribute = (
 =begin nd
 Method: Attribute ( )
 	Доступ к хешу с описанием членов класса.
-	Может вызываться и как метод экземпляра, и как метод класса.
 	
+	Может вызываться и как метод экземпляра, и как метод класса.
 	Наследует члены класса родителей.
 
 Returns:
@@ -87,7 +88,11 @@ sub complete_products {
 	my $product   = $self->Has('products')   or return warn "Category::complete_products() requires extended products";
 	my $propgroup = $self->Has('propgroups') or return warn "Category::complete_products() requires extended propgroups";
 	my $parents = $self->parents;
-	debug 'PARENTS=', $parents;
+	
+	for ($parents->List) {
+		$_->Expand('propgroups');
+		debug 'PARENTS_FOR_AT_LOOP_END=', $_;
+	}
 	
 # 	debug 'SELF_CATEGORY=', $self;
 	
