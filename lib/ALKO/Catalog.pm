@@ -40,10 +40,10 @@ use ALKO::Catalog::Property::Group;
 use ALKO::Catalog::Property::Group::Link;
 
 =begin nd
-Variable: my $ROOT
+Variable: our $ROOT
 	Номер категории, представляющей невидимый корень каталога.
 =cut
-my $ROOT = 0;
+our $ROOT = 0;
 
 =begin nd
 Variable: %Attribute

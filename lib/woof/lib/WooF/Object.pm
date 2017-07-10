@@ -653,13 +653,14 @@ Method: Get (@filter, EXPAND => $expand)
 	
 	Хотя бы одно условие выборки должно присутствовать, иначе метод потерпит неудачу.
 	
-	Если в аргументах присутствует $expand, он должен содержать имя члена класса, подлежащего "расширению".
+	Если в аргументах присутствует $expand, он должен содержать ссылку на массив имен (или одно имя_атрибута
+	в виде строки) члена класса, подлежащего "расширению".
 	Описание такого члена класса содержит данные для получения коллекции экземпляров другого класса,
 	связанного с текущим отношением многие-ко-многим.
 
 Parameters:
 	@filter - условия выборки. Более подробно см. в описании к методу parse_clause в классе WooF::DB::Query.
-	$expand - строка с именем члена класса, подлежащего расширению.
+	$expand - строка с именем члена класса, подлежащего расширению или ссылка на массив таких строк.
 
 Returns:
 	Экземпляр класса в случае наличия единственного экземпляра.
@@ -670,12 +671,8 @@ Returns:
 sub Get {
 	my $either = shift;
 	my $class = ref $either || $either;
-	my @expand;  # связанные атрибуты, подлежащие расширению
 	
 	my ($filter, $expand) = _parse_args(@_);
-	if (defined $expand) {
-		@expand = ref $expand ? @$expand : $expand;
-	}
 	
 	return warn 'OBJECT|ERR: filter not defined' unless @$filter;
 
@@ -691,7 +688,44 @@ sub Get {
 	my $self = $class->new($row);
 	$self->{STATE} |= DWHLINK;
 	
-	# получить связанную коллекцию
+	# получить связанные коллекции многие-ко-многим
+	$self->Expand($expand) if defined $expand;
+	
+	$self;
+}
+
+=begin nd
+Method: Expand ($expand)
+	Расширить экземпляр экземплярами связанных классов.
+	
+	Описание звязанных классов должно находиться в описаниях соответствующих атрибутов данного класса.
+	
+	Допускается расширение классов, связанных с данным классом связью многие-ко-многим. В этом случае описание
+	атрибута выглядит так:
+>	products    => {
+>		type => 'cache',
+>		extern => 'ALKO::Catalog::Product',
+>		maps => {
+>			class  => 'ALKO::Catalog::Product::Link',
+>			master => 'id_category',
+>			slave  => 'id_product',
+>			set    => {face => 'face_effective'},
+>		},
+>	},
+
+Parameters:
+	$expand - строка с именем члена класса, подлежащего расширению или ссылка на массив таких строк.
+	
+Returns:
+	$self - если ошибок не было
+	undef - в случае ошибки
+=cut
+sub Expand {
+	my ($self, $expand) = @_;
+	my $class = ref $self;
+	
+	my @expand = ref $expand ? @$expand : $expand;  # связанные атрибуты, подлежащие расширению
+	
 	for my $expand (@expand) {
 		my $attr = $class->Attribute;
 		my $expand_attr = $attr->{$expand};
@@ -709,6 +743,7 @@ sub Get {
 				and
 					exists $expand_attr->{maps};
 		
+		# собираем поля из дополнительной таблицы связанных экземпляров
 		my $slave_class = $expand_attr->{extern};
 		my $slave_table = $slave_class->Table;
 		my $slave_attr = $slave_class->Attribute;
@@ -719,6 +754,7 @@ sub Get {
 			push @selected_fields, "$slave_table.$at $slave_table\$$at";
 		}
 		
+		# собираем поля из таблицы-связки
 		my $maps = $expand_attr->{maps};
 		my $link_class = $maps->{class};
 		my $link_table = $link_class->Table;
@@ -734,14 +770,13 @@ sub Get {
 			local $" = ', ';
 			$q = qq{
 				SELECT @selected_fields
-				FROM
-					$slave_table JOIN $link_table ON $slave_table.id = $link_table.$maps->{slave}
-				WHERE
-					$link_table.$maps->{master} = $self->{id}
+				FROM $slave_table JOIN $link_table ON $slave_table.id = $link_table.$maps->{slave}
+				WHERE $link_table.$maps->{master} = $self->{id}
 			};
 		}
-		$rows = $class->S->D->fetch_all($q);
+		my $rows = $class->S->D->fetch_all($q);
 		
+		# заполняем хеши экземпляров
 		my @slave_src;
 		for my $row (@$rows) {
 			my (%slave_item, %link_item);
@@ -764,11 +799,9 @@ sub Get {
 			
 			push @slave_src, \%slave_item;
 		}
-		my $slave = WooF::Object::Collection->new($slave_class, \@slave_src)->Set_State(DWHLINK);
-		
-		$self->{extend}{$expand} = $slave;
+		$self->{extend}{$expand} = WooF::Object::Collection->new($slave_class, \@slave_src)->Set_State(DWHLINK);
 	}
-	
+
 	$self;
 }
 
