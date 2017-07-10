@@ -18,6 +18,7 @@ Variable: %Attribute
 	face           - наименование, выводимое в каталоге
 	face_effective - наименование в каталоге, переопределенное категорией
 	name           - наименование
+	properties     - значения свойств; разбиты по группам
 	visible        - видимость товара в каталоге для покупателя
 =cut
 my %Attribute = (
@@ -25,14 +26,15 @@ my %Attribute = (
 	face           => undef,
 	face_effective => {type => 'cache'},
 	name           => undef,
+	properties     => {mode => 'read/write', type => 'cache'},
 	visible        => undef,
 );
 
 =begin nd
 Method: Attribute ()
 	Доступ к хешу с описанием членов класса.
-	Может вызываться и как метод экземпляра, и как метод класса.
 	
+	Может вызываться и как метод экземпляра, и как метод класса.
 	Наследует члены класса родителей.
 
 Returns:
