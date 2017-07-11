@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog>
+  <manufacturers>
+    <manufacturer id="400">
+      <name>Alpha</name>
+    </manufacturer>
+    <manufacturer id="404">
+      <name>Beta</name>
+    </manufacturer>
+  </manufacturers>
+  <brands>
+    <brand id="1" manufacturer="400">
+      <name>Aberfeldy</name>
+    </brand>
+    <brand id="2" manufacturer="404">
+      <name>Ballanitine's</name>
+    </brand>
+  </brands>
+  <categories>
+    <category id="125">
+      <name>Элитные напитки</name>
+      <category id="500">
+	<name>Виски</name>
+	<products>
+	  <product id="10123" price="3911" brand="1" litr="0.75" alcmin="40">
+	    <name>Аберфелди 12 лет подарочная упаковка</name>
+	  </product>
+	  <product id="10124" price="15788" brand="1" litr="0.75" alcmin="40">
+	    <name>Аберфелди 21 год подарочная упаковка</name>
+	  </product>
+	  <litrgroup lider="10131">
+	    <name>Баллантайнс Файнест</name>
+	    <product id="10130" price="884" brand="2" litr="0.05" alcmin="40">
+	      <name>Баллантайнс Файнест 0.05</name>
+	    </product>
+	    <product id="10131" price="4000" brand="2" litr="0.5" alcmin="40">
+	      <name>Баллантайнс Файнест 0.5</name>
+	    </product>
+	    <product id="10132" price="6540" brand="2" litr="0.7" alcmin="40">
+	      <name>Баллантайнс Файнест 0.7</name>
+	    </product>
+	    <product id="10133" price="8703" brand="2" litr="1.0" alcmin="40">
+	      <name>Баллантайнс Файнест 1.0</name>
+	    </product>
+	  </litrgroup>
+	</products>
+      </category>
+      <category id="501">
+	<name>Джин</name>
+      </category>
+      <category id="502">
+	<name>Ром</name>
+      </category>
+      <category id="503">
+	<name>Текила</name>
+      </category>
+    </category>
+    <category id="133">
+	<name>Вино</name>
+    </category>
+    <category id="170">
+      <name>Водка</name>
+    </category>
+    <category id="250">
+      <name>Коньяк</name>
+    </category>
+  </categories>
+</catalog>
