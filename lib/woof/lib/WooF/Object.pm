@@ -181,7 +181,7 @@ sub new {
 Method: _accessible ($attr, $mode)
 	Преверка доступности члена класса на чтение/запись.
 	
-	Потомки должны определить в пакетной перемнной Attribute
+	Потомки должны определить в методе класса  'Attribute'.
 
 Parameters:
 	$attr - член класса
@@ -229,7 +229,13 @@ sub _access_r {
 
 		return warn "OBJECT|ERR: Write access for $autoload denied by rules" if @_;
 
-		return $self->{$attr};
+		my $Attribute = $self->Attribute->{$attr};
+
+		if (exists $Attribute->{extern} and exists $Attribute->{type} and $Attribute->{type} eq 'cache') {
+			return exists $self->{extend} && exists $self->{extend}{$attr} ? $self->{extend}{$attr} : undef;
+		} else {
+			return $self->{$attr};
+		}
 	};
 }
 
@@ -248,16 +254,25 @@ sub _access_rw {
 	my $attr = $self->_get_method_name($autoload);
 
 	sub {
-		my $self = shift;
-
-		if (@_) {
-			$self->{$attr} = shift;
-			$self->{STATE} |= MODIFIED if $self->{STATE} & DWHLINK;
+		my ($self, $value) = @_;
+		my $Attribute = $self->Attribute->{$attr};
+		
+		if ($value) {
+			if (exists $Attribute->{extern} and exists $Attribute->{type} and $Attribute->{type} eq 'cache') {
+				return $self->{extend}{$attr} = $value;
+			} else {
+				$self->{STATE} |= MODIFIED if exists $Attribute->{type} and $Attribute->{type} ne 'cache' and $self->{STATE} & DWHLINK;
+				
+				return $self->{$attr} = $value;
+			}
+		} else {
+			if (exists $Attribute->{extern} and exists $Attribute->{type} and $Attribute->{type} eq 'cache') {
+				return exists $self->{extend} && exists $self->{extend}{$attr} ? $self->{extend}{$attr} : undef;
+			} else {
+				return $self->{$attr};
+			}
 		}
-
-		$self->{$attr};
 	};
-
 }
 
 =begin nd
@@ -300,13 +315,19 @@ sub _access_w {
 
 	sub {
 		my $self = shift;
-
+		
 		return warn "OBJECT|ERR: Read access for $autoload denied by rules" unless @_;
-
-		$self->{$attr} = shift;
-		$self->{STATE} |= MODIFIED if $self->{STATE} & DWHLINK;
-
-		return;
+		
+		my $value = shift;
+		
+		my $Attribute = $self->Attribute->{$attr};
+		if (exists $Attribute->{extern} and exists $Attribute->{type} and $Attribute->{type} eq 'cache') {
+			return $self->{extend}{$attr} = $value;
+		} else {
+			$self->{STATE} |= MODIFIED if exists $Attribute->{type} and $Attribute->{type} ne 'cache' and $self->{STATE} & DWHLINK;
+			
+			return $self->{$attr} = $value;
+		}
 	};
 }
 
@@ -512,7 +533,7 @@ sub Attribute {
 }
 
 =begin nd
-Method: AUTOLOAD ()
+Method: AUTOLOAD ( )
 	Генерация методов доступа к членам класса.
 =cut
 sub AUTOLOAD {
@@ -524,8 +545,6 @@ sub AUTOLOAD {
 	return if $method eq 'DESTROY';
 	return warn "OBJECT|ERR: Method AUTOLOAD: $AUTOLOAD in loop" if $Done{$AUTOLOAD};
 
-	return sub { undef } if $method eq 'Table';
-	
 	my $accessor = 
 			  $self->_accessible($method, READ) && $self->_accessible($method, WRITE) ? '_access_rw'
 			: $self->_accessible($method, READ)                                       ? '_access_r'
@@ -621,84 +640,10 @@ sub DESTROY {
 }
 
 =begin nd
-Method: Generate_Key ( )
-	Сгенерировать экземпляру первичный ключ.
-	
-	Чисто виртальный метод, должен быть перегружен потомком.
-	
-	В общем случае, метод вызывается только тогда, когда экземпляр не привязан к базе
-	и у него не определен первичиный ключ, при этом первичный ключ нуждается в генерировании.
-	Такой сценарий маловероятен. Например, с ключом, состоящим из единственного атрибута,
-	такой атрибут, как правило, имеет дефолтное значение в базе.
-	
-Returns:
-	undef
-	Возбуждает ошибку, так как не был перегружен потомком.
-	
-	В потомках необходимо возвращать true в случае удачного генерирования,
-	и undef, если не получилось.
-=cut
-sub Generate_key {
-	my $self = shift;
-	my $class = ref $self;
-	
-	return warn "OBJECT|ERR: Generate_Key method must be redefined in subclass $class";
-}
-
-=begin nd
-Method: Get (@filter, EXPAND => $expand)
-	Получить экземпляр класса, удовлетворяющего условиям.
-	
-	Данный метод может вызываться и как метод класса, и как метод экземпляра.
-	
-	Хотя бы одно условие выборки должно присутствовать, иначе метод потерпит неудачу.
-	
-	Если в аргументах присутствует $expand, он должен содержать ссылку на массив имен (или одно имя_атрибута
-	в виде строки) члена класса, подлежащего "расширению".
-	Описание такого члена класса содержит данные для получения коллекции экземпляров другого класса,
-	связанного с текущим отношением многие-ко-многим.
-
-Parameters:
-	@filter - условия выборки. Более подробно см. в описании к методу parse_clause в классе WooF::DB::Query.
-	$expand - строка с именем члена класса, подлежащего расширению или ссылка на массив таких строк.
-
-Returns:
-	Экземпляр класса в случае наличия единственного экземпляра.
-	undef в противном случае - если экземпляров, удовлетворяющих условию больше одного, нет ни одного,
-	или не задано условие выборки.
-	Если указано расширение, то коллекция будет помещена в хеш 'extend'.
-=cut
-sub Get {
-	my $either = shift;
-	my $class = ref $either || $either;
-	
-	my ($filter, $expand) = _parse_args(@_);
-	
-	return warn 'OBJECT|ERR: filter not defined' unless @$filter;
-
-	# получаем основной экземпляр
-	my $table = $class->Table;
-	my $Q = WooF::DB::Query->new("SELECT * FROM $table ")->parse_clause($filter);
-
-	my ($rows) = $class->S->D->fetch($Q);
-
-	my $row = shift @$rows or return warn "| NOTICE : Can't Get exemplar for $class";
-	return warn "| NOTICE : Multiple rows for $class exemplar" if @$rows;
-
-	my $self = $class->new($row);
-	$self->{STATE} |= DWHLINK;
-	
-	# получить связанные коллекции многие-ко-многим
-	$self->Expand($expand) if defined $expand;
-	
-	$self;
-}
-
-=begin nd
 Method: Expand ($expand)
 	Расширить экземпляр экземплярами связанных классов.
 	
-	Описание звязанных классов должно находиться в описаниях соответствующих атрибутов данного класса.
+	Описание связанных классов должно находиться в описаниях соответствующих атрибутов данного класса.
 	
 	Допускается расширение классов, связанных с данным классом связью многие-ко-многим. В этом случае описание
 	атрибута выглядит так:
@@ -802,6 +747,80 @@ sub Expand {
 		$self->{extend}{$expand} = WooF::Object::Collection->new($slave_class, \@slave_src)->Set_State(DWHLINK);
 	}
 
+	$self;
+}
+
+=begin nd
+Method: Generate_Key ( )
+	Сгенерировать экземпляру первичный ключ.
+	
+	Чисто виртальный метод, должен быть перегружен потомком.
+	
+	В общем случае, метод вызывается только тогда, когда экземпляр не привязан к базе
+	и у него не определен первичиный ключ, при этом первичный ключ нуждается в генерировании.
+	Такой сценарий маловероятен. Например, с ключом, состоящим из единственного атрибута,
+	такой атрибут, как правило, имеет дефолтное значение в базе.
+	
+Returns:
+	undef
+	Возбуждает ошибку, так как не был перегружен потомком.
+	
+	В потомках необходимо возвращать true в случае удачного генерирования,
+	и undef, если не получилось.
+=cut
+sub Generate_key {
+	my $self = shift;
+	my $class = ref $self;
+	
+	return warn "OBJECT|ERR: Generate_Key method must be redefined in subclass $class";
+}
+
+=begin nd
+Method: Get (@filter, EXPAND => $expand)
+	Получить экземпляр класса, удовлетворяющего условиям.
+	
+	Данный метод может вызываться и как метод класса, и как метод экземпляра.
+	
+	Хотя бы одно условие выборки должно присутствовать, иначе метод потерпит неудачу.
+	
+	Если в аргументах присутствует $expand, он должен содержать ссылку на массив имен (или одно имя_атрибута
+	в виде строки) члена класса, подлежащего "расширению".
+	Описание такого члена класса содержит данные для получения коллекции экземпляров другого класса,
+	связанного с текущим отношением многие-ко-многим.
+
+Parameters:
+	@filter - условия выборки. Более подробно см. в описании к методу parse_clause в классе WooF::DB::Query.
+	$expand - строка с именем члена класса, подлежащего расширению или ссылка на массив таких строк.
+
+Returns:
+	Экземпляр класса в случае наличия единственного экземпляра.
+	undef в противном случае - если экземпляров, удовлетворяющих условию больше одного, нет ни одного,
+	или не задано условие выборки.
+	Если указано расширение, то коллекция будет помещена в хеш 'extend'.
+=cut
+sub Get {
+	my $either = shift;
+	my $class = ref $either || $either;
+	
+	my ($filter, $expand) = _parse_args(@_);
+	
+	return warn 'OBJECT|ERR: filter not defined' unless @$filter;
+
+	# получаем основной экземпляр
+	my $table = $class->Table;
+	my $Q = WooF::DB::Query->new("SELECT * FROM $table ")->parse_clause($filter);
+
+	my ($rows) = $class->S->D->fetch($Q);
+
+	my $row = shift @$rows or return warn "| NOTICE : Can't Get exemplar for $class";
+	return warn "| NOTICE : Multiple rows for $class exemplar" if @$rows;
+
+	my $self = $class->new($row);
+	$self->{STATE} |= DWHLINK;
+	
+	# получить связанные коллекции многие-ко-многим
+	$self->Expand($expand) if defined $expand;
+	
 	$self;
 }
 
@@ -1194,7 +1213,7 @@ sub Sync {
 
 
 =begin nd
-Method: Table ()
+Method: Table ( )
 	Если класс не подразумевает сохранения в БД, то метод Table должен вернуть false.
 =cut
 sub Table { undef }

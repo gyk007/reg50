@@ -25,17 +25,28 @@ Variable: %Attribute
 	face_effective - наименование в каталоге, переопределенное для категории
 	joint          - встраивание группы в "общую" группу свойств категории; устанавливается категорией
 	name           - наименование
+	properties     - коллекция свойств, входящих в группу
 	visible        - видимость группы, ее свойств и всех значений в каталоге для покупателя; устанавливается категорией
 	weight         - вес сортировки внутри товара; больше вес, ниже приоритет; устанавливается категорией
 =cut
 my %Attribute = (
-	description       => undef,
-	face              => undef,
-	face_effective    => {type => 'cache'},
-	joint             => {type => 'cache'},
-	name              => undef,
-	visible           => {type=>'cache'},
-	weight            => {type => 'cache'},
+	description    => undef,
+	face           => undef,
+	face_effective => {type => 'cache'},
+	joint          => {mode => 'read/write', type => 'cache'},
+	name           => undef,
+	properties     => {
+	                      mode   => 'read/write',
+	                      type   => 'cache',
+	                      extern => 'ALKO::Catalog::Property',
+	                      maps   => {
+	                                    type   => 'multi',
+	                                    master => 'id',
+	                                    slave  => 'id_propgroup',
+	                      },
+	               },
+	visible        => {type=>'cache'},
+	weight         => {type => 'cache'},
 );
 
 =begin nd

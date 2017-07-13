@@ -35,6 +35,8 @@ no warnings 'experimental';
 use 5.014;
 
 use WooF::Error;
+use WooF::Util;
+use WooF::DB::Query;
 use WooF::Object::Constants;
 
 =begin nd
@@ -144,13 +146,16 @@ sub Clone {
 	%map = reverse %map;
 
 	my $clone = WooF::Object::Collection->new($self->{class});
-
+	
 	for my $orig  (@{$self->{elements}}) {
+		my $attr = $orig->Attribute;
+	
 		my %item = map
 			  exists $map{$_}         ? ($_ => $orig->{$map{$_}})
 			: exists $orig->Key_attrs->{$_} ? ()
 			:                           ($_ => $orig->{$_})
-		, keys %{$orig->Attribute};
+		, keys %$attr;
+# 		, keys %{$orig->Attribute};
 
 		while (my ($attr, $expr) = each %$calculate) {
 			$item{$attr} = ref $expr eq 'CODE' ? $expr->($orig) : $expr;
@@ -180,6 +185,54 @@ sub DESTROY {
 	return unless @{$self->{elements}};
 
 	$self->Save;
+}
+
+=begin nd
+Method: Expand ($attr)
+	Расширить указанный атрибут во всех элементах коллекции.
+	
+	В отличие от <expand> и <_expand> предназначен для вызова с уровня пользовательского кода.
+	
+	Метод может расширить только один атрибут из класса, связанного с классом коллекции связью
+	один-ко-многим со стороны "многие".
+	Класс коллекции должен быть наследником <WooF::Object::Simple>.
+	
+Parameters:
+	$attr - имя атрубита из связанного класса.
+	
+	Определение атрибута в классе коллекции должно указывать на то, что атрибут является кеширующим,
+	содержать имя свзязанного класса, и имена связующих полей в основном и связанном классе.
+	
+Returns:
+	$self - если операция прошла без ошибок
+	undef - в противном случае
+=cut
+sub Expand {
+	my ($self, $attr) = @_;
+	my $class = ref $self;
+	
+	return warn "OBJECT: Collection can't Expand() non-Simple class $self->{class}" unless $self->{class}->isa('WooF::Object::Simple');
+	
+	return $self unless @{$self->{elements}};
+	
+	my $master_attr = $self->{class}->Attribute->{$attr};
+	
+	my $slave_class = $master_attr->{extern};
+	my $slave_field = $master_attr->{maps}{slave};
+	
+	# в случае потомка Sequence индекс будет в возрастающем порядке
+	my $slave = $slave_class->All($master_attr->{maps}{slave} => $self->{simple}, SORT => 'DEFAULT');
+
+	$_->$attr($class->new($slave_class)) for @{$self->{elements}};
+
+	for ($slave->List) {
+		my $master = $self->First_Item(id => $_->$slave_field) or next; # по идее экземпляр быть обязан, но вдруг...
+		
+		$master->$attr($class->new($slave_class)) unless $master->$attr;
+		$master->$attr->Push($_);
+	}
+	
+	$self;
 }
 
 =begin nd
@@ -304,13 +357,13 @@ Parameters:
 	которые должны иметь эти члены в искомых объектах коллекции
 
 Returns:
-	Ссылка на массив индексов найденных экземпляров.
-	Индексы в возвращаемом массиве расположены в порядке возрастания.
+	ссылка на массив индексов найденных экземпляров или пустой список
 =cut
 sub Find {
 	my ($self, %filter) = @_;
 
 	my @found;
+
 	ITEM:
 	while (my ($i, $item) = each @{$self->{elements}}) {
 		exists $item->{$_} and $item->{$_} eq $filter{$_} or next ITEM for keys %filter;
@@ -318,6 +371,33 @@ sub Find {
 	}
 
 	\@found;
+}
+
+=begin nd
+Method: First_Item (@filter)
+	Получить первый встретившийся в коллекции экземпляр, удовлетворяющий условию в @filter.
+	
+Parameters:
+	@filter - упакованный в массив хеш условий.
+	Например:
+	> my $obj = $collection->Find(id => 25, color => 'red', {smoke = 'yes'});
+	
+	Хеши в @filter будут распакованы.
+	
+Returns:
+	экземпляр класса коллекции - если экземпляр, подходящий под условя, найденн
+	undef                      - если в коллекции не оказалось подходящего экземпляра
+=cut
+sub First_Item {
+	my ($self, @filter) = @_;
+	my $filter = expose_hashes \@filter;
+	
+	my $i = shift @{$self->Find(%$filter)};
+
+	# $i может иметь легальное значение 0
+	defined $i or return undef;
+	
+	$self->Get($i);
 }
 
 =begin nd
@@ -491,11 +571,11 @@ Returns:
 	$self
 =cut
 sub Push {
-	my ($self, $src) = @_;
-	my @add = ref $src eq 'ARRAY' ? @$src : $src;
+	my ($self, @src) = @_;
+	my @add = map ref eq 'ARRAY' ? @$_ : $_, @src;
 
 	for (@add) {
-		my $item = ref $_ eq $self->{class} ? $_ : $self->{class}->new($_);
+		my $item = ref eq $self->{class} ? $_ : $self->{class}->new($_);
 		$item->Set_State($self->{state});
 		
 		push @{$self->{elements}}, $item;

@@ -27,18 +27,18 @@ Variable: %Attribute
 	val_time     - дата/время
 =cut
 my %Attribute = (
-	id_product   => undef,
-	id_propgroup => undef,
-	n_property   => undef,
+	id_product   => {mode => 'read'},
+	id_propgroup => {mode => 'read'},
+	n_property   => {mode => 'read'},
 	val_bool     => undef,
 	val_char     => undef,
 	val_float    => undef,
-	val_int      => undef,
+	val_int      => {mode => 'read'},
 	val_time     => undef,
 );
 
 =begin nd
-Method: Attribute ()
+Method: Attribute ( )
 	Доступ к хешу с описанием членов класса.
 	
 	Может вызываться и как метод экземпляра, и как метод класса.
@@ -55,6 +55,6 @@ Method: Table ( )
 Returns:
 	Строку 'propval'.
 =cut
-sub Table { 'propval' }
+sub Table { 'propvalue' }
 
 1;
