@@ -146,16 +146,13 @@ sub Clone {
 	%map = reverse %map;
 
 	my $clone = WooF::Object::Collection->new($self->{class});
-	
+
 	for my $orig  (@{$self->{elements}}) {
-		my $attr = $orig->Attribute;
-	
 		my %item = map
 			  exists $map{$_}         ? ($_ => $orig->{$map{$_}})
 			: exists $orig->Key_attrs->{$_} ? ()
 			:                           ($_ => $orig->{$_})
-		, keys %$attr;
-# 		, keys %{$orig->Attribute};
+		, keys %{$orig->Attribute};
 
 		while (my ($attr, $expr) = each %$calculate) {
 			$item{$attr} = ref $expr eq 'CODE' ? $expr->($orig) : $expr;

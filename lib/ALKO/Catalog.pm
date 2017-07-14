@@ -57,7 +57,7 @@ Variable: %Attribute
 =cut
 my %Attribute = (
 	show    => undef,
-	curnode => undef,
+	curnode => {mode => 'read'},
 	susanin => undef,
 );
 

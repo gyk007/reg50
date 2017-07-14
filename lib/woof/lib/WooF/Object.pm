@@ -315,11 +315,11 @@ sub _access_w {
 
 	sub {
 		my $self = shift;
-		
+
 		return warn "OBJECT|ERR: Read access for $autoload denied by rules" unless @_;
 		
 		my $value = shift;
-		
+
 		my $Attribute = $self->Attribute->{$attr};
 		if (exists $Attribute->{extern} and exists $Attribute->{type} and $Attribute->{type} eq 'cache') {
 			return $self->{extend}{$attr} = $value;
@@ -1144,7 +1144,7 @@ sub Save {
 	
 	$self->{STATE} |= DWHLINK;
 	$self->{STATE} &= ~MODIFIED;
-	
+
 	$self;
 }
 
