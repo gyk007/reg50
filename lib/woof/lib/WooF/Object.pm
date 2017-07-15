@@ -25,8 +25,11 @@ Class: WooF::Object
 	Если вместо хеша с дополнительными параметрами использовано undef, значением режима доступа будет также undef.
 	То есть, ни чтение, ни запись не разрешены.
 
-	Единсвенным знаением поля 'type' может быть 'cache'.
+	Значениемя поля 'type' может быть 'cache' или 'key'.
+	
 	type => 'cache' позволяет задать поля, которые не будут сохраняться в базе данных. Это поля хранения временных вычисленных данных.
+	
+	type => 'key' определяет ключевое поле в том случае, когда оно не является внешним ключом другой сущности.
 	
 	Поле 'extern' содержит строку с именем класса, экземплярами которого представлены "расширенные" значения данного поля.
 	Расширенные значения хранятся в специальном поле-хеше 'extend' экземпляра.
@@ -261,8 +264,10 @@ sub _access_rw {
 			if (exists $Attribute->{extern} and exists $Attribute->{type} and $Attribute->{type} eq 'cache') {
 				return $self->{extend}{$attr} = $value;
 			} else {
-				$self->{STATE} |= MODIFIED if exists $Attribute->{type} and $Attribute->{type} ne 'cache' and $self->{STATE} & DWHLINK;
-				
+				if ($self->{STATE} & DWHLINK) {
+					$self->{STATE} |= MODIFIED unless exists $Attribute->{type} and $Attribute->{type} eq 'cache';
+				}
+			
 				return $self->{$attr} = $value;
 			}
 		} else {
@@ -324,8 +329,10 @@ sub _access_w {
 		if (exists $Attribute->{extern} and exists $Attribute->{type} and $Attribute->{type} eq 'cache') {
 			return $self->{extend}{$attr} = $value;
 		} else {
-			$self->{STATE} |= MODIFIED if exists $Attribute->{type} and $Attribute->{type} ne 'cache' and $self->{STATE} & DWHLINK;
-			
+			if ($self->{STATE} & DWHLINK) {
+				$self->{STATE} |= MODIFIED unless exists $Attribute->{type} and $Attribute->{type} eq 'cache';
+			}
+
 			return $self->{$attr} = $value;
 		}
 	};
@@ -1074,6 +1081,12 @@ sub Refresh {
 =begin nd
 Method: Remove ()
 	Удаление экземпляра.
+	
+	Кортеж сразу удаляется из базы, экзепляру в коде выставляется флаг 'REMOVED'
+	и уничтожается присвиванием значения undef.
+	
+Returns:
+	undef
 =cut
 sub Remove {
 	my $self = shift;
@@ -1090,7 +1103,7 @@ sub Remove {
 	
 	my $Q = WooF::DB::Query->new("DELETE FROM $table");
 	$Q->where(join ' AND ', @ph);
-	
+
 	$self->S->D->exec($Q, @param);
 	
 	$self->{STATE} |= REMOVED;

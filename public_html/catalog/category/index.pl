@@ -51,6 +51,41 @@ $Server->add_handler(ADD => {
 	},
 });
 
+# Удалить указанную категорию
+# URL: /catalog/category/?action=delete&id=25
+#
+# Удаление происходит мягко. Если категория не пуста, то удаления не выполняется.
+# Удаление выполняется только в базе, дерево каталога не меняется
+$Server->add_handler(DELETE => {
+	input => {
+		allow => [qw/ action id /],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+		
+		# если категория содержит товары, не удаляем категорию
+		my $category = ALKO::Catalog::Category->Get(id => $I->{id}, EXPAND => 'products') or return $Server->fail("Can't delete Category: no such id=$I->{id}");
+		return $Server->fail("Can't delete Category($I->{id}): containts products") if $category->has_products;
+		
+		# если категория содержит другие категории, не удаляем
+		my $catalog = ALKO::Catalog->new;
+		my $node = $catalog->get_node($category);
+		return $Server->fail("Can't delete Category($I->{id}): containts childs") if $node->has_child;
+		
+		# удаляем привязку категории
+		ALKO::Catalog::Category::Graph->Get(down => $category->id)->Remove;
+		
+		# сдвигаем младших сиблингов, чтобы закрыть дырку после удаления из дерева категории
+		my $junior = ALKO::Catalog::Category::Graph->All(top => $node->parent->category->id, sortn => {'>', $node->sortn});
+		$_->sortn($_->sortn - 1) for $junior->List;
+		
+		# удаляем саму категорию
+		$category->Remove;
+		
+		OK;
+	},
+});
 
 # Определенная категория
 # URL: /catalog/category/?id=125
@@ -62,7 +97,7 @@ $Server->add_handler(ITEM => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		$O->{category} = ALKO::Catalog::Category->new($I->{id});
+		$O->{category} = ALKO::Catalog::Category->Get($I->{id});
 
 		OK;
 	},
@@ -87,8 +122,9 @@ $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
 	
-	return ['ITEM'] if exists $I->{id};
-	return ['ADD']  if exists $I->{action} and $I->{action} = 'add';
+	return ['ADD']    if exists $I->{action} and $I->{action} eq 'add';
+	return ['DELETE'] if exists $I->{action} and $I->{action} eq 'delete';
+	return ['ITEM']   if exists $I->{id};
 	
 	['LIST'];
 });

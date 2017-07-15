@@ -18,7 +18,7 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	category - экземпляр категории <ALKO::Catalog::Category>, однозначно соответствующий данной ноде
+	category - экземпляр категории <ALKO::Catalog::Category>, однозначно соответствующей данной ноде
 	child    - массив потомков
 	parent   - родительская нода
 # 	product  - массив товаров, принадлежащих категории
@@ -58,6 +58,25 @@ sub first_child {
 	my $self = shift;
 	
 	@{$self->{child}} ? $self->{child}->[0] : undef;
+}
+
+=begin nd
+Method: get_child ($category)
+	Получить потомка, которому соответствует указанная категория.
+	
+Parameters:
+	$category - категория для поиска
+	
+Returns:
+	искомый потомок - если найден
+	undef           - если не найден
+=cut
+sub get_child {
+	my ($self, $category) = @_;
+	
+	$_->category->id == $category->id and return $_ for @{$self->{child}};
+	
+	undef;
 }
 
 =begin nd

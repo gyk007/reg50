@@ -13,8 +13,9 @@ use WooF::Util;
 
 =begin nd
 Variable: my %Attribute
+
 	Члены класса:
-	target       - имя класса, чьи ключи здесь собраны
+	target      - имя класса, чьи ключи здесь собраны
 	attr_desc   - ссылка на хеш, в котором ключами служат имена атрибутов-ключей класса, а значениями описания этих ключей, которые могут быть просто undef
 	sorted_list - ссылка на массив имен ключевых полей упорядоченных в соответствии с тем, как они индексируются в БД
 =cut
@@ -25,8 +26,9 @@ my %Attribute = (
 );
 
 =begin nd
-Method: Attribute ()
+Method: Attribute ( )
 	Доступ к хешу с описанием членов класса.
+	
 	Может вызываться и как метод экземпляра, и как метод класса.
 
 Returns:
@@ -51,15 +53,20 @@ sub new {
 
 	my $self = $class->SUPER::new(target => $target);
 
-	#Сохраняем результат в переменную т.к. в противном случае each будет вызывать каждый раз метод по новой, начинать обходить новый хэш и зацикливаться
-	my $Attr = $target->Attribute;
-	while (my ($attr, $desc) = each %{$Attr}) {
-		$self->{attr_desc}{$attr} = $desc->{key} if defined $desc and exists $desc->{key};
+	my $Attribute = $target->Attribute;
+	while (my ($attr, $desc) = each %{$Attribute}) {
+		next unless defined $desc;
+		
+		if (exists $desc->{key}) {
+			$self->{attr_desc}{$attr} = $desc->{key};
+		} elsif (exists $desc->{type} and $desc->{type} eq 'key') {
+			$self->{attr_desc}{$attr} = undef;
+		}
 	}
 
 	$self->{sorted_list} = $self->_primary_sorted;
 
-	return warn "OBJECT|ERR: No Keys defined for class $target" unless $self->{attr_desc} and $self->{sorted_list};
+	return warn "OBJECT|ERR: No Keys defined for class $target" unless keys %{$self->{attr_desc}} and @{$self->{sorted_list}};
 
 	$self;
 }
