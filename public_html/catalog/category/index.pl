@@ -99,7 +99,7 @@ $Server->add_handler(EDIT => {
 	input => {
 		allow => [
 			'action',
-			category => [qw/ id name description visible /],
+			category => [qw/ id name face description visible /],
 		],
 	},
 	call => sub {
@@ -111,6 +111,12 @@ $Server->add_handler(EDIT => {
 		
 		$category->Edit($I->{category});
 		
+		# face является атрибутом ноды дерева, а не категории
+		if (exists $I->{category}{face}) {
+			my $node = ALKO::Catalog::Category::Graph->Get(down => $id) or return $Server->fail("Can't edit face on unbound Category($id)");
+			$node->face($I->{category}{face});
+		}
+
 		OK;
 	},
 });

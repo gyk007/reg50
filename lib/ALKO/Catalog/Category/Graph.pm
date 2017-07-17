@@ -31,7 +31,7 @@ Variable: %Attribute
 =cut
 my %Attribute = (
 	down  => {mode => 'read', type => 'key'},
-	face  => undef,
+	face  => {mode => 'write'},
 	sortn => {mode => 'read/write'},
 	top   => {mode => 'read', type => 'key'},
 );
