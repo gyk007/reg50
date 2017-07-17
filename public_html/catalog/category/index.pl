@@ -114,7 +114,7 @@ $Server->add_handler(EDIT => {
 		# face является атрибутом ноды дерева, а не категории
 		if (exists $I->{category}{face}) {
 			my $node = ALKO::Catalog::Category::Graph->Get(down => $id) or return $Server->fail("Can't edit face on unbound Category($id)");
-			$node->face($I->{category}{face});
+			$node->face($I->{category}{face} eq '' ? undef : $I->{category}{face});
 		}
 
 		OK;
