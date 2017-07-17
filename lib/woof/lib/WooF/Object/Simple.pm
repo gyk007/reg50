@@ -49,7 +49,7 @@ sub Create {
 		push @attrs, $_;
 		
 		($_ => $self->{$_});
-	} grep $self->{$_}, keys $self->Attribute;
+	} grep $self->{$_}, keys %{$self->Attribute};
 	
 	my @ph = split //, '?' x @attrs;
 
@@ -123,7 +123,6 @@ sub Get {
 	}
 }
 
-
 =begin nd
 Method: Key ( )
 	Получить описание ключа.
@@ -131,7 +130,7 @@ Method: Key ( )
 Returns:
 	Ссылку на хеш, с ключом id и значением описания ключа.
 =cut
-sub Key_attrs { {id => +shift->{Attribute}{id}} }
+sub Key_attrs { {id => +shift->Attribute->{id}} }
 
 =begin
 Method: Prepare_key ( )

@@ -157,6 +157,22 @@ sub complete_products {
 }
 
 =begin nd
+Method: has_products ( )
+	Содержит ли категория товары.
+	
+Returns:
+	количество товаров в категории - если есть
+	0                              - если нет
+=cut
+sub has_products {
+	my $self = shift;
+	
+	$self->Expand('products') unless $self->products;
+	
+	scalar @{$self->products->List};
+}
+
+=begin nd
 Method: parents ( )
 	Достать массив всех родительских категорий от корня до текущей.
 	

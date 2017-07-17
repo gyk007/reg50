@@ -91,25 +91,29 @@ sub new {
 }
 
 =begin nd
-Method: AUTOLOAD ()
+Method: AUTOLOAD ($value)
 	Вызов методов экземпляров, входящих в коллекцию.
 	
 	Если метод отсутствует для коллекции, то он применяется к каждому ее элементу.
 	В итоге конкретному полю каждого элемента устанавливается переданное методу значение.
 	Глобальный сеттер.
+	
+Parameters:
+	$value - устанавливаемое значение атрибута; обязательный параметр
 
-Returns: $self
+Returns:
+	$self
 =cut
 sub AUTOLOAD {
-	my ($self, $arg) = @_;
+	my ($self, $value) = @_;
 
-	return unless $arg;
+	return unless $value;
 
 	my $method = $self->SUPER::_get_method_name($AUTOLOAD);
 
-	$_->$method($arg) for @{$self->{elements}};
+	$_->$method($value) for @{$self->{elements}};
 
-	$self->{SHAREVAL}{$method} = $arg;
+	$self->{SHAREVAL}{$method} = $value;
 
 	$self;
 }
@@ -146,16 +150,13 @@ sub Clone {
 	%map = reverse %map;
 
 	my $clone = WooF::Object::Collection->new($self->{class});
-	
+
 	for my $orig  (@{$self->{elements}}) {
-		my $attr = $orig->Attribute;
-	
 		my %item = map
 			  exists $map{$_}         ? ($_ => $orig->{$map{$_}})
 			: exists $orig->Key_attrs->{$_} ? ()
 			:                           ($_ => $orig->{$_})
-		, keys %$attr;
-# 		, keys %{$orig->Attribute};
+		, keys %{$orig->Attribute};
 
 		while (my ($attr, $expr) = each %$calculate) {
 			$item{$attr} = ref $expr eq 'CODE' ? $expr->($orig) : $expr;
@@ -168,10 +169,13 @@ sub Clone {
 }
 
 =begin nd
-Method: DESTROY
+Method: DESTROY ( )
+	Особенное сохранение экземпляров коллекции при ее утилизации.
+
 	Если класс коллекции наследует <WooF::Object::Simple>
 	и был применен глобальный сеттер <WooF::Object::Collection::AUTOLOAD>,
 	UPDATE всех экземпляров в базе будет произведен одним запросом.
+
 	Если класс коллекции наследует <WooF::Object::Simple>
 	и коллекция не привязна к БД, 
 	INSERT всех экземпляров в базе будет произведен одним запросом.
@@ -462,7 +466,7 @@ sub Hash {
 }
 
 =begin nd
-Method: _Insert ()
+Method: _Insert ( )
 	Если класс коллекции наследует <WooF::Object::Simple>
 	INSERT всех экземпляров в базе будет произведен одним запросом.
 	
@@ -511,19 +515,19 @@ sub _Insert {
 }
 
 =begin nd
-Method: List ()
+Method: List ($id)
 	Получить список элементов коллекции.
 	Данный метод в случае необходимости выполняет для коллекции явное разыменовывание.
 
 Parameters:
-	id - не объязательный параметр
+	id - необязательный параметр
 
 Returns:
 	Ссылку на массив элементов в скалярном контексте,
 	и непосредственно массив в случае вызова из спискового контекста,
 	что удобно в случае for, что в коде встречается постоянно.
 
-	Если элементы коллекции - экземпляры класса Simple и передан параметр 'id' вернется массив(ссылка на массив) ключей
+	Если элементы коллекции - экземпляры класса Simple и передан параметр 'id' вернется массив(ссылка на массив) ключей.
 
 	Первый пример:
 		my $obj = NABI::Chat->All_Fresh(...);
@@ -639,7 +643,7 @@ sub replace {
 }
 
 =begin nd
-Method: Save ()
+Method: Save ( )
 	Сохранить все элементы коллекции. Флаг NOSYNC игнорируется.
 
 	Если класс коллекции наследует <WooF::Object::Simple>
@@ -690,8 +694,8 @@ sub Set_State {
 	$self;
 }
 
-=bigin nd
-Method: _Update ()
+=begin nd
+Method: _Update ( )
 	UPDATE всех экземпляров в базе.
 
 Returns:

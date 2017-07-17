@@ -57,7 +57,7 @@ Variable: %Attribute
 =cut
 my %Attribute = (
 	show    => undef,
-	curnode => undef,
+	curnode => {mode => 'read'},
 	susanin => undef,
 );
 
@@ -178,6 +178,35 @@ sub DESTROY {
 	$self->_tree_walk(on_last_sibling => $clear);
 	
 	$self->SUPER::DESTROY;
+}
+
+=begin nd
+Method: get_node ($category)
+	Получить из каталога ноду, соответствующую указанной категории.
+	
+	Сначла достаются родительские категории, и начиная с корня осуществляется проход вниз
+	по ведущему дереву. На каждом шаге вниз среди потомков ищется нода, которой соответствует текущий родитель.
+	
+Parameters:
+	$category - категория, которой ищется соответствие; экземпляр <ALKO::Catalog::Category>
+	
+Returns:
+	ноду <ALKO::Catalog::Node> - если нашлась
+	undef                      - в противном случае
+=cut
+sub get_node {
+	my ($self, $category) = @_;
+	
+	my $found = $self->{susanin};
+	
+	my $skip = 1;  # корень надо пропустить, так как мы и так уже в нем
+	for ($category->parents->List) {
+		--$skip, next if $skip;
+		
+		$found = $found->get_child($_) or return;
+	}
+	
+	$category->id == $found->category->id ? $found : undef;
 }
 
 =begin nd
