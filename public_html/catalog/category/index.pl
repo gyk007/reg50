@@ -66,12 +66,12 @@ $Server->add_handler(DELETE => {
 		
 		# если категория содержит товары, не удаляем категорию
 		my $category = ALKO::Catalog::Category->Get(id => $I->{id}, EXPAND => 'products') or return $Server->fail("Can't delete Category: no such id=$I->{id}");
-		return $Server->fail("Can't delete Category($I->{id}): containts products") if $category->has_products;
+		return $Server->fail("PRODEXIST: Can't delete Category($I->{id}): containts products") if $category->has_products;
 		
 		# если категория содержит другие категории, не удаляем
 		my $catalog = ALKO::Catalog->new;
 		my $node = $catalog->get_node($category);
-		return $Server->fail("Can't delete Category($I->{id}): containts childs") if $node->has_child;
+		return $Server->fail("CATEGORYEXIST: Can't delete Category($I->{id}): containts childs") if $node->has_child;
 		
 		# удаляем привязку категории
 		ALKO::Catalog::Category::Graph->Get(down => $category->id)->Remove;
@@ -114,6 +114,7 @@ $Server->add_handler(EDIT => {
 		# face является атрибутом ноды дерева, а не категории
 		if (exists $I->{category}{face}) {
 			my $node = ALKO::Catalog::Category::Graph->Get(down => $id) or return $Server->fail("Can't edit face on unbound Category($id)");
+			
 			$node->face($I->{category}{face} eq '' ? undef : $I->{category}{face});
 		}
 
