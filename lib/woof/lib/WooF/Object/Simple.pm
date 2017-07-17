@@ -14,6 +14,7 @@ use strict;
 use warnings;
 no warnings 'experimental';
 
+use WooF::Util;
 use WooF::Object::Constants;
 
 =begin nd
@@ -65,6 +66,38 @@ sub Create {
 	$self->{STATE} = DWHLINK;
 
 	$self->{id} = $self->S->D->fetch($q, @values)->{id};
+}
+
+=begin nd
+Method: Edit (@attributes)
+	Обновить указанные атрибуты экземпляра.
+	
+	Метод не проверяет указанные в атрибутах разрешения на геттеры/сеттеры и
+	вообще, являются переданные аргументы легальными именами статичных атрибутов.
+	Корректность входных аргументов целиком лежит на коде вызова.
+	
+Parameters:
+	@attributes - новые значения атрибутов; хеш, упакованный в массив
+	
+Returns:
+	$self
+=cut
+sub Edit {
+	my $self = shift;
+	my $in = expose_hashes \@_;
+
+	my $modified;
+	while (my ($attr, $value) = each %$in) {
+		next if $attr eq 'id';
+		
+		if (exists $self->Attribute->{$attr}) {
+			$self->{$attr} = $value;
+			++$modified;
+		}
+	}
+	$self->Modified if $modified;
+	
+	$self;
 }
 
 =begin nd
