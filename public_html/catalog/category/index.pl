@@ -87,6 +87,34 @@ $Server->add_handler(DELETE => {
 	},
 });
 
+# Редактирование категории
+# URL: /catalog/category/?
+# POST:
+# action=edit
+# category.id=125
+# category.name=new name
+# category.description=new description
+# category.visible=new true/false
+$Server->add_handler(EDIT => {
+	input => {
+		allow => [
+			'action',
+			category => [qw/ id name description visible /],
+		],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+		
+		my $id = $I->{category}{id};
+		my $category = ALKO::Catalog::Category->Get($id) or return $S->fail("No such Category($id)");
+		
+		$category->Edit($I->{category});
+		
+		OK;
+	},
+});
+
 # Определенная категория
 # URL: /catalog/category/?id=125
 $Server->add_handler(ITEM => {
@@ -124,6 +152,7 @@ $Server->dispatcher(sub {
 	
 	return ['ADD']    if exists $I->{action} and $I->{action} eq 'add';
 	return ['DELETE'] if exists $I->{action} and $I->{action} eq 'delete';
+	return ['EDIT']   if exists $I->{action} and $I->{action} eq 'edit';
 	return ['ITEM']   if exists $I->{id};
 	
 	['LIST'];
