@@ -8,6 +8,7 @@ use warnings;
 
 use WooF::Debug;
 use WooF::Server;
+use WooF::Object::Constants;
 use ALKO::Catalog;
 use ALKO::Catalog::Category;
 use ALKO::Catalog::Category::Graph;
@@ -51,12 +52,10 @@ $Server->add_handler(ADD => {
 	},
 });
 
-# Удалить указанную категорию
-# URL: /catalog/category/?action=delete&id=25
-#
-# Удаление происходит мягко. Если категория не пуста, то удаления не выполняется.
-# Удаление выполняется только в базе, дерево каталога не меняется
-$Server->add_handler(DELETE => {
+# Вспомогательный хендлер по проверке чистоты категории.
+# Категория не должна содержать другие категории или товары
+# В oflow помещает категорию, каталог и ноду.
+$Server->add_handler(CHECK_EMPTY => {
 	input => {
 		allow => [qw/ action id /],
 	},
@@ -64,14 +63,40 @@ $Server->add_handler(DELETE => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 		
-		# если категория содержит товары, не удаляем категорию
-		my $category = ALKO::Catalog::Category->Get(id => $I->{id}, EXPAND => 'products') or return $Server->fail("Can't delete Category: no such id=$I->{id}");
-		return $Server->fail("PRODEXIST: Can't delete Category($I->{id}): containts products") if $category->has_products;
+		# указан id категории
+		my $id = $I->{id} or $Server->fail("NOID: Action requires Category's ID");
 		
-		# если категория содержит другие категории, не удаляем
+		# категория существует
+		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => 'products') or return $Server->fail("NOSUCH: Can't operate on Category: no such id=$id");
+		
+		# не содержит товаров
+		return $Server->fail("PRODEXIST: Can't operate on Category($id): containts products") if $category->has_products;
+		
+		# категория не содержит другие категории
 		my $catalog = ALKO::Catalog->new;
 		my $node = $catalog->get_node($category);
 		return $Server->fail("CATEGORYEXIST: Can't delete Category($I->{id}): containts childs") if $node->has_child;
+		
+		@{$O}{qw/ category catalog node /} = ($category, $catalog, $node);
+		
+		OK;
+	},
+});
+
+# Удалить указанную категорию
+# URL: /catalog/category/?action=delete&id=25
+#
+# Удаление выполняется только в базе, дерево каталога не меняется
+# Предварительно производится проверка в CHECK_EMPTY.
+$Server->add_handler(DELETE => {
+	input => {
+		allow => [qw/ action id /],
+	},
+	call => sub {
+		my $S = shift;
+		my $O = $S->O;
+		my ($category, $catalog, $node) = @{$O}{qw/ category catalog node /};
+# 		my $node = $catalog->get_node($category);
 		
 		# удаляем привязку категории
 		ALKO::Catalog::Category::Graph->Get(down => $category->id)->Remove;
@@ -82,6 +107,8 @@ $Server->add_handler(DELETE => {
 		
 		# удаляем саму категорию
 		$category->Remove;
+		
+		delete @{$O}{qw/ category catalog node /};
 		
 		OK;
 	},
@@ -153,14 +180,47 @@ $Server->add_handler(LIST => {
 	},
 });
 
+# Переместить категорию в потомки правого сиблинга.
+# Категория становится последним потомком.
+# Категория должна быть пуста.
+# URL: /catalog/category/?action=rdown&id=125
+$Server->add_handler(RIGHT_DOWN => {
+	input => {
+		allow => [qw/ action id /],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+		my ($category, $catalog, $node) = @{$O}{qw/ category catalog node /};
+		
+		my $new_parent = $node->junior_sibling or $Server->fail("NOSUCH: Destination parent for moving right-down not exists");
+
+		my $src = ALKO::Catalog::Category::Graph->Get(down => $category->id);
+		my $dst = ALKO::Catalog::Category::Graph->new($src);
+		$src->Remove;  # необходимо удалить до вставки $dst, иначе ключи дублируются
+		
+		$dst->top($new_parent->category->id);
+		$dst->sortn($new_parent->has_child + 1);
+		
+		# сдвигаем младших сиблингов, чтобы закрыть дырку после удаления из дерева категории
+		my $junior = ALKO::Catalog::Category::Graph->All(top => $node->parent->category->id, sortn => {'>', $node->sortn});
+		$_->sortn($_->sortn - 1) for $junior->List;
+
+		delete @{$O}{qw/ category catalog node /};
+
+		OK;
+	},
+});
+
 $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
 	
-	return ['ADD']    if exists $I->{action} and $I->{action} eq 'add';
-	return ['DELETE'] if exists $I->{action} and $I->{action} eq 'delete';
-	return ['EDIT']   if exists $I->{action} and $I->{action} eq 'edit';
-	return ['ITEM']   if exists $I->{id};
+	return ['ADD']                        if exists $I->{action} and $I->{action} eq 'add';
+	return [qw/ CHECK_EMPTY DELETE /]     if exists $I->{action} and $I->{action} eq 'delete';
+	return ['EDIT']                       if exists $I->{action} and $I->{action} eq 'edit';
+	return [qw/ CHECK_EMPTY RIGHT_DOWN /] if exists $I->{action} and $I->{action} eq 'rdown';
+	return ['ITEM']                       if exists $I->{id};
 	
 	['LIST'];
 });
