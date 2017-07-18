@@ -33,7 +33,7 @@ my %Attribute = (
 	down  => {mode => 'read', type => 'key'},
 	face  => {mode => 'write'},
 	sortn => {mode => 'read/write'},
-	top   => {mode => 'read', type => 'key'},
+	top   => {mode => 'read/write', type => 'key'},
 );
 
 =begin nd
