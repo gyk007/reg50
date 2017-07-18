@@ -93,8 +93,8 @@ sub _flush {
 	$self->{responder}->([
 		200,
 		[
-			'Content-Type' => $self->{output_t} eq 'JSON' ? 'text/json' : 'text/html',
-			charset => 'utf8',
+			'Content-Type' => $self->{output_t} eq 'JSON' ? 'application/json;charset=UTF-8' : 'text/html',
+			charset => 'UTF-8',
 		],
 		[$self->{content}]
 	]);
