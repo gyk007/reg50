@@ -63,7 +63,7 @@ $Server->add_handler(CHECK_EMPTY => {
 		my ($I, $O) = ($S->I, $S->O);
 		
 		# указан id категории
-		my $id = $I->{id} or $S->fail("NOID: Action requires Category's ID");
+		my $id = $I->{id} or return $S->fail("NOID: Action requires Category's ID");
 		
 		# категория существует
 		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => 'products') or return $S->fail("NOSUCH: Can't operate on Category: no such id=$id");
