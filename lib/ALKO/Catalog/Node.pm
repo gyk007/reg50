@@ -93,6 +93,8 @@ sub has_child { scalar @{shift->{child}} }
 Method: junior_sibling ( )
 	Получить первого младшего брата в дереве.
 	
+	See: <older_sibling>
+	
 Returns:
 	экземпляр данного класса - если сиблинг есть
 	undef                    - в противном случае
@@ -118,6 +120,29 @@ Returns:
 	Число - количество братьев, включая себя
 =cut
 sub n_siblings { scalar @{shift->{parent}{child}} }
+
+=begin nd
+Method: older_sibling ( )
+	Получить первого старшего брата в дереве.
+	
+	See: <junior_sibling>
+	
+Returns:
+	экземпляр данного класса - если сиблинг есть
+	undef                    - в противном случае
+=cut
+sub older_sibling {
+	my $self = shift;
+	
+	# у корня нет сиблингов
+	return unless $self->category->id;
+	
+	# мы самые старшие
+	return unless $self->{sortn} > 1;
+	
+	# sortn начинается с единицы, поэтому текущий индекс sortn-1, предыдущий sortn-2
+	$self->parent->{child}[$self->{sortn} - 2];
+}
 
 =begin nd
 Method: push_child ($child)

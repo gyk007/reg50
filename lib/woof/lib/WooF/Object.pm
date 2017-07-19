@@ -260,7 +260,7 @@ sub _access_rw {
 		my ($self, $value) = @_;
 		my $Attribute = $self->Attribute->{$attr};
 		
-		if ($value) {
+		if (defined $value) {
 			if (exists $Attribute->{extern} and exists $Attribute->{type} and $Attribute->{type} eq 'cache') {
 				return $self->{extend}{$attr} = $value;
 			} else {
