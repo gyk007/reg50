@@ -250,7 +250,7 @@ $Server->add_handler(RIGHT_DOWN => {
 		my ($I, $O) = ($S->I, $S->O);
 		my ($category, $catalog, $node) = @{$O}{qw/ category catalog node /};
 		
-		my $new_parent = $node->junior_sibling or $S->fail("NOSUCH: Destination parent for moving right-down not exists");
+		my $new_parent = $node->junior_sibling or return $S->fail("NOSUCH: Destination parent for moving right-down not exists");
 
 		my $src = ALKO::Catalog::Category::Graph->Get(down => $category->id);
 		my $dst = ALKO::Catalog::Category::Graph->new($src);
