@@ -63,7 +63,7 @@ $Server->add_handler(CHECK_EMPTY => {
 		my ($I, $O) = ($S->I, $S->O);
 		
 		# указан id категории
-		my $id = $I->{id} or $S->fail("NOID: Action requires Category's ID");
+		my $id = $I->{id} or return $S->fail("NOID: Action requires Category's ID");
 		
 		# категория существует
 		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => 'products') or return $S->fail("NOSUCH: Can't operate on Category: no such id=$id");
@@ -250,7 +250,7 @@ $Server->add_handler(RIGHT_DOWN => {
 		my ($I, $O) = ($S->I, $S->O);
 		my ($category, $catalog, $node) = @{$O}{qw/ category catalog node /};
 		
-		my $new_parent = $node->junior_sibling or $S->fail("NOSUCH: Destination parent for moving right-down not exists");
+		my $new_parent = $node->junior_sibling or return $S->fail("NOSUCH: Destination parent for moving right-down not exists");
 
 		my $src = ALKO::Catalog::Category::Graph->Get(down => $category->id);
 		my $dst = ALKO::Catalog::Category::Graph->new($src);
