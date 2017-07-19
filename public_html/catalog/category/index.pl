@@ -8,7 +8,6 @@ use warnings;
 
 use WooF::Debug;
 use WooF::Server;
-use WooF::Object::Constants;
 use ALKO::Catalog;
 use ALKO::Catalog::Category;
 use ALKO::Catalog::Category::Graph;
@@ -33,8 +32,8 @@ $Server->add_handler(ADD => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 		
-		my $category = ALKO::Catalog::Category->new($I->{category}) or return $Server->fail('Can\'t create a new category');
-		$category->Save or return $Server->fail('Can\'t save category');
+		my $category = ALKO::Catalog::Category->new($I->{category}) or return $S->fail('Can\'t create a new category');
+		$category->Save or return $S->fail('Can\'t save category');
 
 		my $catalog = ALKO::Catalog->new;
 		my $parent = $catalog->curnode;
@@ -64,21 +63,21 @@ $Server->add_handler(CHECK_EMPTY => {
 		my ($I, $O) = ($S->I, $S->O);
 		
 		# указан id категории
-		my $id = $I->{id} or $Server->fail("NOID: Action requires Category's ID");
+		my $id = $I->{id} or $S->fail("NOID: Action requires Category's ID");
 		
 		# категория существует
-		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => 'products') or return $Server->fail("NOSUCH: Can't operate on Category: no such id=$id");
+		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => 'products') or return $S->fail("NOSUCH: Can't operate on Category: no such id=$id");
 		
 		# не содержит товаров
-		return $Server->fail("PRODEXIST: Can't operate on Category($id): containts products") if $category->has_products;
+		return $S->fail("PRODEXIST: Can't operate on Category($id): containts products") if $category->has_products;
 		
 		# категория не содержит другие категории
 		my $catalog = ALKO::Catalog->new;
 		my $node = $catalog->get_node($category);
-		return $Server->fail("CATEGORYEXIST: Can't delete Category($I->{id}): containts childs") if $node->has_child;
+		return $S->fail("CATEGORYEXIST: Can't operate on Category($I->{id}): containts childs") if $node->has_child;
 		
 		@{$O}{qw/ category catalog node /} = ($category, $catalog, $node);
-		
+
 		OK;
 	},
 });
@@ -140,7 +139,7 @@ $Server->add_handler(EDIT => {
 		
 		# face является атрибутом ноды дерева, а не категории
 		if (exists $I->{category}{face}) {
-			my $node = ALKO::Catalog::Category::Graph->Get(down => $id) or return $Server->fail("Can't edit face on unbound Category($id)");
+			my $node = ALKO::Catalog::Category::Graph->Get(down => $id) or return $S->fail("Can't edit face on unbound Category($id)");
 			
 			$node->face($I->{category}{face} eq '' ? undef : $I->{category}{face});
 		}
@@ -160,6 +159,64 @@ $Server->add_handler(ITEM => {
 		my ($I, $O) = ($S->I, $S->O);
 
 		$O->{category} = ALKO::Catalog::Category->Get($I->{id});
+
+		OK;
+	},
+});
+
+# Подвинуть категорию влево, поменять местами с левым сиблингом.
+# Если левого сиблинга нет, поднять на уровень родителя и поставить слева от него.
+# Если левого сиблинга нет у категории - непосредственного потомка корня, завераем ошибкой.
+# URL: /catalog/category/?action=left&id=125
+$Server->add_handler(LEFT => {
+	input => {
+		allow => [qw/ action id /],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+		my ($category, $catalog, $node) = @{$O}{qw/ category catalog node /};
+		
+		if (my $dst_node = $node->older_sibling) {
+			my $src = ALKO::Catalog::Category::Graph->Get(down => $node->category->id);
+			my $dst = ALKO::Catalog::Category::Graph->Get(down => $dst_node->category->id);
+			
+			$src->sortn($src->sortn - 1);
+			$dst->sortn($dst->sortn + 1);
+			
+		} else {  # поднимаемся левее родителя
+			my $parent = $node->parent;
+			
+			# на уровень корня подняться нельзя
+			unless ($parent->category->id) {
+				delete @{$O}{qw/ category catalog node /};
+				return $S->fail("LOGIC: Can't Category move up to the Root-level");
+			}
+			
+			# перемещаемая нода
+			my $src = ALKO::Catalog::Category::Graph->Get(down => $category->id);
+			
+			# добавляем копию в новое место
+			my $dst = ALKO::Catalog::Category::Graph->new($src);
+			
+			# down уникален в базе
+			$src->Remove;
+			
+			my $new_top = $parent->parent->category->id;
+			$dst->top($parent->parent->category->id);
+			$dst->sortn($parent->sortn);
+			
+			# на новом месте сдвигаем вправо всех сиблингов, начиная с родителя
+			my $junior = ALKO::Catalog::Category::Graph->All(top => $parent->parent->category->id, sortn => {'>=', $parent->sortn});
+			$_->sortn($_->sortn + 1) for $junior->List;
+			
+			# сдвигаем оставшихся сиблингов справа, чтобы закрыть дырку
+			$junior = ALKO::Catalog::Category::Graph->All(top => $parent->category->id, sortn => {'>', $node->sortn});
+			$_->sortn($_->sortn - 1) for $junior->List;
+		}
+
+		# json не может вывести корректно рекурсивную структуру
+		delete @{$O}{qw/ category catalog node /};
 
 		OK;
 	},
@@ -193,7 +250,7 @@ $Server->add_handler(RIGHT_DOWN => {
 		my ($I, $O) = ($S->I, $S->O);
 		my ($category, $catalog, $node) = @{$O}{qw/ category catalog node /};
 		
-		my $new_parent = $node->junior_sibling or $Server->fail("NOSUCH: Destination parent for moving right-down not exists");
+		my $new_parent = $node->junior_sibling or $S->fail("NOSUCH: Destination parent for moving right-down not exists");
 
 		my $src = ALKO::Catalog::Category::Graph->Get(down => $category->id);
 		my $dst = ALKO::Catalog::Category::Graph->new($src);
@@ -217,9 +274,10 @@ $Server->dispatcher(sub {
 	my $I = $S->I;
 	
 	return ['ADD']                        if exists $I->{action} and $I->{action} eq 'add';
-	return [qw/ CHECK_EMPTY DELETE /]     if exists $I->{action} and $I->{action} eq 'delete';
 	return ['EDIT']                       if exists $I->{action} and $I->{action} eq 'edit';
+	return [qw/ CHECK_EMPTY LEFT /]       if exists $I->{action} and $I->{action} eq 'left';
 	return [qw/ CHECK_EMPTY RIGHT_DOWN /] if exists $I->{action} and $I->{action} eq 'rdown';
+	return [qw/ CHECK_EMPTY DELETE /]     if exists $I->{action} and $I->{action} eq 'delete';
 	return ['ITEM']                       if exists $I->{id};
 	
 	['LIST'];
