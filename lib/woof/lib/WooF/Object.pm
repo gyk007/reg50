@@ -1082,8 +1082,7 @@ sub Refresh {
 Method: Remove ()
 	Удаление экземпляра.
 	
-	Кортеж сразу удаляется из базы, экзепляру в коде выставляется флаг 'REMOVED'
-	и уничтожается присвиванием значения undef.
+	Кортеж сразу удаляется из базы, экзепляру в коде выставляется флаг 'REMOVED'.
 	
 Returns:
 	undef
@@ -1107,8 +1106,6 @@ sub Remove {
 	$self->S->D->exec($Q, @param);
 	
 	$self->{STATE} |= REMOVED;
-	
-	undef $self;
 }
 
 =begin nd

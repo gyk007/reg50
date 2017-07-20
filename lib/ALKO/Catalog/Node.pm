@@ -13,6 +13,8 @@ Class: ALKO::Catalog::Node
 use strict;
 use warnings;
 
+use WooF::Error;
+
 =begin nd
 Variable: %Attribute
 	Описание членов класса.
@@ -88,6 +90,24 @@ Returns:
 	0 - если потомков нет.
 =cut
 sub has_child { scalar @{shift->{child}} }
+
+=begin nd
+Method: id ( )
+	Получить ид категории, привязанной к ноде.
+	
+	К ноде может привязана только одна категория.
+	
+Returns:
+	id категории - если не случилось ошибки
+	undef        - в противном случае
+=cut
+sub id {
+	my $self = shift;
+	
+	my $category = $self->{category} or return warn "OBJECT: Can't get id for node hasn't category bundled";
+	
+	$category->id;
+}
 
 =begin nd
 Method: junior_sibling ( )

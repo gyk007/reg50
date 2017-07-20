@@ -101,7 +101,7 @@ $Server->add_handler(DELETE => {
 		ALKO::Catalog::Category::Graph->Get(down => $category->id)->Remove;
 		
 		# сдвигаем младших сиблингов, чтобы закрыть дырку после удаления из дерева категории
-		my $junior = ALKO::Catalog::Category::Graph->All(top => $node->parent->category->id, sortn => {'>', $node->sortn});
+		my $junior = ALKO::Catalog::Category::Graph->All(top => $node->parent->id, sortn => {'>', $node->sortn});
 		$_->sortn($_->sortn - 1) for $junior->List;
 		
 		# удаляем саму категорию
@@ -166,7 +166,7 @@ $Server->add_handler(ITEM => {
 
 # Подвинуть категорию влево, поменять местами с левым сиблингом.
 # Если левого сиблинга нет, поднять на уровень родителя и поставить слева от него.
-# Если левого сиблинга нет у категории - непосредственного потомка корня, завераем ошибкой.
+# Если левого сиблинга нет у категории - непосредственного потомка корня, завершаем ошибкой.
 # URL: /catalog/category/?action=left&id=125
 $Server->add_handler(LEFT => {
 	input => {
@@ -178,17 +178,21 @@ $Server->add_handler(LEFT => {
 		my ($category, $catalog, $node) = @{$O}{qw/ category catalog node /};
 		
 		if (my $dst_node = $node->older_sibling) {
-			my $src = ALKO::Catalog::Category::Graph->Get(down => $node->category->id);
-			my $dst = ALKO::Catalog::Category::Graph->Get(down => $dst_node->category->id);
+			my $src = ALKO::Catalog::Category::Graph->Get(down => $node->id);
+			my $dst = ALKO::Catalog::Category::Graph->Get(down => $dst_node->id);
 			
-			$src->sortn($src->sortn - 1);
+			# нельзя просто поменять местами, поэтому сначала перемещаем $src в конец
+			$src->sortn($node->n_siblings + 1);
+			$src->Save;
 			$dst->sortn($dst->sortn + 1);
+			$dst->Save;
+			$src->sortn($dst->sortn - 1);
 			
 		} else {  # поднимаемся левее родителя
 			my $parent = $node->parent;
 			
 			# на уровень корня подняться нельзя
-			unless ($parent->category->id) {
+			unless ($parent->id) {
 				delete @{$O}{qw/ category catalog node /};
 				return $S->fail("LOGIC: Can't Category move up to the Root-level");
 			}
@@ -198,21 +202,25 @@ $Server->add_handler(LEFT => {
 			
 			# добавляем копию в новое место
 			my $dst = ALKO::Catalog::Category::Graph->new($src);
-			
-			# down уникален в базе
-			$src->Remove;
-			
-			my $new_top = $parent->parent->category->id;
-			$dst->top($parent->parent->category->id);
+			$dst->top($parent->parent->id);
 			$dst->sortn($parent->sortn);
 			
-			# на новом месте сдвигаем вправо всех сиблингов, начиная с родителя
-			my $junior = ALKO::Catalog::Category::Graph->All(top => $parent->parent->category->id, sortn => {'>=', $parent->sortn});
-			$_->sortn($_->sortn + 1) for $junior->List;
+			# down уникален в базе, старый надо уничтожить до вставки
+			$src->Remove;
 			
-			# сдвигаем оставшихся сиблингов справа, чтобы закрыть дырку
-			$junior = ALKO::Catalog::Category::Graph->All(top => $parent->category->id, sortn => {'>', $node->sortn});
-			$_->sortn($_->sortn - 1) for $junior->List;
+			# на новом месте сдвигаем вправо всех сиблингов, начиная с родителя
+			my $junior = ALKO::Catalog::Category::Graph->All(top => $parent->parent->id, sortn => {'>=', $parent->sortn}, SORT => ['sortn DESC']);
+			for ($junior->List) {
+				$_->sortn($_->sortn + 1);
+				$_->Save;
+			}
+			
+			# на месте $src сдвигаем налево всех оставшихся сиблингов справа, чтобы закрыть дырку
+			$junior = ALKO::Catalog::Category::Graph->All(top => $parent->id, sortn => {'>', $node->sortn}, SORT => ['sortn']);
+			for ($junior->List) {
+				$_->sortn($_->sortn - 1);
+				$_->Save;
+			}
 		}
 
 		# json не может вывести корректно рекурсивную структуру
@@ -237,6 +245,66 @@ $Server->add_handler(LIST => {
 	},
 });
 
+# Подвинуть категорию направо, поменять местами с правым сиблингом.
+# Если правого сиблинга нет, поднять на уровень родителя и поставить справа от него.
+# Если правого сиблинга нет у категории - непосредственного потомка корня, завершаем ошибкой.
+# URL: /catalog/category/?action=right&id=125
+$Server->add_handler(RIGHT => {
+	input => {
+		allow => [qw/ action id /],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+		my ($category, $catalog, $node) = @{$O}{qw/ category catalog node /};
+		
+		if (my $dst_node = $node->junior_sibling) {
+			my $src = ALKO::Catalog::Category::Graph->Get(down => $node->id);
+			my $dst = ALKO::Catalog::Category::Graph->Get(down => $dst_node->id);
+			
+			# нельзя просто поменять местами, поэтому сначала перемещаем $src в конец
+			$src->sortn($node->n_siblings + 1);
+			$src->Save;
+			$dst->sortn($dst->sortn - 1);
+			$dst->Save;
+			$src->sortn($dst->sortn + 1);
+			
+		} else {  # поднимаемся правее родителя
+			my $parent = $node->parent;
+			
+			# на уровень корня подняться нельзя
+			unless ($parent->id) {
+				delete @{$O}{qw/ category catalog node /};
+				return $S->fail("LOGIC: Can't Category move up to the Root-level");
+			}
+			
+			# перемещаемая нода
+			my $src = ALKO::Catalog::Category::Graph->Get(down => $category->id);
+			
+			# добавляем копию в новое место
+			my $dst = ALKO::Catalog::Category::Graph->new($src);
+			$dst->top($parent->parent->id);
+			$dst->sortn($parent->sortn + 1);
+			
+			
+			# на новом месте сдвигаем вправо всех сиблингов справа от родителя, чтобы освободить место под вставку
+			my $junior = ALKO::Catalog::Category::Graph->All(top => $parent->parent->id, sortn => {'>', $parent->sortn}, SORT => ['sortn DESC']);
+			for ($junior->List) {
+				$_->sortn($_->sortn + 1);
+				$_->Save;
+			}
+
+			# down уникален в базе, поэтому нужно утилизировать раньше вставки
+			$src->Remove;
+		}
+
+		# json не может вывести корректно рекурсивную структуру
+		delete @{$O}{qw/ category catalog node /};
+
+		OK;
+	},
+});
+
 # Переместить категорию в потомки правого сиблинга.
 # Категория становится последним потомком.
 # Категория должна быть пуста.
@@ -250,18 +318,21 @@ $Server->add_handler(RIGHT_DOWN => {
 		my ($I, $O) = ($S->I, $S->O);
 		my ($category, $catalog, $node) = @{$O}{qw/ category catalog node /};
 		
-		my $new_parent = $node->junior_sibling or return $S->fail("NOSUCH: Destination parent for moving right-down not exists");
+		my $dst_parent = $node->junior_sibling or return $S->fail("NOSUCH: Destination parent for moving right-down not exists");
 
 		my $src = ALKO::Catalog::Category::Graph->Get(down => $category->id);
 		my $dst = ALKO::Catalog::Category::Graph->new($src);
 		$src->Remove;  # необходимо удалить до вставки $dst, иначе ключи дублируются
 		
-		$dst->top($new_parent->category->id);
-		$dst->sortn($new_parent->has_child + 1);
+		$dst->top($dst_parent->id);
+		$dst->sortn($dst_parent->has_child + 1);
 		
 		# сдвигаем младших сиблингов, чтобы закрыть дырку после удаления из дерева категории
-		my $junior = ALKO::Catalog::Category::Graph->All(top => $node->parent->category->id, sortn => {'>', $node->sortn});
-		$_->sortn($_->sortn - 1) for $junior->List;
+		my $junior = ALKO::Catalog::Category::Graph->All(top => $node->parent->id, sortn => {'>', $node->sortn}, SORT => ['sortn']);
+		for ($junior->List) {
+			$_->sortn($_->sortn - 1);
+			$_->Save;
+		}
 
 		delete @{$O}{qw/ category catalog node /};
 
@@ -276,6 +347,7 @@ $Server->dispatcher(sub {
 	return ['ADD']                        if exists $I->{action} and $I->{action} eq 'add';
 	return ['EDIT']                       if exists $I->{action} and $I->{action} eq 'edit';
 	return [qw/ CHECK_EMPTY LEFT /]       if exists $I->{action} and $I->{action} eq 'left';
+	return [qw/ CHECK_EMPTY RIGHT /]      if exists $I->{action} and $I->{action} eq 'right';
 	return [qw/ CHECK_EMPTY RIGHT_DOWN /] if exists $I->{action} and $I->{action} eq 'rdown';
 	return [qw/ CHECK_EMPTY DELETE /]     if exists $I->{action} and $I->{action} eq 'delete';
 	return ['ITEM']                       if exists $I->{id};
