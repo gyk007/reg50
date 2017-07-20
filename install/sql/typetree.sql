@@ -76,7 +76,7 @@ GRANT SELECT, UPDATE, INSERT ON TABLE unitvalue TO @@DBUSER@@;
 COMMENT ON TABLE  unitvalue        IS 'допустимые значения конкретного измерения конкретной матрицы выбора';
 COMMENT ON COLUMN unitvalue.top    IS 'родитель; часть идентификатора измерения';
 COMMENT ON COLUMN unitvalue.down   IS 'потомок; часть идентификатора измерения';
-COMMENT ON COLUMN unitvalue.n_unit IS 'номер иземерения; часть идентификатора измерения';
+COMMENT ON COLUMN unitvalue.n_unit IS 'номер измерения; часть идентификатора измерения';
 COMMENT ON COLUMN unitvalue.n      IS 'порядковый номер значения внутри измерения';
 COMMENT ON COLUMN unitvalue.val    IS 'само значение; одно среди многих значений измерения';
 
