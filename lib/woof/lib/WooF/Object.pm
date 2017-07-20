@@ -262,14 +262,16 @@ sub _access_rw {
 		
 		if (defined $value) {
 			if (exists $Attribute->{extern} and exists $Attribute->{type} and $Attribute->{type} eq 'cache') {
-				return $self->{extend}{$attr} = $value;
+				$self->{extend}{$attr} = $value;
 			} else {
+				$self->{$attr} = $value;
+				
 				if ($self->{STATE} & DWHLINK) {
 					$self->{STATE} |= MODIFIED unless exists $Attribute->{type} and $Attribute->{type} eq 'cache';
 				}
-			
-				return $self->{$attr} = $value;
 			}
+			
+			return $self;
 		} else {
 			if (exists $Attribute->{extern} and exists $Attribute->{type} and $Attribute->{type} eq 'cache') {
 				return exists $self->{extend} && exists $self->{extend}{$attr} ? $self->{extend}{$attr} : undef;
@@ -327,14 +329,16 @@ sub _access_w {
 
 		my $Attribute = $self->Attribute->{$attr};
 		if (exists $Attribute->{extern} and exists $Attribute->{type} and $Attribute->{type} eq 'cache') {
-			return $self->{extend}{$attr} = $value;
+			$self->{extend}{$attr} = $value;
 		} else {
 			if ($self->{STATE} & DWHLINK) {
 				$self->{STATE} |= MODIFIED unless exists $Attribute->{type} and $Attribute->{type} eq 'cache';
 			}
 
-			return $self->{$attr} = $value;
+			$self->{$attr} = $value;
 		}
+		
+		$self;
 	};
 }
 
@@ -1082,7 +1086,7 @@ sub Refresh {
 Method: Remove ()
 	Удаление экземпляра.
 	
-	Кортеж сразу удаляется из базы, экзепляру в коде выставляется флаг 'REMOVED'.
+	Кортеж сразу удаляется из базы, экземпляру в коде выставляется флаг 'REMOVED'.
 	
 Returns:
 	undef
