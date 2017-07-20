@@ -101,8 +101,8 @@ $Server->add_handler(DELETE => {
 		ALKO::Catalog::Category::Graph->Get(down => $category->id)->Remove;
 		
 		# сдвигаем младших сиблингов, чтобы закрыть дырку после удаления из дерева категории
-		my $junior = ALKO::Catalog::Category::Graph->All(top => $node->parent->id, sortn => {'>', $node->sortn});
-		$_->sortn($_->sortn - 1) for $junior->List;
+		my $junior = ALKO::Catalog::Category::Graph->All(top => $node->parent->id, sortn => {'>', $node->sortn}, SORT => ['sortn']);
+		$_->sortn($_->sortn - 1)->Save for $junior->List;
 		
 		# удаляем саму категорию
 		$category->Remove;
@@ -210,17 +210,11 @@ $Server->add_handler(LEFT => {
 			
 			# на новом месте сдвигаем вправо всех сиблингов, начиная с родителя
 			my $junior = ALKO::Catalog::Category::Graph->All(top => $parent->parent->id, sortn => {'>=', $parent->sortn}, SORT => ['sortn DESC']);
-			for ($junior->List) {
-				$_->sortn($_->sortn + 1);
-				$_->Save;
-			}
+			$_->sortn($_->sortn + 1)->Save for $junior->List;
 			
 			# на месте $src сдвигаем налево всех оставшихся сиблингов справа, чтобы закрыть дырку
 			$junior = ALKO::Catalog::Category::Graph->All(top => $parent->id, sortn => {'>', $node->sortn}, SORT => ['sortn']);
-			for ($junior->List) {
-				$_->sortn($_->sortn - 1);
-				$_->Save;
-			}
+			$_->sortn($_->sortn - 1)->Save for $junior->List;
 		}
 
 		# json не может вывести корректно рекурсивную структуру
@@ -289,10 +283,7 @@ $Server->add_handler(RIGHT => {
 			
 			# на новом месте сдвигаем вправо всех сиблингов справа от родителя, чтобы освободить место под вставку
 			my $junior = ALKO::Catalog::Category::Graph->All(top => $parent->parent->id, sortn => {'>', $parent->sortn}, SORT => ['sortn DESC']);
-			for ($junior->List) {
-				$_->sortn($_->sortn + 1);
-				$_->Save;
-			}
+			$_->sortn($_->sortn + 1)->Save for $junior->List;
 
 			# down уникален в базе, поэтому нужно утилизировать раньше вставки
 			$src->Remove;
@@ -329,10 +320,7 @@ $Server->add_handler(RIGHT_DOWN => {
 		
 		# сдвигаем младших сиблингов, чтобы закрыть дырку после удаления из дерева категории
 		my $junior = ALKO::Catalog::Category::Graph->All(top => $node->parent->id, sortn => {'>', $node->sortn}, SORT => ['sortn']);
-		for ($junior->List) {
-			$_->sortn($_->sortn - 1);
-			$_->Save;
-		}
+		$_->sortn($_->sortn - 1)->Save for $junior->List;
 
 		delete @{$O}{qw/ category catalog node /};
 
