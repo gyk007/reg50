@@ -8,7 +8,9 @@ use WooF::Install;
 
 my $install = WooF::Install->new(__FILE__);
 
-$install->sql('clients.sql');
+$install->sql('client.sql');
 
 $install->complete(<<MSG);
-Cоздана таблица клиентов
+Cоздана таблица клиентов.
+MSG
+
