@@ -148,7 +148,7 @@ $Server->add_handler(EDIT => {
 	},
 });
 
-# Определенная категория
+# Определенная категория с товарами, свойствами, значениями.
 # URL: /catalog/category/?id=125
 $Server->add_handler(ITEM => {
 	input => {
@@ -157,8 +157,11 @@ $Server->add_handler(ITEM => {
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
+		my $id = $I->{id};
 
-		$O->{category} = ALKO::Catalog::Category->Get($I->{id});
+		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => [qw/ products propgroups /]) or return $S->fail("Can't get Category($id)");
+
+		$O->{category} = $category->complete_products;
 
 		OK;
 	},
