@@ -3,7 +3,7 @@ use base qw/ WooF::Object::Simple /;
 
 =begin nd
 Class: ALKO::Client
-	Список клиентов.
+	Клиент (магазин или другая сущность)
 =cut
 
 use strict;
@@ -15,14 +15,14 @@ Variable: %Attribute
 
 	Члены класса:
 	name    - название магазина
-	agent   - имя представителя
+	person  - имя  торгового представителя
 	address - адрес магазина
 	phone   - телефон магазина
 	email   - адрес электронной почты
 =cut
 my %Attribute = (
 	name    => {mode => 'read/write'},
-	agent   => {mode => 'read/write'},
+	person  => {mode => 'read/write'},
 	address => {mode => 'read/write'},
 	phone   => {mode => 'read/write'},
 	email   => {mode => 'read/write'},

@@ -8,7 +8,7 @@ BEGIN;
 CREATE TABLE client (
         id      SERIAL,
         name    VARCHAR(128) NOT NULL,
-        agent   VARCHAR(128) NOT NULL,
+        person  VARCHAR(128),
         address VARCHAR(4096),
         phone   VARCHAR(128),
         email   VARCHAR(128),
