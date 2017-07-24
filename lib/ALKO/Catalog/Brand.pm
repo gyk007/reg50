@@ -2,8 +2,10 @@ package ALKO::Catalog::Brand;
 use base qw/ WooF::Object::Simple /;
 
 =begin nd
-Class: ALKO::Catalog::Manufacturer
-	Производитель товара.
+Class: ALKO::Catalog::Brand
+	Бренд. Торговая марка.
+	
+	Бренд может принадлежать товару (а может и не принадлежать).
 =cut
 
 use strict;
@@ -21,7 +23,7 @@ Variable: %Attribute
 my %Attribute = (
 	description     => undef,
 	id_manufacturer => undef,
-	name            => undef,
+	name            => {mode => 'read'},
 );
 
 =begin nd

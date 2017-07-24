@@ -5,7 +5,7 @@ use base qw/ WooF::Object::Simple /;
 Class: ALKO::Catalog::Category
 	Категория товара.
 	
-	Категории организованы в дерево в классе <ALKO::Catalg>.
+	Категории организованы в дерево в классе <ALKO::Catalog>.
 	
 	Специальная категория с id=0 представляет невидимый корень каталога.
 =cut
@@ -13,12 +13,17 @@ Class: ALKO::Catalog::Category
 use strict;
 use warnings;
 
+use 5.014;
+no warnings 'experimental::smartmatch';
+
 use WooF::Error;
 use WooF::Object::Collection;
 use WooF::Object::Constants;
 
 use ALKO::Catalog::Property;
 use ALKO::Catalog::Property::Value;
+use ALKO::Catalog::Property::Type;
+use ALKO::Catalog::Property::Type::Engine;
 
 =begin nd
 Variable: %Attribute
@@ -85,10 +90,11 @@ sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
 Method: complete_products ( )
 	Получить полный список товаров в категории.
 	
-	Все товары, со всеми свойствами и их значениями. Карточка товара.
+	Все товары, со всеми свойствами и их значениями. Карточка товара для всех товаров в категории.
 	
 Returns:
 	$self
+	$undef - в случае ошибки
 =cut
 sub complete_products {
 	my $self = shift;
@@ -127,7 +133,7 @@ sub complete_products {
 	
 	# развесистый хеш значений свойств с обособленными ключам, чтобы легче дампить
 	my %value;
-	$value{id_product}{$_->id_product}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n_property} = $_->val_int
+	$value{id_product}{$_->id_product}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n_property} = $_
 		for ALKO::Catalog::Property::Value->All(id_product => [$self->products->List('id')])->List;
 
 	# копируем в каждый товар все свойства и заполняем значениями
@@ -142,13 +148,34 @@ sub complete_products {
 
 			# устанавливаем каждому свойству значение
 			for ($dst_group->properties->List) {
-				$_->value($value{id_product}{$product->id}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n})
-					if
-							exists $value{id_product}{$product->id}
-						and
-							exists $value{id_product}{$product->id}{id_propgroup}{$_->id_propgroup}
-						and
-							exists $value{id_product}{$product->id}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n};
+				if (
+						exists $value{id_product}{$product->id}
+					and
+						exists $value{id_product}{$product->id}{id_propgroup}{$_->id_propgroup}
+					and
+						exists $value{id_product}{$product->id}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n}
+				) {
+					# заводим движок
+					my $proptype = ALKO::Catalog::Property::Type->Get($_->id_proptype);
+					my $engine_class = 'ALKO::Catalog::Property::Type::Engine::' . $proptype->class;
+					my $module = $engine_class;
+					$module =~ s!::!/!g;
+					$module .= '.pm';
+					require $module or return warn "OBJECT: Can'n load module $module";
+					my $engine = $engine_class->new(property => $_);
+					
+					# передаем движку хранимое значение
+					my $store_t;
+					given ($engine->store_t) {
+						when ('integer') {$store_t = 'val_int'}
+						when ('float')   {$store_t = 'val_float'}
+						default {return warn "CATALOG: Stored value type not defined"}
+					}
+					$engine->store($value{id_product}{$product->id}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n}->$store_t);
+
+					# движок вернул результаты своей работы
+					$_->value($engine->operate);
+				}
 			}
 		}
 	}
