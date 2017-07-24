@@ -1,11 +1,13 @@
-package ALKO::Catalog::Manufacturer;
+package ALKO::Country;
 use base qw/ WooF::Object::Simple /;
 
 =begin nd
-Class: ALKO::Catalog::Manufacturer
-	Производитель товара.
+Class: ALKO::Country
+	Страна.
 	
-	Производитель может владеть несколькими брендами <ALKO::Catalog::Brand>.
+	Может быть использована как справочник где-угодно.
+	
+	Сейчас используется для свойства товара "Страна-производитель".
 =cut
 
 use strict;
@@ -16,12 +18,10 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	description - полное описание
-	name        - наименование
+	name - наименование
 =cut
 my %Attribute = (
-	description => undef,
-	name        => {mode => 'read'},
+	name => {mode => 'read'},
 );
 
 =begin nd
@@ -41,8 +41,8 @@ Method: Table ( )
 	Таблица хранения сущности в базе данных.
 
 Returns:
-	Строку 'manufacturer'.
+	Строку 'country'.
 =cut
-sub Table { 'manufacturer' }
+sub Table { 'country' }
 
 1;

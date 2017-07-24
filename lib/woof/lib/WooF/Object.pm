@@ -250,7 +250,7 @@ Parameters:
 	$autoload - полное имя метода
 
 Returns:
-	ссылку на метод.
+	ссылку на метод
 =cut
 sub _access_rw {
 	my ($self, $autoload) = @_;
@@ -540,7 +540,7 @@ sub Attribute {
 	my $self = shift;
 	my $class = ref $self;
 	
-	return warn "OBJECT: Attribute method must be redefined in subclass $class";
+	return warn "OBJECT: 'Attribute()' method must be redefined in subclass $class AND not get up to WooF::Object class";
 }
 
 =begin nd

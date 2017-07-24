@@ -5,8 +5,10 @@ use base qw/ WooF::Object::Sequence /;
 Class: ALKO::Catalog::Property
 	Cвойство товара.
 	
-	Свойство однозначно принедлежит одной группе свойств и имеет индекс
+	Свойство однозначно принадлежит одной группе свойств <ALKO::Catalog::Property::Group> и имеет индекс
 	внутри группы, начинающийся с единицы.
+	
+	Свойство обладает типом свойства <ALKO::Catalog::Property::Type>, определяющим его поведение.
 =cut
 
 use strict;
@@ -18,7 +20,7 @@ Variable: %Attribute
 
 	Члены класса:
 	const        - короткое имя для постоянных свойств типа "цены", "производителя"; для обращения из кода
-	description  - полное опиание
+	description  - полное описание
 	face         - имя для вывода переопределяет name
 	name         - имя для админки и, если не переопределено, то и для юзера
 	id_propgroup - свойство однозначно принадлежит Группе Свойств <ALKO::Catalog::Property::Group>
@@ -33,7 +35,7 @@ my %Attribute = (
 	face         => undef,
 	name         => undef,
 	id_propgroup => {mode => 'read'},
-	id_proptype  => undef,
+	id_proptype  => {mode => 'read'},
 	value        => {mode => 'write', type => 'cache'},
 	visible      => undef,
 );
