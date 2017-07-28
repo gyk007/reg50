@@ -24,6 +24,9 @@ use ALKO::Catalog::Property;
 use ALKO::Catalog::Property::Value;
 use ALKO::Catalog::Property::Type;
 use ALKO::Catalog::Property::Type::Engine;
+use ALKO::Catalog::Filter::UI;
+use ALKO::Catalog::Filter::Arg;
+use ALKO::Catalog::Filter::Arg::PropLink;
 
 =begin nd
 Variable: %Attribute
@@ -31,6 +34,7 @@ Variable: %Attribute
 
 	Члены класса:
 	description      - полное описание
+	filter           - коллекция свойств с установленными по ним в данной категории фильтрами
 	groups_effective - группы свойств, включая наследованные
 	name             - наименование
 	parents          - коллекция родительских категорий от корня до текущей, включая текушую
@@ -41,6 +45,7 @@ Variable: %Attribute
 =cut
 my %Attribute = (
 	description      => undef,
+	filter           => {type => 'cache'},
 	name             => undef,
 	groups_effective => {mode => 'read/write', type => 'cache'},
 	parents          => {type => 'cache'},
@@ -130,6 +135,30 @@ sub complete_products {
 	
 	# эталонные свойства для копирования в каждый продукт
 	$self->groups_effective->Expand('properties');
+
+	# cобрали все свойства с включенными фильтрами
+	my $filter = WooF::Object::Collection->new('ALKO::Catalog::Property');
+	for my $group ($self->groups_effective->List) {
+		for ($group->properties->List) {
+			next unless $_->filters and $_->id_filterui;
+
+			$filter->Push($_);
+		}
+	}
+	
+	# добавить в фильтры имя и аргументы
+	my $ui = $filter->Hash('id_filterui');
+	my $uis = ALKO::Catalog::Filter::UI->All(id => [keys %$ui])->Hash;
+	for ($filter->List) {
+		$_->filterui($uis->{$_->id_filterui});
+
+		my $link = ALKO::Catalog::Filter::Arg::PropLink->All(id_propgroup => $_->id_propgroup, n_property => $_->n);
+		for ($link->List) {
+			my $arg = ALKO::Catalog::Filter::Arg->Get($_->id_filterarg);
+			$_->filterarg($arg);
+		}
+		$_->filterarg($link);
+	}
 	
 	# развесистый хеш значений свойств с обособленными ключам, чтобы легче дампить
 	my %value;
@@ -147,22 +176,22 @@ sub complete_products {
 			$dst_group->properties($src_group->properties->Clone(id_propgroup => 'id_propgroup', n => 'n')->Set_State(NOSYNC));
 
 			# устанавливаем каждому свойству значение
-			for ($dst_group->properties->List) {
+			for my $prop ($dst_group->properties->List) {
 				if (
 						exists $value{id_product}{$product->id}
 					and
-						exists $value{id_product}{$product->id}{id_propgroup}{$_->id_propgroup}
+						exists $value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}
 					and
-						exists $value{id_product}{$product->id}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n}
+						exists $value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}
 				) {
 					# заводим движок
-					my $proptype = ALKO::Catalog::Property::Type->Get($_->id_proptype);
+					my $proptype = ALKO::Catalog::Property::Type->Get($prop->id_proptype);
 					my $engine_class = 'ALKO::Catalog::Property::Type::Engine::' . $proptype->class;
 					my $module = $engine_class;
 					$module =~ s!::!/!g;
 					$module .= '.pm';
 					require $module or return warn "OBJECT: Can'n load module $module";
-					my $engine = $engine_class->new(property => $_);
+					my $engine = $engine_class->new(property => $prop);
 					
 					# передаем движку хранимое значение
 					my $store_t;
@@ -171,14 +200,41 @@ sub complete_products {
 						when ('float')   {$store_t = 'val_float'}
 						default {return warn "CATALOG: Stored value type not defined"}
 					}
-					$engine->store($value{id_product}{$product->id}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n}->$store_t);
+					$engine->store($value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}->$store_t);
 
 					# движок вернул результаты своей работы
-					$_->value($engine->operate);
+					$prop->value($engine->operate);
+					
+					# вычисляем начальные значения фильтра
+					if ($prop->filters and $prop->id_filterui) {
+						my $propfilter = $filter->First_Item(id_propgroup => $prop->id_propgroup, n => $prop->n);
+						for ($propfilter->filterarg->List) {
+							my $arg = $_->filterarg;
+
+							given ($arg->name) {
+								when ('min') {
+									if (defined $arg->value) {
+										$arg->value($prop->value) if $prop->value < $arg->value;
+									} else {
+										$arg->value($prop->value);
+									}
+								}
+								when ('max') {
+									if (defined $arg->value) {
+										$arg->value($prop->value) if $prop->value > $arg->value;
+									} else {
+										$arg->value($prop->value);
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
 	}
+	
+	$self->{filter} = $filter;
 	
 	$self;
 }
