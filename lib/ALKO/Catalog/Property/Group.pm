@@ -34,7 +34,7 @@ my %Attribute = (
 	face           => undef,
 	face_effective => {type => 'cache'},
 	joint          => {mode => 'read/write', type => 'cache'},
-	name           => undef,
+	name           => {mode => 'read'},
 	properties     => {
 	                      mode   => 'read/write',
 	                      type   => 'cache',

@@ -22,10 +22,14 @@ Variable: %Attribute
 	const        - короткое имя для постоянных свойств типа "цены", "производителя"; для обращения из кода
 	description  - полное описание
 	face         - имя для вывода переопределяет name
-	name         - имя для админки и, если не переопределено, то и для юзера
+	filterarg    - коллекция аргументов, необходимых для работы фильтра
+	filters      - флаг включающий вывод фильтра для свойства, если фильтр указан в id_filterui
+	filterui     - фильтр, экземлляр <ALKO::Catalg::Filter::UI>
+	id_filterui  - виджет представления фильтра на клиенте
 	id_propgroup - свойство однозначно принадлежит Группе Свойств <ALKO::Catalog::Property::Group>
 	               и занимает свое место, определяемое индексом последовательности 'n'
 	id_proptype  - свойство имеет определенный тип
+	name         - имя для админки и, если не переопределено, то и для юзера
 	value        - значение свойства конкретного товара
 	visible      - выводить ли свойство в каталог
 =cut
@@ -33,10 +37,14 @@ my %Attribute = (
 	const        => undef,
 	description  => undef,
 	face         => undef,
-	name         => undef,
+	filterarg    => {mode => 'read/write', type => 'cache'},
+	filters      => {mode => 'read',},
+	filterui     => {mode => 'write', type => 'cache'},
+	id_filterui  => {mode => 'read', extern => 'ALKO::Catalog::Filter::UI'},
 	id_propgroup => {mode => 'read'},
 	id_proptype  => {mode => 'read'},
-	value        => {mode => 'write', type => 'cache'},
+	name         => undef,
+	value        => {mode => 'read/write', type => 'cache'},
 	visible      => undef,
 );
 

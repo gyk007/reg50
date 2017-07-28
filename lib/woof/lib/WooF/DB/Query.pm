@@ -1,5 +1,6 @@
 package WooF::DB::Query;
 use base qw / WooF::Object /;
+
 =begin nd
 Class: WooF::DB::Query
 	Конструктор запросов.
@@ -17,6 +18,7 @@ use warnings;
 no warnings 'experimental::smartmatch';
 use utf8;
 
+use WooF::Error;
 use WooF::Util;
 
 =begin nd
@@ -237,7 +239,7 @@ my $ext_join = WooF::DB::Query->parse_expand(
 	Имя таблицы может не соответствовать реальной таблицы в базе данных, а представлять из себя псевдоним,
 	используемый в запросе. Это та таблица, с которой начинается джоин.
 	
-	init должен быть установлен в true, чтобы именно эта первоначальна структура стала результатом выполнения метода.
+	init должен быть установлен в true, чтобы именно эта первоначальная структура стала результатом выполнения метода.
 	
 	joined_tbls обычно должно быть пусто, если только в джоине не используется селф-джоин с уже используемыми ранее
 	в запросе таблицами.
@@ -249,7 +251,7 @@ my $ext_join = WooF::DB::Query->parse_expand(
 
 Parameters:
 	$parents - стек вызовов, представленный служебными структурами, аналогичными тем,
-	что соответствуют второму аргументу $prev.
+	           что соответствуют второму аргументу $prev
 	$prev    - предыдушая структура дерева разбора.
 	$expand  - еще не разобранная часть дерева, представленная в EXPAND.
 	$node    - нода заполняемая на данном шаге.
@@ -281,6 +283,10 @@ sub parse_expand {
 		my $xclass = $pclass->Attribute->{$expand}{extern};
 		
 		my $parent_tbl = $parent->{table} || $pclass->Table;
+		my $module = $xclass;
+		$module =~ s!::!/!g;
+		$module .= '.pm';
+		require $module or warn "OBJECT: Can't load xclass";
 		my $joined_tbl = $xclass->Table;
 		
 		my $alias = '';
