@@ -93,12 +93,12 @@ CREATE TABLE official (
     phone         VARCHAR(128),
     email         VARCHAR(128),
     bank          VARCHAR(128),
-    account       VARCHAR(20),
-	bank_account  VARCHAR(20),
-    bik           VARCHAR(9),
+    account       CHAR(20),
+	bank_account  CHAR(20),
+    bik           CHAR(9),
     taxcode       VARCHAR(12) UNIQUE,
-    taxreasoncode VARCHAR(9),
-    regcode       VARCHAR(13),
+    taxreasoncode CHAR(9),
+    regcode       CHAR(13),
     PRIMARY KEY (id)
 );
 

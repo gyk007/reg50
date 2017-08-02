@@ -23,6 +23,9 @@ COMMENT ON COLUMN proptype.class IS 'имя класса в либе ALKO::Catal
 UPDATE proptype SET class = 'Scalar'           WHERE id = 1;
 UPDATE proptype SET class = 'Select::UniTable' WHERE id = 4;
 
+-- добавить главную группу свойств
+INSERT INTO propgroup (id, name, face, description) VALUES (default, 'main', null, null);
+
 
 -- добавить свойства
 INSERT INTO property VALUES (1, 1, 1, 'Price', null, null, 'price', true);
