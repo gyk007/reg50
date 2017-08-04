@@ -4,7 +4,7 @@ use base qw/ WooF::Object::Simple /;
 =begin nd
 Class: ALKO::Catalog::Manufacturer
 	Производитель товара.
-	
+
 	Производитель может владеть несколькими брендами <ALKO::Catalog::Brand>.
 =cut
 
@@ -18,16 +18,18 @@ Variable: %Attribute
 	Члены класса:
 	description - полное описание
 	name        - наименование
+	alkoid      - идентификатор во внешней системе
 =cut
 my %Attribute = (
-	description => undef,
+	description => {mode => 'undef'},
 	name        => {mode => 'read'},
+	alkoid      => {mode => 'undef'},
 );
 
 =begin nd
 Method: Attribute ( )
 	Доступ к хешу с описанием членов класса.
-	
+
 	Может вызываться и как метод экземпляра, и как метод класса.
 	Наследует члены класса родителей.
 
