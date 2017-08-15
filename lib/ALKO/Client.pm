@@ -1,5 +1,5 @@
 package ALKO::Client;
-use base qw/ WooF::Object::Simple /;
+use base qw/ WooF::Object /;
 
 =begin nd
 Class: ALKO::Client
@@ -14,18 +14,16 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	name    - название магазина
-	person  - имя  торгового представителя
-	address - адрес магазина
-	phone   - телефон магазина
-	email   - адрес электронной почты
+	merchant - представитель
+	shop     - магазин
+	official - реквизиты
+	net      - сеть
 =cut
 my %Attribute = (
-	name    => {mode => 'read/write'},
-	person  => {mode => 'read/write'},
-	address => {mode => 'read/write'},
-	phone   => {mode => 'read/write'},
-	email   => {mode => 'read/write'},
+	merchant => {type => 'cache'},
+	shop     => {type => 'cache'},
+	official => {type => 'cache'},
+	net      => {type => 'cache'},
 );
 
 =begin nd
@@ -33,20 +31,10 @@ Method: Attribute ( )
 	Доступ к хешу с описанием членов класса.
 
 	Может вызываться и как метод экземпляра, и как метод класса.
-	Наследует члены класса родителей.
 
 Returns:
 	ссылку на описание членов класса
 =cut
-sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
-
-=begin nd
-Method: Table ( )
-	Таблица хранения сущности в базе данных.
-
-Returns:
-	Строку 'client'.
-=cut
-sub Table { 'client' }
+sub Attribute { \%Attribute }
 
 1;

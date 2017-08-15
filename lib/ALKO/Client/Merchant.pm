@@ -1,13 +1,9 @@
-package ALKO::Country;
+package ALKO::Client::Merchant;
 use base qw/ WooF::Object::Simple /;
 
 =begin nd
-Class: ALKO::Country
-	Страна.
-
-	Может быть использована как справочник где-угодно.
-
-	Сейчас используется для свойства товара "Страна-производитель".
+Class: ALKO::Client::Merchant
+	Представитель.
 =cut
 
 use strict;
@@ -18,10 +14,18 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	name - наименование
+	password - пароль
+	email    - адрес электроной почты
+	name     - имя
+	phone    - телефон
+	alkoid   - ид в системе заказчика
 =cut
 my %Attribute = (
-	name => {mode => 'read'},
+	password => {mode => undef},
+	email    => {mode => undef},
+	name     => {mode => undef},
+	phone    => {mode => undef},
+	alkoid   => {mode => undef},
 );
 
 =begin nd
@@ -41,8 +45,8 @@ Method: Table ( )
 	Таблица хранения сущности в базе данных.
 
 Returns:
-	Строку 'country'.
+	Строку 'merchant'.
 =cut
-sub Table { 'country' }
+sub Table { 'merchant' }
 
 1;
