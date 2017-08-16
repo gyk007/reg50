@@ -18,7 +18,7 @@ my $category = $category->XMLin("$ENV{PWD}/../../../data/i/category.xml", KeyAtt
 
 while( my( $key, $value ) = each %{$category->{category}} ){
 	# Выводим id категории в консоль
-	print Dumper $key;
+	print $key;
 
 	# Новая категория
 	ALKO::Catalog::Category->new({
@@ -42,7 +42,7 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 		if (ref $value_p eq 'ARRAY') {
 			for (@$value_p) {
 				# Выводим id товара
-				print Dumper $_->{id};
+				print $_->{id};
 
 				# Добавляем товар
 				my $product = ALKO::Catalog::Product->new({
@@ -130,7 +130,7 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 			}
 		} elsif (ref $value_p eq 'HASH') {
 			# Выводим id товара
-			print Dumper $value_p->{id};
+			print $value_p->{id};
 
 			# Добавляем товар
 			my $product = ALKO::Catalog::Product->new({

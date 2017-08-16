@@ -13,8 +13,6 @@ my $clients = XML::Simple->new;
 my $clients = $clients->XMLin("$ENV{PWD}/../../../data/i/trade_points.xml", KeyAttr => { trade_point => 'id' });
 
 while( my( $key, $value ) = each %{$clients->{trade_point}} ){
-	print Dumper $key;
-	print Dumper $value->{kpp};
 	my $contractor = ALKO::Client::Official->Get(alkoid => $value->{id_contractor});
 	my $merchant   = ALKO::Client::Merchant->Get(alkoid => $value->{id_contractor});
 
