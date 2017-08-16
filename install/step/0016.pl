@@ -11,5 +11,9 @@ my $install = WooF::Install->new(__FILE__);
 $install->sql('alkoid.sql');
 
 $install->complete(<<MSG);
-Добавлены ид закзчика в таблицы offical и merchant
+- Добавлены ид закзчика в таблицы offical, merchant и product
+- Изменили тип свойства Price на Float
+- Добавили свойсво Qty
+- Убрали ограничение UNIQUE в для поля taxcode в таблице offical
+- Удалили таблицу clinet
 MSG

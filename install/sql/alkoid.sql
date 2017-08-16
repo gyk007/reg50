@@ -23,5 +23,8 @@ UPDATE paramvalue SET value = 'float' WHERE id_propgroup = 1 AND n_propgroup = 1
 INSERT INTO property (id_propgroup, n, id_proptype, name, visible) VALUES (1, 8, 1, 'Qty', true);
 INSERT INTO paramvalue (id_propgroup, n_propgroup, id_proptype, n_proptype, value) VALUES (1, 8, 1, 1, 'integer');
 
+-- удаляем таблицу client
+DROP TABLE IF EXISTS client;
+
 
 COMMIT;

@@ -16,7 +16,7 @@
 		<port>9003</port>
 	</location>
 	<location>
-		<path>/client</path>
+		<path>/cart</path>
 		<workers>1</workers>
 		<port>9884</port>
 	</location>
