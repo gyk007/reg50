@@ -13,7 +13,6 @@ COMMENT ON COLUMN merchant.alkoid  IS 'ид в системе заказчика
 COMMENT ON COLUMN official.alkoid  IS 'ид в системе заказчика';
 COMMENT ON COLUMN product.alkoid   IS 'ид в системе заказчика';
 
-
 -- добавить поле person (директор)
 ALTER TABLE official ADD COLUMN person VARCHAR(128);
 

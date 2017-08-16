@@ -14,6 +14,7 @@ $install->complete(<<MSG);
 - Добавлены ид закзчика в таблицы offical, merchant и product
 - Изменили тип свойства Price на Float
 - Добавили свойсво Qty
-- Убрали ограничение UNIQUE в для поля taxcode в таблице offical
+- Убрали ограничение UNIQUE
+- Убрали ограничение NOT NULL
 - Удалили таблицу clinet
 MSG
