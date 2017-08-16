@@ -9,6 +9,10 @@ ALTER TABLE merchant ADD COLUMN alkoid VARCHAR(64) UNIQUE;
 ALTER TABLE official ADD COLUMN alkoid VARCHAR(64) UNIQUE;
 ALTER TABLE product  ADD COLUMN alkoid VARCHAR(64) UNIQUE;
 
+COMMENT ON COLUMN merchant.alkoid  IS 'ид в системе заказчика';
+COMMENT ON COLUMN official.alkoid  IS 'ид в системе заказчика';
+COMMENT ON COLUMN product.alkoid   IS 'ид в системе заказчика';
+
 -- удаляем ограничение UNIQUE
 ALTER TABLE official DROP CONSTRAINT official_taxcode_key;
 
