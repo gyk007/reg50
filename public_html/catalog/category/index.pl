@@ -160,7 +160,7 @@ $Server->add_handler(ITEM => {
 		my $id = $I->{id};
 
 		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => [qw/ products propgroups /]) or return $S->fail("Can't get Category($id)");
-		debug $category->complete_products;
+
 		$O->{category} = $category->complete_products;
 
 		OK;
@@ -178,7 +178,17 @@ $Server->add_handler(LEFT => {
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
-		my ($category, $catalog, $node) = @{$O}{qw/ category catalog node /};
+
+		# указан id категории
+		my $id = $I->{id} or return $S->fail("NOID: Action requires Category's ID");
+
+		# категория существует
+		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => 'products') or return $S->fail("NOSUCH: Can't operate on Category: no such id=$id");
+
+		# категория не содержит другие категории
+		my $catalog = ALKO::Catalog->new;
+		my $node = $catalog->get_node($category);
+		return $S->fail("CATEGORYEXIST: Can't operate on Category($I->{id}): containts childs") if $node->has_child;
 
 		if (my $dst_node = $node->older_sibling) {
 			my $src = ALKO::Catalog::Category::Graph->Get(down => $node->id);
@@ -253,7 +263,17 @@ $Server->add_handler(RIGHT => {
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
-		my ($category, $catalog, $node) = @{$O}{qw/ category catalog node /};
+
+		# указан id категории
+		my $id = $I->{id} or return $S->fail("NOID: Action requires Category's ID");
+
+		# категория существует
+		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => 'products') or return $S->fail("NOSUCH: Can't operate on Category: no such id=$id");
+
+		# категория не содержит другие категории
+		my $catalog = ALKO::Catalog->new;
+		my $node = $catalog->get_node($category);
+		return $S->fail("CATEGORYEXIST: Can't operate on Category($I->{id}): containts childs") if $node->has_child;
 
 		if (my $dst_node = $node->junior_sibling) {
 			my $src = ALKO::Catalog::Category::Graph->Get(down => $node->id);
@@ -337,8 +357,8 @@ $Server->dispatcher(sub {
 
 	return ['ADD']                        if exists $I->{action} and $I->{action} eq 'add';
 	return ['EDIT']                       if exists $I->{action} and $I->{action} eq 'edit';
-	return [qw/ CHECK_EMPTY LEFT /]       if exists $I->{action} and $I->{action} eq 'left';
-	return [qw/ CHECK_EMPTY RIGHT /]      if exists $I->{action} and $I->{action} eq 'right';
+	return [qw/ LEFT /]                   if exists $I->{action} and $I->{action} eq 'left';
+	return [qw/ RIGHT /]                  if exists $I->{action} and $I->{action} eq 'right';
 	return [qw/ CHECK_EMPTY RIGHT_DOWN /] if exists $I->{action} and $I->{action} eq 'rdown';
 	return [qw/ CHECK_EMPTY DELETE /]     if exists $I->{action} and $I->{action} eq 'delete';
 	return ['ITEM']                       if exists $I->{id};

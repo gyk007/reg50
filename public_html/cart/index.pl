@@ -28,7 +28,7 @@ $Server->add_handler(ADD => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		my $cart = ALKO::Cart->Get(id_merchant => 30722, n => 1)  or return $S->fail('OBJECT: Can\'t add Product to Cart: no such cart(id_merchant => 30722, n => 1)');
+		my $cart = ALKO::Cart->Get(id_merchant => 47885, n => 1)  or return $S->fail('OBJECT: Can\'t add Product to Cart: no such cart(id_merchant => 30722, n => 1)');
 
 		my $product = ALKO::Catalog::Product->Get(id => $I->{product}{id})  or return $S->fail("OBJECT: Can\'t add Product to Cart: no such product($I->{product}{id})");
 
@@ -50,7 +50,7 @@ $Server->add_handler(CART => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		my $cart = ALKO::Cart->Get(id_merchant => 30722, n => 1) or return $S->fail('OBJECT: Can\'t get Cart: no such cart(id_merchant => 30722, n => 1)');
+		my $cart = ALKO::Cart->Get(id_merchant => 47885, n => 1) or return $S->fail('OBJECT: Can\'t get Cart: no such cart(id_merchant => 30722, n => 1)');
 
 		$cart->products;
 
@@ -74,7 +74,7 @@ $Server->add_handler(DELETE => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		my $cart = ALKO::Cart->Get(id_merchant => 30722, n => 1) or return $S->fail('OBJECT: Can\'t delete Product from Cart: no such cart(id_merchant => 30722, n => 1)');
+		my $cart = ALKO::Cart->Get(id_merchant => 47885, n => 1) or return $S->fail('OBJECT: Can\'t delete Product from Cart: no such cart(id_merchant => 30722, n => 1)');
 
 		my $product = ALKO::Catalog::Product->Get(id => $I->{product}{id})  or return $S->fail("OBJECT: Can\'t delete Product from Cart: no such product($I->{product}{id})");
 
