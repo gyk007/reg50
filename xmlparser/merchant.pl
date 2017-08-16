@@ -5,6 +5,7 @@ use ALKO::Client::Shop;
 use ALKO::Client::Net;
 use ALKO::Client::Official;
 use ALKO::Client::Merchant;
+use ALKO::Cart;
 use XML::Simple;
 
 my $clients = XML::Simple->new;
@@ -52,6 +53,11 @@ while( my( $key, $value ) = each %{$clients->{contractor}} ){
 	ALKO::Client::Shop->new({
 		id_merchant => $merchant->{id},
 		id_official => $official->{id},
+	})->Save;
+
+	ALKO::Cart->new({
+		id_merchant => $merchant->{id},
+	 	n           => 1,
 	})->Save;
 }
 

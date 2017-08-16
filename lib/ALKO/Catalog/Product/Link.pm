@@ -4,7 +4,7 @@ use base qw/ WooF::Object /;
 =begin nd
 Class: ALKO::Catalog::Product::Link
 	Размещение товаров по категориям каталога.
-	
+
 	Одна категория может содержать несколько товаров,
 	и один товар может находиться в нескольких категориях.
 =cut
@@ -23,8 +23,8 @@ Variable: %Attribute
 =cut
 my %Attribute = (
 	face        => undef,
-	id_category => undef,
-	id_product  => {mode => 'read'},
+	id_category => {mode => undef,  type => 'key'},
+	id_product  => {mode => 'read', type => 'key'},
 );
 
 =begin nd

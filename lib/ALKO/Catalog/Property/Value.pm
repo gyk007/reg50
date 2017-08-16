@@ -4,13 +4,13 @@ use base qw/ WooF::Object /;
 =begin nd
 Class: ALKO::Catalog::Property::Value
 	Значение свойства товара.
-	
+
 	Набор свойств для всех товаров в одной группе одинаков, но значения свойств для каждого товара свое.
-	
+
 	Занчения бывают двух видов: "хранимые" и "вычисленные".
 	Хранимые значения сохранены в таблице и используются для вычисления второго вида. Данный класс реализует
 	"хранимые" значения.
-	
+
 	Значения бывают разных типов, поэтому они разнесены по различным атрибутам таблицы класса, соответствующих типу значения.
 =cut
 
@@ -32,9 +32,9 @@ Variable: %Attribute
 	val_time     - дата/время
 =cut
 my %Attribute = (
-	id_product   => {mode => 'read'},
-	id_propgroup => {mode => 'read'},
-	n_property   => {mode => 'read'},
+	id_product   => {mode => 'read', type => 'key'},
+	id_propgroup => {mode => 'read', type => 'key'},
+	n_property   => {mode => 'read', type => 'key'},
 	val_bool     => undef,
 	val_char     => undef,
 	val_float    => {mode => 'read'},
@@ -45,7 +45,7 @@ my %Attribute = (
 =begin nd
 Method: Attribute ( )
 	Доступ к хешу с описанием членов класса.
-	
+
 	Может вызываться и как метод экземпляра, и как метод класса.
 
 Returns:

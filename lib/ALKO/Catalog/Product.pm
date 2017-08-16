@@ -33,6 +33,7 @@ my %Attribute = (
 	properties     => {mode => 'read/write', type => 'cache'},
 	price          => {type => 'cache'},
 	visible        => undef,
+	alkoid         => undef,
 );
 
 =begin nd
@@ -63,7 +64,7 @@ sub price  {
 	my $prop     = ALKO::Catalog::Property->Get(const => 'price');
 	my $prop_val = ALKO::Catalog::Property::Value->Get(n_property => $prop->{n}, id_propgroup => $prop->{id_propgroup}, id_product => $self->{id});
 
-	$self->{price} = $prop_val ? $prop_val->val_int : undef;
+	$self->{price} = $prop_val ? $prop_val->val_float : undef;
 }
 
 =begin nd
