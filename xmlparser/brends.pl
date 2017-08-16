@@ -9,14 +9,14 @@ my $brends = XML::Simple->new;
 my $brends = $brends->XMLin("$ENV{PWD}/../../../data/i/brends.xml", KeyAttr => { brand => 'id' });
 
 while( my( $key, $value ) = each %{$brends->{brand}} ){
-   my $manufacturer = ALKO::Catalog::Manufacturer->Get(alkoid =>  $value->{manufacturer});
-   my $manufacturer_id = $manufacturer ? $manufacturer->{id} : undef;
+    my $manufacturer    = ALKO::Catalog::Manufacturer->Get(alkoid =>  $value->{manufacturer});
+    my $manufacturer_id = $manufacturer ? $manufacturer->{id} : undef;
 
-   ALKO::Catalog::Brand->new({
+    ALKO::Catalog::Brand->new({
    		id_manufacturer => $manufacturer_id,
 		name            => $value->{name},
 		alkoid          => $key,
-   })->Save;
+    })->Save;
 }
 
 print "END \n";

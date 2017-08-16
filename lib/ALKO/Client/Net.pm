@@ -15,7 +15,7 @@ Variable: %Attribute
 
 	Члены класса:
 	id_official - реквизиты, экземпляр класса <ALKO::Client::Official>
-	id_merchant   представитель, экземпляр класса <ALKO::Client::Merchant>
+	id_merchant - представитель, экземпляр класса <ALKO::Client::Merchant>
 =cut
 my %Attribute = (
 	id_official => {mode => undef, type => 'key'},

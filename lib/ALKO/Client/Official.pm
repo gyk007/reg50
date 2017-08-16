@@ -16,6 +16,7 @@ Variable: %Attribute
 Члены класса:
 	id_file       - логотип
 	name          - название компании
+	person        - директор
 	address       - фактический адрес
 	regaddress    - юридический адрес
 	phone         - телефон
@@ -32,6 +33,7 @@ Variable: %Attribute
 my %Attribute = (
 	id_file       => {mode => undef, type => 'key'},
 	name          => {mode => undef},
+	person        => {mode => undef},
 	address       => {mode => undef},
 	regaddress    => {mode => undef},
 	phone         => {mode => undef},
