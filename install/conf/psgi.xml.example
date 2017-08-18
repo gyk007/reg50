@@ -20,4 +20,9 @@
 		<workers>1</workers>
 		<port>9884</port>
 	</location>
+	<location>
+		<path>/order</path>
+		<workers>1</workers>
+		<port>9886</port>
+	</location>
 </server>

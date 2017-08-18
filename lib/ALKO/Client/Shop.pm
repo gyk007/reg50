@@ -9,6 +9,8 @@ Class: ALKO::Client::Shop
 use strict;
 use warnings;
 
+use ALKO::Client::Official;
+
 =begin nd
 Variable: %Attribute
 	Описание членов класса.
@@ -19,9 +21,10 @@ Variable: %Attribute
 	id_official - реквизиты
 =cut
 my %Attribute = (
-	id_merchant => {mode => undef, type => 'key'},
-	id_net      => {mode => undef, type => 'key'},
-	id_official => {mode => undef, type => 'key'},
+	id_merchant => {mode => 'read', type => 'key'},
+	id_net      => {mode => 'read', type => 'key'},
+	id_official => {mode => undef,  type => 'key'},
+	official    => {mode => 'read', type => 'cache'},
 );
 
 =begin nd
@@ -35,6 +38,18 @@ Returns:
 	ссылку на описание членов класса
 =cut
 sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
+
+=begin nd
+Method: official
+	Получить данные о магазине.
+
+Returns:
+	$self->{official}
+=cut
+sub official {
+	my $self = shift;
+	$self->{official} = ALKO::Client::Official->Get(id => $self->{id_official});
+}
 
 =begin nd
 Method: Table ( )

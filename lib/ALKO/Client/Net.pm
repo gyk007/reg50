@@ -9,6 +9,8 @@ Class: ALKO::Client::Net
 use strict;
 use warnings;
 
+use ALKO::Client::Official;
+
 =begin nd
 Variable: %Attribute
 	Описание членов класса.
@@ -20,6 +22,7 @@ Variable: %Attribute
 my %Attribute = (
 	id_official => {mode => undef, type => 'key'},
 	id_merchant => {mode => undef, type => 'key'},
+	official    => {mode => 'read', type => 'cache'},
 );
 
 =begin nd
@@ -33,6 +36,18 @@ Returns:
 	ссылку на описание членов класса
 =cut
 sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
+
+=begin nd
+Method: official
+	Получить данные о магазине.
+
+Returns:
+	$self->{official}
+=cut
+sub official {
+	my $self = shift;
+	$self->{official} = ALKO::Client::Official->Get(id => $self->{id_official});
+}
 
 =begin nd
 Method: Table ( )
