@@ -72,7 +72,7 @@ COMMENT ON COLUMN orders.receivables      IS 'задолженность';
 COMMENT ON COLUMN orders.phone            IS 'телефон';
 COMMENT ON COLUMN orders.email            IS 'адрес электронной почты';
 COMMENT ON COLUMN orders.address          IS 'адрес';
-COMMENT ON COLUMN orders.price            IS 'стоимость';
+COMMENT ON COLUMN orders.price            IS 'стоимость заказа';
 COMMENT ON COLUMN orders.name             IS 'имя заказчика';
 COMMENT ON COLUMN orders.remark           IS 'замечание';
 COMMENT ON COLUMN orders.id_net           IS 'сеть';
