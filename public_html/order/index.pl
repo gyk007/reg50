@@ -5,7 +5,9 @@
 
 use strict;
 use warnings;
+
 use WooF::Debug;
+use DateTime;
 use WooF::Server;
 use ALKO::Order;
 use ALKO::Cart;
@@ -27,7 +29,6 @@ my $Server = WooF::Server->new(output_t => 'JSON');
 #   rder.email       = 1
 #   cart.id_merchant = 1
 #   order.id_shop    = 2
-#
 #
 $Server->add_handler(ADD => {
 	input => {
@@ -58,7 +59,7 @@ $Server->add_handler(ADD => {
 		$order_data->{id_net}      = $shop->id_net;
 		$order_data->{id_merchant} = $shop->id_merchant;
 		$order_data->{price}       = $order_price;
-
+		$order_data->{date}        = DateTime->now;
 
 		my $order = ALKO::Order->new($order_data)->Save or return $S->fail("NOSUCH: Can\'t create order");
 
@@ -81,7 +82,12 @@ $Server->add_handler(ADD => {
 	},
 });
 
-$Server->add_handler(ORDER => {
+# Список заказов
+#
+# GET
+# URL: /order/
+#
+$Server->add_handler(LIST => {
 	input => {
 		allow => ['action', product =>[qw/ id quantity /]],
 	},
@@ -99,14 +105,39 @@ $Server->add_handler(ORDER => {
 	},
 });
 
+# Добавить товар в корзину
+#
+# GET
+# URL: /order/?
+#   action   = order
+#   order.id = 1
+#
+$Server->add_handler(ORDER => {
+	input => {
+		allow => ['action', order =>[qw/ id /]],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+		my $order = ALKO::Order->Get(id => $I->{order}{id}) or return $S->fail("NOSUCH: no such order(id => $I->{order}{id})");
+
+		$order->products;
+		$order->status;
+		$order->shop;
+		$order->net;
+
+		$O->{order} = $order;
+		OK;
+	},
+});
+
 
 $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
 	return ['ADD']    if exists $I->{action} and $I->{action} eq 'add';
-
-
-	['ORDER'];
+	return ['ORDER']  if exists $I->{action} and $I->{action} eq 'order';
+	['LIST'];
 });
 
 $Server->listen;
