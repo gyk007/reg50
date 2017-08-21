@@ -107,11 +107,10 @@ GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE order_document TO @@DBUSER@@;
 
 COMMENT ON TABLE  order_document           IS 'документ в заказе';
 COMMENT ON COLUMN order_document.id_order  IS 'заказ';
+COMMENT ON COLUMN order_document.n         IS 'порядковый номер документа в заказе';
 COMMENT ON COLUMN order_document.name      IS 'имя';
 COMMENT ON COLUMN order_document.status    IS 'статус документа';
 COMMENT ON COLUMN order_document.file_name IS 'имя файла';
-COMMENT ON COLUMN order_document.n         IS 'порядковый номер';
-
 
 -- таблица товаров в заказе
 CREATE TABLE order_product (
