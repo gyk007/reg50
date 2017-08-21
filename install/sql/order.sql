@@ -96,7 +96,7 @@ CREATE TABLE order_document (
     status      VARCHAR(128),
     file_name   VARCHAR(128),
     n           INTEGER,
-    PRIMARY KEY (n, id_order)
+    PRIMARY KEY (id_order, n)
 );
 
 GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE order_document TO @@DBUSER@@;
