@@ -119,7 +119,9 @@ CREATE TABLE order_product (
     n          INTEGER,
     price      DECIMAL(10, 2),
     qty        VARCHAR(128),
-    PRIMARY KEY (id_order, id_product)
+
+    CONSTRAINT order_product UNIQUE (d_order, id_product),
+    PRIMARY KEY (id_order, n)
 );
 
 GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE order_product TO @@DBUSER@@;
