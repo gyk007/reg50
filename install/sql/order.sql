@@ -90,9 +90,8 @@ COMMENT ON COLUMN orders.sales_phone      IS 'телефон торгового 
 
 
 -- создаем тип document_status
-CREATE TYPE document_status AS ENUM ('document request','document uploaded');
-
-COMMENT ON TYPE  document_status IS 'статусы документов';
+CREATE TYPE document_status AS ENUM ('requested','uploaded');
+COMMENT ON TYPE  document_status IS 'статусы документов; requested - клиент запросил; uploaded - загрузил с сервера';
 
 -- таблица документов в заказе
 CREATE TABLE order_document (
