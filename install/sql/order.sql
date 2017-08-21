@@ -92,10 +92,10 @@ COMMENT ON COLUMN orders.sales_phone      IS 'телефон торгового 
 -- таблица документов в заказе
 CREATE TABLE order_document (
     id_order    INTEGER REFERENCES orders(id),
+    n           INTEGER,
     name        VARCHAR(128),
     status      VARCHAR(128),
     file_name   VARCHAR(128),
-    n           INTEGER,
     PRIMARY KEY (id_order, n)
 );
 
