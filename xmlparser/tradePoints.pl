@@ -63,7 +63,6 @@ while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 	# Добавляем магазин если его не существует
 	my $shop = ALKO::Client::Shop->Get(id_official => $official->{id});
 	$shop = ALKO::Client::Shop->new({
-		id_merchant => $merchant->{id},
 		id_official => $official->{id},
 		id_net      => $net->{id},
 	})->Save unless $shop;

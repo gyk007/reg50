@@ -33,7 +33,7 @@ $Server->add_handler(ADD => {
 	input => {
 		allow => [
 			'action',
-			order => [qw/ phone address name remark email id_shop /],
+			order => [qw/ phone address name remark email id_shop price/],
 			cart  => [qw/ id_merchant n /],
 		],
 	},

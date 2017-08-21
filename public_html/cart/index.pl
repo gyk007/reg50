@@ -10,6 +10,7 @@ use WooF::Server;
 use ALKO::Cart;
 use ALKO::Catalog::Product;
 use ALKO::Client::Shop;
+use ALKO::Client::Net;
 
 my $Server = WooF::Server->new(output_t => 'JSON');
 
@@ -55,9 +56,9 @@ $Server->add_handler(CART => {
 
 		$cart->products;
 		$O->{cart}  = $cart;
-
 		# Потом это нужно перенести в регистраци, чтобы при входе был список магазинов
-		my $shops = ALKO::Client::Shop->All(id_merchant => 47885)->List;
+		my $net   = ALKO::Client::Net->Get(id_merchant => 47885);
+		my $shops = ALKO::Client::Shop->All(id_net => $net->id)->List;
 		for (@$shops) {
 			$_->official;
 		}
