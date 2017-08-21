@@ -112,18 +112,16 @@ COMMENT ON COLUMN order_document.file_name IS 'имя файла';
 
 -- таблица товаров в заказе
 CREATE TABLE order_product (
-    id         SERIAL,
     id_order   INTEGER REFERENCES orders(id),
     id_product INTEGER REFERENCES product(id),
     price      DECIMAL,
     qty        VARCHAR(128),
-    PRIMARY KEY (id)
+    PRIMARY KEY (id_order, id_product)
 );
 
 GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE order_product TO @@DBUSER@@;
 
 COMMENT ON TABLE  order_product            IS 'товар в заказе';
-COMMENT ON COLUMN order_product.id         IS 'id';
 COMMENT ON COLUMN order_product.id_order   IS 'заказ';
 COMMENT ON COLUMN order_product.id_product IS 'товар';
 COMMENT ON COLUMN order_product.price      IS 'цена товара во время заказа';
