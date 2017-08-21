@@ -115,7 +115,7 @@ CREATE TABLE order_product (
     id         SERIAL,
     id_order   INTEGER REFERENCES orders(id),
     id_product INTEGER REFERENCES product(id),
-    price      VARCHAR(128),
+    price      DECIMAL,
     qty        VARCHAR(128),
     PRIMARY KEY (id)
 );
