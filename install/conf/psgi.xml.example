@@ -18,11 +18,11 @@
 	<location>
 		<path>/cart</path>
 		<workers>1</workers>
-		<port>9884</port>
+		<port>9004</port>
 	</location>
 	<location>
 		<path>/order</path>
 		<workers>1</workers>
-		<port>9886</port>
+		<port>9005</port>
 	</location>
 </server>
