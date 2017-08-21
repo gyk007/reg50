@@ -67,7 +67,7 @@ $Server->add_handler(ADD => {
 		$order->status;
 		$order->shop;
 		$order->net;
-		debug $order;
+
 		$O->{order} = $order;
 		OK;
 	},
@@ -80,7 +80,13 @@ $Server->add_handler(ORDER => {
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
+		my $orders = ALKO::Order->All(id_merchant => 47885) or return $S->fail("NOSUCH: no such orders(id_merchant => 47885)");
 
+		for (@{$orders->List}) {
+			$_->status;
+		}
+
+		$O->{orders} = $orders->List;
 		OK;
 	},
 });

@@ -42,6 +42,7 @@ CREATE TABLE orders  (
     phone            VARCHAR(128),
     email            VARCHAR(128),
     address          VARCHAR(256),
+    price            FLOAT,
     name             VARCHAR(128),
     remark           TEXT,
     id_net           INTEGER REFERENCES net(id),
@@ -70,6 +71,7 @@ COMMENT ON COLUMN orders.receivables      IS 'задолженность';
 COMMENT ON COLUMN orders.phone            IS 'телефон';
 COMMENT ON COLUMN orders.email            IS 'адрес электронной почты';
 COMMENT ON COLUMN orders.address          IS 'адрес';
+COMMENT ON COLUMN orders.price            IS 'стоимость';
 COMMENT ON COLUMN orders.name             IS 'имя заказчика';
 COMMENT ON COLUMN orders.remark           IS 'замечание';
 COMMENT ON COLUMN orders.id_net           IS 'сеть';
