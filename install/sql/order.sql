@@ -91,19 +91,17 @@ COMMENT ON COLUMN orders.sales_phone      IS 'телефон торгового 
 
 -- таблица документов в заказе
 CREATE TABLE order_document (
-    id          SERIAL,
     id_order    INTEGER REFERENCES orders(id),
     name        VARCHAR(128),
     status      VARCHAR(128),
     file_name   VARCHAR(128),
     n           INTEGER,
-    PRIMARY KEY (id)
+    PRIMARY KEY (n, id_order)
 );
 
 GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE order_document TO @@DBUSER@@;
 
 COMMENT ON TABLE  order_document           IS 'документ в заказе';
-COMMENT ON COLUMN order_document.id        IS 'id';
 COMMENT ON COLUMN order_document.id_order  IS 'заказ';
 COMMENT ON COLUMN order_document.name      IS 'имя';
 COMMENT ON COLUMN order_document.status    IS 'статус документа';
