@@ -115,10 +115,10 @@ COMMENT ON COLUMN order_document.file_name IS 'имя файла';
 -- таблица товаров в заказе
 CREATE TABLE order_product (
     id_order   INTEGER REFERENCES orders(id),
-    id_product INTEGER REFERENCES product(id),
     n          INTEGER,
+    id_product INTEGER REFERENCES product(id),
     price      DECIMAL(10, 2),
-    qty        VARCHAR(128),
+    qty        INTEGER,
 
     CONSTRAINT order_product UNIQUE (d_order, id_product),
     PRIMARY KEY (id_order, n)
