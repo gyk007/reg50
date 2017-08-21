@@ -43,7 +43,7 @@ CREATE TABLE orders  (
     email            VARCHAR(128),
     address          VARCHAR(256),
     price            DECIMAL(10, 2),
-    date             TIMESTAMP,
+    ctime            TIMESTAMP,
     name             VARCHAR(128),
     remark           TEXT,
     id_net           INTEGER REFERENCES net(id),
