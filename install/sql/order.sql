@@ -88,13 +88,15 @@ COMMENT ON COLUMN orders.deliver_phone    IS 'телефон водителя';
 COMMENT ON COLUMN orders.sales_name       IS 'имя торгового представителя Reg50';
 COMMENT ON COLUMN orders.sales_phone      IS 'телефон торгового представителя Reg50';
 
+-- создаем тип document_status
+CREATE TYPE document_status AS ENUM ('Запрос','Загружено');
 
 -- таблица документов в заказе
 CREATE TABLE order_document (
     id_order    INTEGER REFERENCES orders(id),
     n           INTEGER,
     name        VARCHAR(128),
-    status      VARCHAR(128),
+    status      document_status,
     file_name   VARCHAR(128),
     PRIMARY KEY (id_order, n)
 );
