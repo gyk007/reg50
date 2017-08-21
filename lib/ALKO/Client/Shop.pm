@@ -10,6 +10,7 @@ use strict;
 use warnings;
 
 use ALKO::Client::Official;
+use ALKO::Client::Net;
 
 =begin nd
 Variable: %Attribute
@@ -25,6 +26,7 @@ my %Attribute = (
 	id_net      => {mode => 'read', type => 'key'},
 	id_official => {mode => undef,  type => 'key'},
 	official    => {mode => 'read', type => 'cache'},
+	net         => {mode => 'read', type => 'cache'},
 );
 
 =begin nd
@@ -49,6 +51,20 @@ Returns:
 sub official {
 	my $self = shift;
 	$self->{official} = ALKO::Client::Official->Get(id => $self->{id_official});
+}
+
+=begin nd
+Method: net
+	Получить данные о сети.
+
+Returns:
+	$self->{net}
+=cut
+sub net {
+	my $self = shift;
+	my $net =  ALKO::Client::Net->Get(id => $self->{id_net});
+	$net->official;
+	$self->{net} = $net;
 }
 
 =begin nd

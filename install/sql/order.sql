@@ -72,7 +72,7 @@ COMMENT ON COLUMN orders.phone            IS 'телефон';
 COMMENT ON COLUMN orders.email            IS 'адрес электронной почты';
 COMMENT ON COLUMN orders.address          IS 'адрес';
 COMMENT ON COLUMN orders.price            IS 'стоимость заказа, избыточно, но для скорости';
-COMMENT ON COLUMN orders.date             IS 'дата заказа';
+COMMENT ON COLUMN orders.ctime            IS 'дата заказа';
 COMMENT ON COLUMN orders.name             IS 'имя заказчика';
 COMMENT ON COLUMN orders.remark           IS 'замечание';
 COMMENT ON COLUMN orders.id_shop          IS 'торговая точка';
@@ -96,6 +96,7 @@ CREATE TABLE order_document (
     name        VARCHAR(128),
     status      VARCHAR(128),
     file_name   VARCHAR(128),
+    n           INTEGER,
     PRIMARY KEY (id)
 );
 
@@ -107,6 +108,7 @@ COMMENT ON COLUMN order_document.id_order  IS 'заказ';
 COMMENT ON COLUMN order_document.name      IS 'имя';
 COMMENT ON COLUMN order_document.status    IS 'статус документа';
 COMMENT ON COLUMN order_document.file_name IS 'имя файла';
+COMMENT ON COLUMN order_document.n         IS 'порядковый номер';
 
 
 -- таблица товаров в заказе

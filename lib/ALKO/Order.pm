@@ -27,7 +27,7 @@ Variable: %Attribute
 	address          - адрес
 	name             - имя заказчика
 	price            - цена
-	date             - дата заказа
+	ctime            - дата заказа
 	remark           - замечание
 	id_net           - организация
 	id_shop          - магазин
@@ -51,10 +51,9 @@ my %Attribute = (
 	phone            => {mode => undef},
 	address          => {mode => undef},
 	name             => {mode => undef},
-	date             => {mode => undef},
+	ctime            => {mode => undef},
 	price            => {mode => undef},
 	remark           => {mode => undef},
-	id_net           => {mode => undef},
 	id_shop          => {mode => undef},
 	id_merchant      => {mode => undef},
 	latch_number     => {mode => undef},
@@ -71,7 +70,6 @@ my %Attribute = (
 	documents        => {mode => 'read', type => 'cache'},
 	status           => {mode => 'read', type => 'cache'},
 	shop             => {mode => 'read', type => 'cache'},
-	net              => {mode => 'read', type => 'cache'},
 );
 
 =begin nd
@@ -95,19 +93,6 @@ Returns:
 sub documents {
 	my $self = shift;
 	$self->{documents} = ALKO::Order::Document->All(id_order => $self->{id});
-}
-
-=begin nd
-Method: net
-	получить данные организации.
-Returns:
-	$self->{net}
-=cut
-sub net {
-	my $self = shift;
- 	my $net  = ALKO::Client::Net->Get(id => $self->{id_net});
- 	$net->official;
- 	$self->{net} = $net;
 }
 
 =begin nd
@@ -137,6 +122,7 @@ sub shop {
 	my $self = shift;
  	my $shop = ALKO::Client::Shop->Get(id => $self->{id_shop});
  	$shop->official;
+ 	$shop->net;
  	$self->{shop} = $shop;
 }
 

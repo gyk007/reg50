@@ -59,7 +59,7 @@ $Server->add_handler(ADD => {
 		$order_data->{id_net}      = $shop->id_net;
 		$order_data->{id_merchant} = $shop->id_merchant;
 		$order_data->{price}       = $order_price;
-		$order_data->{date}        = DateTime->now;
+		$order_data->{ctime}       = DateTime->now;
 
 		my $order = ALKO::Order->new($order_data)->Save or return $S->fail("NOSUCH: Can\'t create order");
 
@@ -75,7 +75,6 @@ $Server->add_handler(ADD => {
 		$order->products;
 		$order->status;
 		$order->shop;
-		$order->net;
 
 		$O->{order} = $order;
 		OK;
@@ -124,7 +123,6 @@ $Server->add_handler(ORDER => {
 		$order->products;
 		$order->status;
 		$order->shop;
-		$order->net;
 
 		$O->{order} = $order;
 		OK;
