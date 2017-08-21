@@ -120,7 +120,7 @@ CREATE TABLE order_product (
     price      DECIMAL(10, 2),
     qty        INTEGER,
 
-    CONSTRAINT order_product UNIQUE (d_order, id_product),
+    CONSTRAINT uniq_order_product UNIQUE (id_order, id_product),
     PRIMARY KEY (id_order, n)
 );
 
