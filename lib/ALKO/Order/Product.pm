@@ -1,5 +1,5 @@
 package ALKO::Order::Product;
-use base qw/ WooF::Object::Simple /;
+use base qw/ WooF::Object /;
 
 =begin nd
 Class: ALKO::Order::Product
@@ -22,8 +22,8 @@ Variable: %Attribute
 	qty        - количество
 =cut
 my %Attribute = (
-	id_order   => {mode => undef},
-	id_product => {mode => undef},
+	id_order   => {mode => undef, type => 'key'},
+	id_product => {mode => undef, type => 'key'},
 	price      => {mode => undef},
 	qty        => {mode => undef},
 	product    => {mode => 'read', type => 'cache'},
@@ -39,7 +39,7 @@ Method: Attribute ( )
 Returns:
 	ссылку на описание членов класса
 =cut
-sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
+sub Attribute { \%Attribute }
 
 =begin nd
 Method: product
