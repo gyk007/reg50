@@ -46,7 +46,6 @@ CREATE TABLE orders  (
     ctime            TIMESTAMP,
     name             VARCHAR(128),
     remark           TEXT,
-    id_net           INTEGER REFERENCES net(id),
     id_shop          INTEGER REFERENCES shop(id),
     id_merchant      INTEGER REFERENCES merchant(id),
     latch_number     VARCHAR(128),
@@ -76,7 +75,6 @@ COMMENT ON COLUMN orders.price            IS 'стоимость заказа, �
 COMMENT ON COLUMN orders.date             IS 'дата заказа';
 COMMENT ON COLUMN orders.name             IS 'имя заказчика';
 COMMENT ON COLUMN orders.remark           IS 'замечание';
-COMMENT ON COLUMN orders.id_net           IS 'сеть';
 COMMENT ON COLUMN orders.id_shop          IS 'торговая точка';
 COMMENT ON COLUMN orders.id_merchant      IS 'представитель';
 COMMENT ON COLUMN orders.latch_number     IS 'номер фиксации в ЕГАИС';
