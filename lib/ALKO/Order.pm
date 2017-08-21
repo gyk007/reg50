@@ -26,6 +26,8 @@ Variable: %Attribute
 	phone            - телефон
 	address          - адрес
 	name             - имя заказчика
+	price            - цена
+	date             - дата заказа
 	remark           - замечание
 	id_net           - организация
 	id_shop          - магазин
@@ -49,6 +51,8 @@ my %Attribute = (
 	phone            => {mode => undef},
 	address          => {mode => undef},
 	name             => {mode => undef},
+	date             => {mode => undef},
+	price            => {mode => undef},
 	remark           => {mode => undef},
 	id_net           => {mode => undef},
 	id_shop          => {mode => undef},

@@ -28,6 +28,7 @@ Variable: %Attribute
 	val_bool     - логическое
 	val_char     - строка
 	val_float    - вещественное число
+	val_dec      - вещественное число, два символа после запятой
 	val_int      - целое число
 	val_time     - дата/время
 =cut
@@ -39,6 +40,7 @@ my %Attribute = (
 	val_char     => undef,
 	val_float    => {mode => 'read'},
 	val_int      => {mode => 'read'},
+	val_dec      => {mode => 'read'},
 	val_time     => undef,
 );
 

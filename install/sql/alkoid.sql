@@ -25,8 +25,13 @@ ALTER TABLE official DROP CONSTRAINT official_taxcode_key;
 ALTER TABLE merchant ALTER password DROP NOT NULL;
 ALTER TABLE merchant ALTER email    DROP NOT NULL;
 
--- устанавливаем тип свойства "Цена" float
-UPDATE paramvalue SET value = 'float' WHERE id_propgroup = 1 AND n_propgroup = 1 AND n_proptype = 1;
+-- добавляем тип DECIMAL 10 2
+ALTER TABLE propvalue  ADD COLUMN val_dec DECIMAL(10, 2);
+
+COMMENT ON COLUMN propvalue.val_dec IS 'вещественное, два символа после запятой';
+
+-- устанавливаем тип свойства "Цена" decimal
+UPDATE paramvalue SET value = 'decimal' WHERE id_propgroup = 1 AND n_propgroup = 1 AND n_proptype = 1;
 
 -- добавляем свойсво количество
 INSERT INTO property (id_propgroup, n, id_proptype, name, visible) VALUES (1, 8, 1, 'Qty', true);

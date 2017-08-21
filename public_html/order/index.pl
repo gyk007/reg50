@@ -48,9 +48,17 @@ $Server->add_handler(ADD => {
 		my $shop  = ALKO::Client::Shop->Get(id => $order_data->{id_shop})  or return $S->fail("NOSUCH: Can\'t get Shop: no such shop(id => $order_data->{id_shop})");
 		my $cart  = ALKO::Cart->Get($I->{cart})                            or return $S->fail("NOSUCH: Can\'t get Cart: no such cart(id_merchant => $I->{cart}{id_merchant}, n => $I->{cart}{n})");
 
+		# Цена заказа
+		my $order_price = 0;
+		for (@{$cart->products->List}) {
+			$order_price += $_->{product}{price}
+		};
+
 		$order_data->{id_status}   = 1;
 		$order_data->{id_net}      = $shop->id_net;
 		$order_data->{id_merchant} = $shop->id_merchant;
+		$order_data->{price}       = $order_price;
+
 
 		my $order = ALKO::Order->new($order_data)->Save or return $S->fail("NOSUCH: Can\'t create order");
 

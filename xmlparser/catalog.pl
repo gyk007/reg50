@@ -18,7 +18,7 @@ my $category = $category->XMLin("$ENV{PWD}/../../../data/i/category.xml", KeyAtt
 
 while( my( $key, $value ) = each %{$category->{category}} ){
 	# Выводим id категории в консоль
-	print $key;
+	print "$key \n";
 
 	# Новая категория
 	ALKO::Catalog::Category->new({
@@ -42,7 +42,7 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 		if (ref $value_p eq 'ARRAY') {
 			for (@$value_p) {
 				# Выводим id товара
-				print $_->{id};
+				print "$_->{id} \n";
 
 				# Добавляем товар
 				my $product = ALKO::Catalog::Product->new({
@@ -56,7 +56,7 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 					id_product   => $product->{id},
 					id_propgroup => 1,
 					n_property   => 1,
-					val_float    => $_->{price} ? $_->{price} : 0,
+					val_dec      => $_->{price} ? $_->{price} : 0,
 				})->Save;
 
 				# Литраж
@@ -130,7 +130,7 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 			}
 		} elsif (ref $value_p eq 'HASH') {
 			# Выводим id товара
-			print $value_p->{id};
+			print "$value_p->{id} \n";
 
 			# Добавляем товар
 			my $product = ALKO::Catalog::Product->new({
@@ -144,7 +144,7 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 				id_product   => $product->{id},
 				id_propgroup => 1,
 				n_property   => 1,
-				val_float    => $value_p->{price} ? $value_p->{price} : 0,
+				val_dec      => $value_p->{price} ? $value_p->{price} : 0,
 			})->Save;
 
 			# Литраж
