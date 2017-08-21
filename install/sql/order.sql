@@ -38,11 +38,11 @@ CREATE TABLE orders  (
     id               SERIAL,
     num              VARCHAR(128),
     id_status        INTEGER REFERENCES order_status(id),
-    receivables      DECIMAL,
+    receivables      DECIMAL(10.2),
     phone            VARCHAR(128),
     email            VARCHAR(128),
     address          VARCHAR(256),
-    price            DECIMAL,
+    price            DECIMAL(10.2),
     date             TIMESTAMP,
     name             VARCHAR(128),
     remark           TEXT,
@@ -114,7 +114,7 @@ COMMENT ON COLUMN order_document.file_name IS 'имя файла';
 CREATE TABLE order_product (
     id_order   INTEGER REFERENCES orders(id),
     id_product INTEGER REFERENCES product(id),
-    price      DECIMAL,
+    price      DECIMAL(10.2),
     qty        VARCHAR(128),
     PRIMARY KEY (id_order, id_product)
 );
