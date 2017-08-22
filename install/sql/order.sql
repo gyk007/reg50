@@ -116,7 +116,7 @@ COMMENT ON COLUMN order_document.file_name IS 'имя файла';
 CREATE TABLE order_product (
     id_order   INTEGER REFERENCES orders(id),
     n          INTEGER,
-    id_product INTEGER REFERENCES product(id),
+    id_product INTEGER REFERENCES product(id) NOT NULL,
     price      DECIMAL(10, 2) CHECK (price >= 0),
     qty        INTEGER  CHECK (qty > 0),
 
