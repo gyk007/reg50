@@ -1,5 +1,5 @@
 package ALKO::Order::Product;
-use base qw/ WooF::Object /;
+use base qw/ WooF::Object::Sequence /;
 
 =begin nd
 Class: ALKO::Order::Product
@@ -23,7 +23,7 @@ Variable: %Attribute
 =cut
 my %Attribute = (
 	id_order   => {mode => undef, type => 'key'},
-	id_product => {mode => undef, type => 'key'},
+	id_product => {mode => undef},
 	price      => {mode => undef},
 	qty        => {mode => undef},
 	product    => {mode => 'read', type => 'cache'},

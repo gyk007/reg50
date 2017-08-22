@@ -81,29 +81,6 @@ $Server->add_handler(ADD => {
 	},
 });
 
-# Список заказов
-#
-# GET
-# URL: /order/
-#
-$Server->add_handler(LIST => {
-	input => {
-		allow => ['action', product =>[qw/ id quantity /]],
-	},
-	call => sub {
-		my $S = shift;
-		my ($I, $O) = ($S->I, $S->O);
-		my $orders = ALKO::Order->All(id_merchant => 47885) or return $S->fail("NOSUCH: no such orders(id_merchant => 47885)");
-
-		for (@{$orders->List}) {
-			$_->status;
-		}
-
-		$O->{orders} = $orders->List;
-		OK;
-	},
-});
-
 # Добавить товар в корзину
 #
 # GET
@@ -129,6 +106,28 @@ $Server->add_handler(ORDER => {
 	},
 });
 
+# Список заказов
+#
+# GET
+# URL: /order/
+#
+$Server->add_handler(LIST => {
+	input => {
+		allow => ['action', product =>[qw/ id quantity /]],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+		my $orders = ALKO::Order->All(id_merchant => 47885) or return $S->fail("NOSUCH: no such orders(id_merchant => 47885)");
+
+		for (@{$orders->List}) {
+			$_->status;
+		}
+
+		$O->{orders} = $orders->List;
+		OK;
+	},
+});
 
 $Server->dispatcher(sub {
 	my $S = shift;

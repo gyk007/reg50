@@ -58,6 +58,7 @@ CREATE TABLE orders  (
     deliver_phone    VARCHAR(128),
     sales_name       VARCHAR(128),
     sales_phone      VARCHAR(128),
+    CHECK (price >= 0),
     PRIMARY KEY (id)
 );
 
@@ -121,6 +122,8 @@ CREATE TABLE order_product (
     qty        INTEGER,
 
     CONSTRAINT uniq_order_product UNIQUE (id_order, id_product),
+    CHECK (price >= 0),
+    CHECK (qty > 0),
     PRIMARY KEY (id_order, n)
 );
 

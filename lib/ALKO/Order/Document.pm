@@ -1,5 +1,5 @@
 package ALKO::Order::Document;
-use base qw/ WooF::Object::Simple /;
+use base qw/ WooF::Object::Sequence /;
 
 =begin nd
 Class: ALKO::Order::Document
