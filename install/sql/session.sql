@@ -5,7 +5,7 @@
 BEGIN;
 
 
--- таблица сессий
+-- таблица HTTP-сессий
 CREATE TABLE session (
     id          SERIAL,
     coockie     VARCHAR(128) UNIQUE,
@@ -18,7 +18,7 @@ CREATE TABLE session (
 
 GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE session TO @@DBUSER@@;
 
-COMMENT ON TABLE  session             IS 'сессия';
+COMMENT ON TABLE  session             IS 'HTTP-сессия';
 COMMENT ON COLUMN session.id          IS 'id';
 COMMENT ON COLUMN session.coockie     IS 'куки';
 COMMENT ON COLUMN session.id_merchant IS 'пользователь';
