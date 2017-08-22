@@ -16,7 +16,7 @@ use ALKO::Client::Shop;
 
 my $Server = WooF::Server->new(output_t => 'JSON');
 
-# Добавить товар в корзину
+# Создать заказ
 #
 # POST
 # URL: /order/?
@@ -76,12 +76,79 @@ $Server->add_handler(ADD => {
 		$order->status;
 		$order->shop;
 
-		$O->{order} = $order;
+		$O->{order}     = $order;
+		$O->{documents} = ALKO::Order::Document->All(id_order => $order->id)->List;
+
 		OK;
 	},
 });
 
-# Добавить товар в корзину
+# Добавить документ в заказ
+#
+# POST
+# URL: /order/?
+#   action        = add_document
+#   order.id      = 1
+#   document.name = String
+#
+$Server->add_handler(ADD_DOCUMENT => {
+	input => {
+		allow => [
+			'action',
+			order     => [qw/ id /],
+			document  => [qw/ name /],
+		],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $order = ALKO::Order->Get($I->{order}) or return $S->fail("NOSUCH: Can\'t get Order: no such order(id => $I->{order}{id})");
+
+		ALKO::Order::Document->new({
+			id_order => $order->id,
+			name     => $I->{document}{name},
+			status   => 'requested',
+		})->Save;
+
+		$O->{documents} = ALKO::Order::Document->All(id_order => $order->id)->List;
+
+		OK;
+	},
+});
+
+# Удалить документ в заказе
+#
+# POST
+# URL: /order/?
+#   action        = delete_document
+#   order.id      = 1
+#   document.name = String
+#
+$Server->add_handler(DELETE_DOCUMENT => {
+	input => {
+		allow => [
+			'action',
+			order     => [qw/ id /],
+			document  => [qw/ name /],
+		],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $order = ALKO::Order->Get($I->{order}) or return $S->fail("NOSUCH: Can\'t get Order: no such order(id => $I->{order}{id})");
+
+		my $documnt = ALKO::Order::Document->Get(id_order => $order->id, name => $I->{document}{name}) or return $S->fail("NOSUCH: Can\'t get Document: no such document(id_order => $order->id, name => $I->{document}{name})");
+		$documnt->Remove;
+
+		$O->{documents} = ALKO::Order::Document->All(id_order => $order->id)->List;
+
+		OK;
+	},
+});
+
+# Получить заказ
 #
 # GET
 # URL: /order/?
@@ -101,7 +168,9 @@ $Server->add_handler(ORDER => {
 		$order->status;
 		$order->shop;
 
-		$O->{order} = $order;
+		$O->{documents} = ALKO::Order::Document->All(id_order => $order->id)->List;
+		$O->{order}     = $order;
+
 		OK;
 	},
 });
@@ -132,8 +201,10 @@ $Server->add_handler(LIST => {
 $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
-	return ['ADD']    if exists $I->{action} and $I->{action} eq 'add';
-	return ['ORDER']  if exists $I->{action} and $I->{action} eq 'order';
+	return ['ADD']             if exists $I->{action} and $I->{action} eq 'add';
+	return ['ORDER']           if exists $I->{action} and $I->{action} eq 'order';
+	return ['ADD_DOCUMENT']    if exists $I->{action} and $I->{action} eq 'add_document';
+	return ['DELETE_DOCUMENT'] if exists $I->{action} and $I->{action} eq 'delete_document';
 	['LIST'];
 });
 

@@ -58,6 +58,7 @@ CREATE TABLE orders  (
     deliver_phone    VARCHAR(128),
     sales_name       VARCHAR(128),
     sales_phone      VARCHAR(128),
+    alkoid           VARCHAR(64) UNIQUE,
     PRIMARY KEY (id)
 );
 
@@ -87,6 +88,8 @@ COMMENT ON COLUMN orders.deliver_name     IS 'имя водителя';
 COMMENT ON COLUMN orders.deliver_phone    IS 'телефон водителя';
 COMMENT ON COLUMN orders.sales_name       IS 'имя торгового представителя Reg50';
 COMMENT ON COLUMN orders.sales_phone      IS 'телефон торгового представителя Reg50';
+COMMENT ON COLUMN orders.alkoid           IS 'ид в системе заказчика';
+
 
 
 -- создаем тип document_status

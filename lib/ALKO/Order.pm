@@ -41,6 +41,7 @@ Variable: %Attribute
 	deliver_phone    - телефон водителя
 	sales_name       - имя торгового представителя Reg50
 	sales_phone      - телефон торгового представителя Reg50
+	alkoid           - ид в системе заказчика
 	products         - продукты, массив объектов класса <ALKO::Order::Product>
 	documents        - документы, массив объектов класса <ALKO::Order::Document>
 =cut
@@ -66,6 +67,7 @@ my %Attribute = (
 	deliver_phone    => {mode => undef},
 	sales_name       => {mode => undef},
 	sales_phone	     => {mode => undef},
+	alkoid           => {mode => undef},
 	products         => {mode => 'read', type => 'cache'},
 	documents        => {mode => 'read', type => 'cache'},
 	status           => {mode => 'read', type => 'cache'},

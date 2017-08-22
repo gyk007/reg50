@@ -38,7 +38,7 @@ ALTER TABLE manufacturer ADD COLUMN alkoid VARCHAR(64) UNIQUE;
 ALTER TABLE brand        ADD COLUMN alkoid varchar(64) UNIQUE;
 
 COMMENT ON COLUMN manufacturer.alkoid IS 'alko id - идентификатор во внешней системе';
-COMMENT ON COLUMN brand.alkoid        IS 'alko id - идентификатор во внешней системе';
+COMMENT ON COLUMN brand.alkoid bp       IS 'alko id - идентификатор во внешней системе';
 
 
 -- имена параметров типа должны быть уникальны, чтобы можно было обращаться к ним по именам

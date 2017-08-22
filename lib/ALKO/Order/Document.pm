@@ -20,7 +20,7 @@ Variable: %Attribute
 	file_name - имя файла
 =cut
 my %Attribute = (
-	id_order  => {mode => undef},
+	id_order  => {mode => undef, type => 'key'},
 	name      => {mode => undef},
 	status    => {mode => undef},
 	file_name => {mode => undef},
@@ -43,8 +43,8 @@ Method: Table ( )
 	Таблица хранения сущности в базе данных.
 
 Returns:
-	Строку 'file_name'.
+	Строку 'order_document'.
 =cut
-sub Table { 'file_name' }
+sub Table { 'order_document' }
 
 1;
