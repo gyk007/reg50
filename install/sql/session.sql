@@ -22,7 +22,7 @@ COMMENT ON TABLE  session             IS 'сессия';
 COMMENT ON COLUMN session.id          IS 'id';
 COMMENT ON COLUMN session.coockie     IS 'куки';
 COMMENT ON COLUMN session.id_merchant IS 'пользователь';
-COMMENT ON COLUMN session.ctime       IS 'время создаия сессии';
+COMMENT ON COLUMN session.ctime       IS 'время создания сессии';
 COMMENT ON COLUMN session.ltime       IS 'время последнего визита';
 
 
