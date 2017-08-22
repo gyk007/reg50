@@ -8,7 +8,7 @@ BEGIN;
 -- таблица сессий
 CREATE TABLE session (
     id          SERIAL,
-    coockie     VARCHAR(128),
+    coockie     VARCHAR(128) UNIQUE,
     id_merchant INTEGER REFERENCES merchant(id),
     ctime       TIMESTAMP,
     ltime       TIMESTAMP,
