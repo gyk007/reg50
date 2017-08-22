@@ -10,8 +10,8 @@ CREATE TABLE session (
     id          SERIAL,
     coockie     VARCHAR(128) UNIQUE,
     id_merchant INTEGER REFERENCES merchant(id),
-    ctime       TIMESTAMP,
-    ltime       TIMESTAMP,
+    ctime       TIMESTAMP(6) WITH TIME ZONE,
+    ltime       TIMESTAMP(6) WITH TIME ZONE,
 
     PRIMARY KEY (id)
 );
