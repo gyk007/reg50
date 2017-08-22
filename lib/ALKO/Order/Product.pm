@@ -39,7 +39,7 @@ Method: Attribute ( )
 Returns:
 	ссылку на описание членов класса
 =cut
-sub Attribute { \%Attribute }
+sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
 
 =begin nd
 Method: product
