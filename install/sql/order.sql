@@ -42,7 +42,7 @@ CREATE TABLE orders  (
     phone            VARCHAR(128),
     email            VARCHAR(128),
     address          VARCHAR(256),
-    price            DECIMAL(10, 2),
+    price            DECIMAL(10, 2)  CHECK (price >= 0),
     ctime            TIMESTAMP,
     name             VARCHAR(128),
     remark           TEXT,
@@ -58,7 +58,6 @@ CREATE TABLE orders  (
     deliver_phone    VARCHAR(128),
     sales_name       VARCHAR(128),
     sales_phone      VARCHAR(128),
-    CHECK (price >= 0),
     PRIMARY KEY (id)
 );
 
@@ -118,12 +117,10 @@ CREATE TABLE order_product (
     id_order   INTEGER REFERENCES orders(id),
     n          INTEGER,
     id_product INTEGER REFERENCES product(id),
-    price      DECIMAL(10, 2),
-    qty        INTEGER,
+    price      DECIMAL(10, 2) CHECK (price >= 0),
+    qty        INTEGER  CHECK (qty > 0),
 
     CONSTRAINT uniq_order_product UNIQUE (id_order, id_product),
-    CHECK (price >= 0),
-    CHECK (qty > 0),
     PRIMARY KEY (id_order, n)
 );
 
