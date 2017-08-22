@@ -131,7 +131,7 @@ COMMENT ON COLUMN order_product.id_order   IS 'заказ';
 COMMENT ON COLUMN order_document.n         IS 'порядковый номер товара в заказе';
 COMMENT ON COLUMN order_product.id_product IS 'товар';
 COMMENT ON COLUMN order_product.price      IS 'цена товара во время заказа';
-COMMENT ON COLUMN order_product.qty        IS 'количесво';
+COMMENT ON COLUMN order_product.qty        IS 'количество';
 
 
 COMMIT;
