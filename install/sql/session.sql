@@ -18,7 +18,7 @@ CREATE TABLE session (
 
 GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE session TO @@DBUSER@@;
 
-COMMENT ON TABLE  session             IS 'статус заказа';
+COMMENT ON TABLE  session             IS 'сессия';
 COMMENT ON COLUMN session.id          IS 'id';
 COMMENT ON COLUMN session.coockie     IS 'куки';
 COMMENT ON COLUMN session.id_merchant IS 'пользователь';
