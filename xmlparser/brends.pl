@@ -8,14 +8,14 @@ use XML::Simple;
 my $brends = XML::Simple->new;
 my $brends = $brends->XMLin("$ENV{PWD}/../../../data/i/brends.xml", KeyAttr => { brand => 'id' });
 
-while( my( $key, $value ) = each %{$brends->{brand}} ){
-    my $manufacturer    = ALKO::Catalog::Manufacturer->Get(alkoid =>  $value->{manufacturer});
+while( my( $alkoid, $brand ) = each %{$brends->{brand}} ){
+    my $manufacturer    = ALKO::Catalog::Manufacturer->Get(alkoid =>  $brand->{manufacturer});
     my $manufacturer_id = $manufacturer ? $manufacturer->{id} : undef;
 
     ALKO::Catalog::Brand->new({
    		id_manufacturer => $manufacturer_id,
-		name            => $value->{name},
-		alkoid          => $key,
+		name            => $brand->{name},
+		alkoid          => $alkoid,
     })->Save;
 }
 
