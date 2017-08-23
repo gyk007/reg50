@@ -10,19 +10,19 @@ my $clients = $clients->XMLin("$ENV{PWD}/../../../data/i/contractors.xml", KeyAt
 while( my( $key, $value ) = each %{$clients->{contractor}} ){
 	# Реквизиты
 	my $official = ALKO::Client::Official->new({
-		name          => defined $value->{name}                  ? $value->{name}                  : undef,
-		person        => defined $value->{person}                ? $value->{person}                : undef,
-		address       => defined $value->{delivery_address}      ? $value->{delivery_address}      : undef,
-		regaddress    => defined $value->{legal_address}         ? $value->{legal_address}         : undef,
-		phone         => defined $value->{phonecontractor}       ? $value->{phonecontractor}       : undef,
-		email         => defined $value->{email}                 ? $value->{email}                 : undef,
-		bank          => defined $value->{bank}                  ? $value->{bank}                  : undef,
-		account       => defined $value->{account_number}        ? $value->{account_number}        : undef,
-		bank_account  => defined $value->{correspondent_account} ? $value->{correspondent_account} : undef,
-		bik           => defined $value->{bik}                   ? $value->{bik}                   : undef,
-		taxcode       => defined $value->{inn}                   ? $value->{inn}                   : undef,
-		taxreasoncode => defined $value->{kpp}                   ? $value->{kpp}                   : undef,
-		regcode       => defined $value->{ogrn}                  ? $value->{ogrn}                  : undef,
+		name          => $value->{name}                  if defined $value->{name},
+		person        => $value->{person}                if defined $value->{person},
+		address       => $value->{delivery_address}      if defined $value->{delivery_address},
+		regaddress    => $value->{legal_address}         if defined $value->{legal_address},
+		phone         => $value->{phonecontractor}       if defined $value->{phonecontractor},
+		email         => $value->{email}                 if defined $value->{email},
+		bank          => $value->{bank}                  if defined $value->{bank},
+		account       => $value->{account_number}        if defined $value->{account_number},
+		bank_account  => $value->{correspondent_account} if defined $value->{correspondent_account},
+		bik           => $value->{bik}                   if defined $value->{bik},
+		taxcode       => $value->{inn}                   if defined $value->{inn},
+		taxreasoncode => $value->{kpp}                   if defined $value->{kpp},
+		regcode       => $value->{ogrn}                  if defined $value->{ogrn},
 		alkoid        => $key,
 	});
 
