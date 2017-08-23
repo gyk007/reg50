@@ -50,6 +50,9 @@ Returns:
 =cut
 sub product  {
 	my  $self = shift;
+	# Если уже есть данные, то ничего не делаем
+	return $self->{product} if defined $self->{product};
+
 	$self->{product} = ALKO::Catalog::Product->Get(id => $self->{id_product});
 }
 

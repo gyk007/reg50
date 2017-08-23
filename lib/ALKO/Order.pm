@@ -110,6 +110,9 @@ Returns:
 =cut
 sub products {
 	my $self = shift;
+	# Если уже есть данные, то ничего не делаем
+	return $self->{products} if defined $self->{products};
+
  	my $products =  ALKO::Order::Product->All(id_order => $self->{id});
 
  	for (@{$products->List}) {
@@ -127,6 +130,9 @@ Returns:
 =cut
 sub shop {
 	my $self = shift;
+	# Если уже есть данные, то ничего не делаем
+	return $self->{shop} if defined $self->{shop};
+
  	my $shop = ALKO::Client::Shop->Get(id => $self->{id_shop});
  	$shop->official;
  	$shop->net;
@@ -141,6 +147,9 @@ Returns:
 =cut
 sub status {
 	my $self = shift;
+	# Если уже есть данные, то ничего не делаем
+	return $self->{status} if defined $self->{status};
+
  	$self->{status} = ALKO::Order::Status->Get(id => $self->{id_status});
 }
 

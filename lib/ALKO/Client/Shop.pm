@@ -50,6 +50,9 @@ Returns:
 =cut
 sub net {
 	my $self = shift;
+	# Если уже есть данные, то ничего не делаем
+	return $self->{net} if defined $self->{net};
+
 	my $net =  ALKO::Client::Net->Get(id => $self->{id_net});
 	$net->official;
 	$self->{net} = $net;
@@ -64,6 +67,9 @@ Returns:
 =cut
 sub official {
 	my $self = shift;
+	# Если уже есть данные, то ничего не делаем
+	return $self->{official} if defined $self->{official};
+
 	$self->{official} = ALKO::Client::Official->Get(id => $self->{id_official});
 }
 
