@@ -12,7 +12,7 @@ use ALKO::Catalog;
 use ALKO::Catalog::Category;
 use ALKO::Catalog::Category::Graph;
 
-my $Server = ALKO::Server->new(output_t => 'JSON');
+my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 
 # Добавить категорию в корень
 # Вставка происходит последним потомком корня

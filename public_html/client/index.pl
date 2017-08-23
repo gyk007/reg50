@@ -9,7 +9,7 @@ use warnings;
 use ALKO::Server;
 use ALKO::Client::Net;
 
-my $Server = ALKO::Server->new(output_t => 'JSON');
+my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 
 # Список организаций
 #

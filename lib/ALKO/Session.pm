@@ -23,7 +23,7 @@ my %Attribute = (
 	token       => undef,
 	id_merchant => undef,
 	ctime       => undef,
-	ltime       => undef,
+	ltime       => {mode => 'wirte'},
 );
 
 =begin nd

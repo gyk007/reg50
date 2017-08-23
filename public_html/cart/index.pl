@@ -12,7 +12,7 @@ use ALKO::Catalog::Product;
 use ALKO::Client::Shop;
 use ALKO::Client::Net;
 
-my $Server = ALKO::Server->new(output_t => 'JSON');
+my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 
 # Добавить товар в корзину
 #
