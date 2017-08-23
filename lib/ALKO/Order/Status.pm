@@ -2,8 +2,8 @@ package ALKO::Order::Status;
 use base qw/ WooF::Object::Simple /;
 
 =begin nd
-Class: ALKO::Order::Product
-	Товар в заказе.
+Class: ALKO::Order::Status
+	Статус заказа.
 =cut
 
 use strict;
