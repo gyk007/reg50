@@ -16,8 +16,9 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	id_official - реквизиты, экземпляр класса <ALKO::Client::Official>
-	id_merchant - представитель, экземпляр класса <ALKO::Client::Merchant>
+	id_official - реквизиты
+	id_merchant - представитель
+	shop        - реквизиты, объект класса <ALKO::Client::Official>
 =cut
 my %Attribute = (
 	id_official => undef,

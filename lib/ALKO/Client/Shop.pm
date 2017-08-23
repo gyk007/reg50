@@ -20,6 +20,8 @@ Variable: %Attribute
 	id_merchant - представитель
 	id_net      - сеть
 	id_official - реквизиты
+	official    - реквизиты, объект класса <ALKO::Client::Official>
+	net         - организация, объект класса <ALKO::Client::Net>
 =cut
 my %Attribute = (
 	id_merchant => {mode => 'read'},
