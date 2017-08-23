@@ -46,6 +46,9 @@ Returns:
 =cut
 sub official {
 	my $self = shift;
+	# Если уже есть данные, то ничего не делаем
+	return $self->{official} if defined $self->{official};
+
 	$self->{official} = ALKO::Client::Official->Get(id => $self->{id_official});
 }
 
