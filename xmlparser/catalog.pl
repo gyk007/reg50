@@ -16,14 +16,14 @@ use ALKO::Country;
 my $category = XML::Simple->new;
 my $category = $category->XMLin("$ENV{PWD}/../../../data/i/category.xml", KeyAttr => { category => 'id' });
 
-while( my( $key, $value ) = each %{$category->{category}} ){
+while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 	# Выводим id категории в консоль
 	print "$key \n";
 
 	# Новая категория
 	ALKO::Catalog::Category->new({
-		id      => $key,
-		name    => $value->{name},
+		id      => $id_categ,
+		name    => $categ->{name},
 		visible => 1,
 	})->Save;
 
@@ -38,9 +38,9 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 	})->Save;
 
 	# Товары и свойства
-	while( my( $key_p, $value_p) = each %{$value->{products}}){
-		if (ref $value_p eq 'ARRAY') {
-			for (@$value_p) {
+	while( my( $key_products, $products) = each %{$categ->{products}}){
+		if (ref $products eq 'ARRAY') {
+			for (@$products) {
 				# Выводим id товара
 				print "$_->{id} \n";
 
@@ -124,18 +124,18 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 
 				# Добавляем товар в категорию
 				ALKO::Catalog::Product::Link->new({
-					id_category => $key,
+					id_category => $id_categ,
 					id_product  => $product->{id},
 				})->Save;
 			}
-		} elsif (ref $value_p eq 'HASH') {
+		} elsif (ref $products eq 'HASH') {
 			# Выводим id товара
-			print "$value_p->{id} \n";
+			print "$products->{id} \n";
 
 			# Добавляем товар
 			my $product = ALKO::Catalog::Product->new({
-				name    => $value_p->{name},
-				alkoid  => $value_p->{id},
+				name    => $products->{name},
+				alkoid  => $products->{id},
 				visible => 1,
 			})->Save;
 
@@ -144,7 +144,7 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 				id_product   => $product->{id},
 				id_propgroup => 1,
 				n_property   => 1,
-				val_dec      => $value_p->{price} ? $value_p->{price} : 0,
+				val_dec      => $products->{price} ? $products->{price} : 0,
 			})->Save;
 
 			# Литраж
@@ -152,7 +152,7 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 				id_product   => $product->{id},
 				id_propgroup => 1,
 				n_property   => 4,
-				val_float    => $value_p->{litr} ? $value_p->{litr} : 0,
+				val_float    => $products->{litr} ? $products->{litr} : 0,
 			})->Save;
 
 			# Алкоголь %
@@ -160,7 +160,7 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 				id_product   => $product->{id},
 				id_propgroup => 1,
 				n_property   => 5,
-				val_float    => $value_p->{alcmin} ? $value_p->{alcmin} : 0,
+				val_float    => $products->{alcmin} ? $products->{alcmin} : 0,
 			})->Save;
 
 			# Остаток
@@ -168,11 +168,11 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 				id_product   => $product->{id},
 				id_propgroup => 1,
 				n_property   => 8,
-				val_int      => $value_p->{qty} ? $value_p->{qty} : 0,
+				val_int      => $products->{qty} ? $products->{qty} : 0,
 			})->Save;
 
 			# Бренд
-			my $brend = ALKO::Catalog::Brand->Get(alkoid => $value_p->{brand})  if  $value_p->{brand};
+			my $brend = ALKO::Catalog::Brand->Get(alkoid => $products->{brand})  if  $products->{brand};
 			if ($brend) {
 				ALKO::Catalog::Property::Value->new({
 					id_product   => $product->{id},
@@ -182,7 +182,7 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 				})->Save;
 			}
 
-			for my $param (@{$value_p->{parameters}{parameter}}) {
+			for my $param (@{$products->{parameters}{parameter}}) {
 				# Страна
 				if($param->{id} == 1) {
 					my $country = ALKO::Country->Get(name => $param->{value});
@@ -212,7 +212,7 @@ while( my( $key, $value ) = each %{$category->{category}} ){
 
 			# Добавляем товар в категорию
 			ALKO::Catalog::Product::Link->new({
-				id_category => $key,
+				id_category => $id_categ,
 				id_product  => $product->{id},
 			})->Save;
 		}
