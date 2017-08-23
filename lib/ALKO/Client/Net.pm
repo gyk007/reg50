@@ -20,8 +20,8 @@ Variable: %Attribute
 	id_merchant - представитель, экземпляр класса <ALKO::Client::Merchant>
 =cut
 my %Attribute = (
-	id_official => {type => 'key'},
-	id_merchant => {type => 'key'},
+	id_official => undef,
+	id_merchant => undef,
 	official    => {mode => 'read', type => 'cache'},
 );
 
