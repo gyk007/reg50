@@ -28,7 +28,7 @@ Variable: %Attribute
 	deliver_interval - интервал доставки
 	deliver_name     - имя водителя
 	deliver_phone    - телефон водителя
-	documents        - документы, коллекция объектов класса <ALKO::Order::Document>
+	documents        - документы, коллекция экземпляров класса <ALKO::Order::Document>
 	email            - адрес электронной почты
 	id_merchant      - представитель
 	id_shop          - магазин
@@ -38,13 +38,13 @@ Variable: %Attribute
 	num              - номер заказ
 	phone            - телефон
 	price            - цена
-	products         - продукты, коллекция объектов класса <ALKO::Order::Product>
+	products         - продукты, коллекция экземпляров класса <ALKO::Order::Product>
 	receivables      - задолженность
 	remark           - замечание
 	sales_name       - имя торгового представителя Reg50
 	sales_phone      - телефон торгового представителя Reg50
-	shop             - магазин, объект класса <ALKO::Client::Shop>
-	status           - статус, объект класса <ALKO::Order::Status>
+	shop             - магазин, экземпляр класса <ALKO::Client::Shop>
+	status           - статус, экземпляр класса <ALKO::Order::Status>
 	ttn_date         - дата ТТН
 	ttn_id           - идентификатор ТТН
 	ttn_number       - номер ТТН

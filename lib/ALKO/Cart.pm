@@ -22,7 +22,7 @@ Variable: %Attribute
 	Члены класса:
 	id_merchant - торговый представитель
  	name        - название корзины
-	products    - товары, список объектов класса <ALKO::Catalog::Product>
+	products    - товары, список экземпляров класса <ALKO::Catalog::Product>
 =cut
 my %Attribute = (
 	id_merchant => {type => 'key'},
