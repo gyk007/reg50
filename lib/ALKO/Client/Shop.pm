@@ -22,9 +22,9 @@ Variable: %Attribute
 	id_official - реквизиты
 =cut
 my %Attribute = (
-	id_merchant => {mode => 'read', type => 'key'},
-	id_net      => {mode => 'read', type => 'key'},
-	id_official => {type => 'key'},
+	id_merchant => {mode => 'read'},
+	id_net      => {mode => 'read'},
+	id_official => undef,
 	official    => {mode => 'read', type => 'cache'},
 	net         => {mode => 'read', type => 'cache'},
 );
