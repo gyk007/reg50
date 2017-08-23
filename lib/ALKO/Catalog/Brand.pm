@@ -16,16 +16,16 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
+	alkoid          - идентификатор во внешней системе
 	description     - полное описание
 	id_manufacturer - владелец бренда
 	name            - наименование
-	alkoid          - идентификатор во внешней системе
 =cut
 my %Attribute = (
+	alkoid          => undef,
 	description     => undef,
 	id_manufacturer => undef,
 	name            => {mode => 'read'},
-	alkoid          => undef,
 );
 
 =begin nd

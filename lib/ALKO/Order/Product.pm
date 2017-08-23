@@ -18,14 +18,14 @@ Variable: %Attribute
 	Члены класса:
 	id_order   - заказ
 	id_product - продукт
-	price      - цены во время заказа
 	qty        - количество
+	price      - цены во время заказа
 =cut
 my %Attribute = (
 	id_order   => {type => 'key'},
 	id_product => undef,
-	price      => undef,
 	qty        => undef,
+	price      => undef,
 	product    => {mode => 'read', type => 'cache'},
 );
 

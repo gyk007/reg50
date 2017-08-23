@@ -14,18 +14,18 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	password - пароль
+	alkoid   - ид в системе заказчика
 	email    - адрес электроной почты
 	name     - имя
+	password - пароль
 	phone    - телефон
-	alkoid   - ид в системе заказчика
 =cut
 my %Attribute = (
-	password => undef,
+	alkoid   => undef,
 	email    => undef,
 	name     => undef,
+	password => undef,
 	phone    => undef,
-	alkoid   => undef,
 );
 
 =begin nd

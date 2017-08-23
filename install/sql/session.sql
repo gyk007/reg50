@@ -25,5 +25,7 @@ COMMENT ON COLUMN session.id_merchant IS 'пользователь';
 COMMENT ON COLUMN session.ctime       IS 'время создания сессии';
 COMMENT ON COLUMN session.ltime       IS 'время последнего визита';
 
+-- добавляем n в pickedup
+ALTER TABLE merchant ADD COLUMN alkoid VARCHAR(64) UNIQUE;
 
 COMMIT;

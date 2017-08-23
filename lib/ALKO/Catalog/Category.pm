@@ -46,8 +46,8 @@ Variable: %Attribute
 my %Attribute = (
 	description      => undef,
 	filter           => {type => 'cache'},
-	name             => undef,
 	groups_effective => {mode => 'read/write', type => 'cache'},
+	name             => undef,
 	parents          => {type => 'cache'},
 	products         => {
 	                        mode   => 'read',

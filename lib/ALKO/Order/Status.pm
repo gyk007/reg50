@@ -14,12 +14,12 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	name        - имя статуса
 	description - описние
+	name        - имя статуса
 =cut
 my %Attribute = (
-	name        => undef,
 	description => undef,
+	name        => undef
 );
 
 =begin nd

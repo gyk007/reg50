@@ -14,16 +14,16 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
+	file_name - имя файла
 	id_order  - заказ
 	name      - имя документа
 	status    - статус документа
-	file_name - имя файла
 =cut
 my %Attribute = (
+	file_name => undef,
 	id_order  => {type => 'key'},
 	name      => undef,
 	status    => undef,
-	file_name => undef,
 );
 
 =begin nd

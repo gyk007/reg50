@@ -14,38 +14,39 @@ Variable: %Attribute
 	Описание членов класса.
 
 Члены класса:
+	account       - номер расчетного счета
+	address       - фактический адрес
+	alkoid        - ид в системе заказчика
+	bank          - наименование банка
+	bank_account  - номер корреспондентского счета
+	bik           - БИК
+	email         - адрес электронной почты
 	id_file       - логотип
 	name          - название компании
 	person        - директор
-	address       - фактический адрес
-	regaddress    - юридический адрес
 	phone         - телефон
-	email         - адрес электронной почты
-	bank          - наименование банка
-	account       - номер расчетного счета
-	bank_account  - номер корреспондентского счета
-	bik           - БИК
+	regaddress    - юридический адрес
+	regcode       - ОГРН
 	taxcode       - ИНН
 	taxreasoncode - КПП
-	regcode       - ОГРН
-	alkoid        - ид в системе заказчика
+
 =cut
 my %Attribute = (
+	account       => undef,
+	address       => undef,
+	alkoid        => undef,
+	bank          => undef,
+	bank_account  => undef,
+	bik           => undef,
+	email         => undef,
 	id_file       => {type => 'key'},
 	name          => undef,
 	person        => undef,
-	address       => undef,
-	regaddress    => undef,
 	phone         => undef,
-	email         => undef,
-	bank          => undef,
-	account       => undef,
-	bank_account  => undef,
-	bik           => undef,
+	regaddress    => undef,
+	regcode       => undef,
 	taxcode       => undef,
 	taxreasoncode => undef,
-	regcode       => undef,
-	alkoid        => undef,
 );
 
 =begin nd

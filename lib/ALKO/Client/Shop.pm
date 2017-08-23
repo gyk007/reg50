@@ -42,18 +42,6 @@ Returns:
 sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
 
 =begin nd
-Method: official
-	Получить данные о магазине.
-
-Returns:
-	$self->{official}
-=cut
-sub official {
-	my $self = shift;
-	$self->{official} = ALKO::Client::Official->Get(id => $self->{id_official});
-}
-
-=begin nd
 Method: net
 	Получить данные о сети.
 
@@ -65,6 +53,18 @@ sub net {
 	my $net =  ALKO::Client::Net->Get(id => $self->{id_net});
 	$net->official;
 	$self->{net} = $net;
+}
+
+=begin nd
+Method: official
+	Получить данные о магазине.
+
+Returns:
+	$self->{official}
+=cut
+sub official {
+	my $self = shift;
+	$self->{official} = ALKO::Client::Official->Get(id => $self->{id_official});
 }
 
 =begin nd

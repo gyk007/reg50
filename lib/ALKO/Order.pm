@@ -9,69 +9,74 @@ Class: ALKO::Order
 use strict;
 use warnings;
 
+use ALKO::Client::Net;
+use ALKO::Client::Shop;
 use ALKO::Order::Document;
 use ALKO::Order::Product;
 use ALKO::Order::Status;
-use ALKO::Client::Shop;
-use ALKO::Client::Net;
+
 
 =begin nd
 Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	num              - номер заказ
-	id_status        - статус
-	receivables      - задолженность
-	phone            - телефон
 	address          - адрес
-	name             - имя заказчика
-	price            - цена
+	alkoid           - ид в системе заказчика
 	ctime            - дата заказа
-	remark           - замечание
-	id_net           - организация
-	id_shop          - магазин
-	latch_number     - номер фиксации в ЕГАИС
-	ttn_id           - идентификатор ТТН
-	ttn_number       - номер ТТН
-	ttn_date         - дата ТТН
 	deliver_date     - дата доставки
 	deliver_interval - интервал доставки
 	deliver_name     - имя водителя
 	deliver_phone    - телефон водителя
+	documents        - документы, коллекция объектов класса <ALKO::Order::Document>
+	email            - адрес электронной почты
+	id_merchant      - представитель
+	id_shop          - магазин
+	id_status        - статус
+	latch_number     - номер фиксации в ЕГАИС
+	name             - имя заказчика
+	num              - номер заказ
+	phone            - телефон
+	price            - цена
+	products         - продукты, коллекция объектов класса <ALKO::Order::Product>
+	receivables      - задолженность
+	remark           - замечание
 	sales_name       - имя торгового представителя Reg50
 	sales_phone      - телефон торгового представителя Reg50
-	alkoid           - ид в системе заказчика
-	products         - продукты, массив объектов класса <ALKO::Order::Product>
-	documents        - документы, массив объектов класса <ALKO::Order::Document>
+	shop             - магазин, объект класса <ALKO::Client::Shop>
+	status           - статус, объект класса <ALKO::Order::Status>
+	ttn_date         - дата ТТН
+	ttn_id           - идентификатор ТТН
+	ttn_number       - номер ТТН
 =cut
 my %Attribute = (
-	num              => undef,
-	id_status        => undef,
-	receivables      => undef,
-	phone            => undef,
 	address          => undef,
-	name             => undef,
+	alkoid           => undef,
 	ctime            => undef,
-	price            => undef,
-	remark           => undef,
-	id_shop          => undef,
-	id_merchant      => undef,
-	latch_number     => undef,
-	ttn_id           => undef,
-	ttn_number       => undef,
-	ttn_date         => undef,
 	deliver_date     => undef,
 	deliver_interval => undef,
 	deliver_name     => undef,
 	deliver_phone    => undef,
+	documents        => {mode => 'read', type => 'cache'},
+	email            => undef,
+	id_merchant      => undef,
+	id_shop          => undef,
+	id_status        => undef,
+	latch_number     => undef,
+	name             => undef,
+	num              => undef,
+	phone            => undef,
+	price            => undef,
+	products         => {mode => 'read', type => 'cache'},
+	receivables      => undef,
+	remark           => undef,
 	sales_name       => undef,
 	sales_phone	     => undef,
-	alkoid           => undef,
-	products         => {mode => 'read', type => 'cache'},
-	documents        => {mode => 'read', type => 'cache'},
-	status           => {mode => 'read', type => 'cache'},
 	shop             => {mode => 'read', type => 'cache'},
+	status           => {mode => 'read', type => 'cache'},
+	ttn_date         => undef,
+	ttn_id           => undef,
+	ttn_number       => undef,
 );
 
 =begin nd
