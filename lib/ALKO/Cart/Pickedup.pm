@@ -22,9 +22,9 @@ Variable: %Attribute
 
 =cut
 my %Attribute = (
-	id_merchant => {mode => undef, type => 'key'},
-	ncart       => {mode => undef, type => 'key'},
-	id_product  => {mode => undef},
+	id_merchant => {type => 'key'},
+	ncart       => {type => 'key'},
+	id_product  => undef,
 	quantity    => {mode => 'read/write'},
 	product     => {mode=>'write', type => 'cache'},
 );

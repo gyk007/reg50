@@ -23,7 +23,7 @@ Variable: %Attribute
 =cut
 my %Attribute = (
 	face        => undef,
-	id_category => {mode => undef,  type => 'key'},
+	id_category => {type => 'key'},
 	id_product  => {mode => 'read', type => 'key'},
 );
 

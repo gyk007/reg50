@@ -24,7 +24,7 @@ Variable: %Attribute
 my %Attribute = (
 	id_merchant => {mode => 'read', type => 'key'},
 	id_net      => {mode => 'read', type => 'key'},
-	id_official => {mode => undef,  type => 'key'},
+	id_official => {type => 'key'},
 	official    => {mode => 'read', type => 'cache'},
 	net         => {mode => 'read', type => 'cache'},
 );

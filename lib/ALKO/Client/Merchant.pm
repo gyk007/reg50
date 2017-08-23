@@ -21,11 +21,11 @@ Variable: %Attribute
 	alkoid   - ид в системе заказчика
 =cut
 my %Attribute = (
-	password => {mode => undef},
-	email    => {mode => undef},
-	name     => {mode => undef},
-	phone    => {mode => undef},
-	alkoid   => {mode => undef},
+	password => undef,
+	email    => undef,
+	name     => undef,
+	phone    => undef,
+	alkoid   => undef,
 );
 
 =begin nd

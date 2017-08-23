@@ -31,21 +31,21 @@ Variable: %Attribute
 	alkoid        - ид в системе заказчика
 =cut
 my %Attribute = (
-	id_file       => {mode => undef, type => 'key'},
-	name          => {mode => undef},
-	person        => {mode => undef},
-	address       => {mode => undef},
-	regaddress    => {mode => undef},
-	phone         => {mode => undef},
-	email         => {mode => undef},
-	bank          => {mode => undef},
-	account       => {mode => undef},
-	bank_account  => {mode => undef},
-	bik           => {mode => undef},
-	taxcode       => {mode => undef},
-	taxreasoncode => {mode => undef},
-	regcode       => {mode => undef},
-	alkoid        => {mode => undef},
+	id_file       => {type => 'key'},
+	name          => undef,
+	person        => undef,
+	address       => undef,
+	regaddress    => undef,
+	phone         => undef,
+	email         => undef,
+	bank          => undef,
+	account       => undef,
+	bank_account  => undef,
+	bik           => undef,
+	taxcode       => undef,
+	taxreasoncode => undef,
+	regcode       => undef,
+	alkoid        => undef,
 );
 
 =begin nd

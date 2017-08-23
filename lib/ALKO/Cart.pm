@@ -25,8 +25,8 @@ Variable: %Attribute
 	products    - товары в корзине
 =cut
 my %Attribute = (
-	id_merchant => {mode => undef, type => 'key'},
-	name        => {mode => undef},
+	id_merchant => {type => 'key'},
+	name        => undef,
 	products    => {type => 'cache'},
 );
 

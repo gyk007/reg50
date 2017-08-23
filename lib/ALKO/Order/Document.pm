@@ -20,10 +20,10 @@ Variable: %Attribute
 	file_name - имя файла
 =cut
 my %Attribute = (
-	id_order  => {mode => undef, type => 'key'},
-	name      => {mode => undef},
-	status    => {mode => undef},
-	file_name => {mode => undef},
+	id_order  => {type => 'key'},
+	name      => undef,
+	status    => undef,
+	file_name => undef,
 );
 
 =begin nd

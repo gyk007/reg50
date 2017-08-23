@@ -22,10 +22,10 @@ Variable: %Attribute
 	qty        - количество
 =cut
 my %Attribute = (
-	id_order   => {mode => undef, type => 'key'},
-	id_product => {mode => undef},
-	price      => {mode => undef},
-	qty        => {mode => undef},
+	id_order   => {type => 'key'},
+	id_product => undef,
+	price      => undef,
+	qty        => undef,
 	product    => {mode => 'read', type => 'cache'},
 );
 

@@ -18,8 +18,8 @@ Variable: %Attribute
 	description - описние
 =cut
 my %Attribute = (
-	name        => {mode => undef},
-	description => {mode => undef},
+	name        => undef,
+	description => undef,
 );
 
 =begin nd
