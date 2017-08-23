@@ -43,6 +43,6 @@ Method: Table ( )
 	Таблица хранения сущности в базе данных.
 
 Returns:
-	Строку 'orders'.
+	Строку 'session'.
 =cut
 sub Table { 'session' }
