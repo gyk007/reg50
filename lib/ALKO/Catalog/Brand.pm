@@ -25,7 +25,7 @@ my %Attribute = (
 	description     => undef,
 	id_manufacturer => undef,
 	name            => {mode => 'read'},
-	alkoid          => {mode => 'undef'},
+	alkoid          => undef,
 );
 
 =begin nd

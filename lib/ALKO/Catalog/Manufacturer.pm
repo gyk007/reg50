@@ -21,9 +21,9 @@ Variable: %Attribute
 	alkoid      - идентификатор во внешней системе
 =cut
 my %Attribute = (
-	description => {mode => 'undef'},
+	description => undef,
 	name        => {mode => 'read'},
-	alkoid      => {mode => 'undef'},
+	alkoid      => undef,
 );
 
 =begin nd
