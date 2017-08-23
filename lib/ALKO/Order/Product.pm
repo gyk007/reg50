@@ -17,10 +17,10 @@ Variable: %Attribute
 
 	Члены класса:
 	id_order   - заказ
-	id_product - продукт
+	id_product - товар
 	qty        - количество
 	price      - цены во время заказа
-	product    - продукт, экземпляр класса <ALKO::Catalog::Product>
+	product    - товар, экземпляр класса <ALKO::Catalog::Product>
 =cut
 my %Attribute = (
 	id_order   => {type => 'key'},

@@ -38,7 +38,7 @@ Variable: %Attribute
 	num              - номер заказ
 	phone            - телефон
 	price            - цена
-	products         - продукты, коллекция экземпляров класса <ALKO::Order::Product>
+	products         - товары, коллекция экземпляров класса <ALKO::Order::Product>
 	receivables      - задолженность
 	remark           - замечание
 	sales_name       - имя торгового представителя Reg50
