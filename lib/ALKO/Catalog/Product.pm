@@ -65,7 +65,7 @@ sub price  {
 	my $prop     = ALKO::Catalog::Property->Get(const => 'price');
 	my $prop_val = ALKO::Catalog::Property::Value->Get(n_property => $prop->{n}, id_propgroup => $prop->{id_propgroup}, id_product => $self->{id});
 
-	$self->{price} = $prop_val ? $prop_val->val_dec : undef;
+	$self->{price} = $prop_val->val_dec if defined $prop_val;
 }
 
 =begin nd
