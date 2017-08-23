@@ -1,5 +1,5 @@
 package ALKO::Cart::Pickedup;
-use base qw/ WooF::Object /;
+use base qw/ WooF::Object::Sequence /;
 
 =begin nd
 Class: ALKO::Cart::Pickedup
@@ -23,8 +23,8 @@ Variable: %Attribute
 =cut
 my %Attribute = (
 	id_merchant => {mode => undef, type => 'key'},
-	id_product  => {mode => undef, type => 'key'},
 	ncart       => {mode => undef, type => 'key'},
+	id_product  => {mode => undef},
 	quantity    => {mode => 'read/write'},
 	product     => {mode=>'write', type => 'cache'},
 );
@@ -34,11 +34,12 @@ Method: Attribute ( )
 	Доступ к хешу с описанием членов класса.
 
 	Может вызываться и как метод экземпляра, и как метод класса.
+	Наследует члены класса родителей.
 
 Returns:
 	ссылку на описание членов класса
 =cut
-sub Attribute { \%Attribute }
+sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
 
 =begin nd
 Method: Table ( )

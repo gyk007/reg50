@@ -25,18 +25,21 @@ COMMENT ON COLUMN cart.name        IS 'имя корзины';
 -- таблица продуктов в корзине
 CREATE TABLE pickedup  (
     id_merchant  INTEGER,
+    n            INTEGER NOT NULL DEFAULT 1,
     ncart        INTEGER,
     id_product   INTEGER REFERENCES product(id),
     quantity     FLOAT   NOT NULL,
 
     FOREIGN KEY (id_merchant, ncart) references cart (id_merchant, n),
-    PRIMARY KEY (id_merchant, ncart, id_product)
+    CONSTRAINT uniq_pickedup UNIQUE (id_merchant, n, ncart, id_product),
+    PRIMARY KEY (id_merchant, n, ncart)
 );
 
 GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE pickedup TO @@DBUSER@@;
 
 COMMENT ON TABLE  pickedup             IS 'товары в корзине';
 COMMENT ON COLUMN pickedup.id_merchant IS 'представитель';
+COMMENT ON COLUMN pickedup.n           IS 'номер товара в корзине';
 COMMENT ON COLUMN pickedup.ncart       IS 'номер корзины';
 COMMENT ON COLUMN pickedup.id_product  IS 'товар';
 COMMENT ON COLUMN pickedup.quantity    IS 'количество товара';
