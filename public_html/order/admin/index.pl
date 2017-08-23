@@ -51,7 +51,7 @@ $Server->add_handler(ORDER => {
 #
 $Server->add_handler(LIST => {
 	input => {
-		allow => ['action', product =>[qw/ id quantity /]],
+		allow => [],
 	},
 	call => sub {
 		my $S = shift;

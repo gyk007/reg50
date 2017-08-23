@@ -99,6 +99,9 @@ Returns:
 =cut
 sub documents {
 	my $self = shift;
+	# Если уже есть данные, то ничего не делаем
+	return $self->{documents} if defined $self->{documents};
+
 	$self->{documents} = ALKO::Order::Document->All(id_order => $self->{id});
 }
 
