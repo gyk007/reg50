@@ -3,7 +3,7 @@ use base qw/ WooF::Object::Simple /;
 
 =begin nd
 Class: ALKO::Order::Status
-	Статус заказа.
+	Статус заказапо.
 =cut
 
 use strict;

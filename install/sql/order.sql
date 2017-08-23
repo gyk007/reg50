@@ -21,16 +21,16 @@ COMMENT ON COLUMN order_status.name        IS 'название статуса';
 COMMENT ON COLUMN order_status.description IS 'описание статуса';
 
 -- добавляем статусы
-INSERT INTO order_status (id, name, description) VALUES (default, 'new',       '«Новый» - заказ принят системой обработки заказов. Уведомление формируется автоматически.');
-INSERT INTO order_status (id, name, description) VALUES (default, 'accepted',  '«Принят в обработку» - заказ принят в обработку менеджером компании, который уточняет наличие ассортимента, цены и сроки поставки, согласовывает условия и сроки оплаты товара. При необходимости сотрудник связывается с клиентом для уточнения деталей. Уведомление формируется вручную.');
-INSERT INTO order_status (id, name, description) VALUES (default, 'confirmed', '«Подтвержден» - заказ подтвержден клиентом. Цены, ассортимент, сроки и условия оплаты согласованы. Уведомление формируется вручную.');
-INSERT INTO order_status (id, name, description) VALUES (default, 'suspended', '«В работе» - заказ принят в работу. Происходит комплектования заказа на складе. Уведомление формируется автоматически.');
-INSERT INTO order_status (id, name, description) VALUES (default, 'pause',     '«Приостановлен» - обработка заказа остановлена до устранения причин препятствующих его выполнению. Уведомление формируется вручную.');
-INSERT INTO order_status (id, name, description) VALUES (default, 'canceled',  '«Отменен» - заказ может быть отменен по желанию клиента в процессе согласований сроков и условий поставки. Уведомление формируется вручную.');
-INSERT INTO order_status (id, name, description) VALUES (default, 'assembled', '«Собран» - заказ собран и готов к доставке. Уведомление формируется автоматически.');
-INSERT INTO order_status (id, name, description) VALUES (default, 'deliver',   '«Доставляется» - заказ передан транспортной компании. Уведомление формируется автоматически.');
-INSERT INTO order_status (id, name, description) VALUES (default, 'delivered', '«Доставлен» - заказ доставлен клиенту. Уведомление формируется автоматически.');
-INSERT INTO order_status (id, name, description) VALUES (default, 'paid',      '«Оплачен» - заказ полностью оплачен клиентом. Уведомление формируется автоматически.');
+INSERT INTO order_status (id, name, description) VALUES (default, 'new',       'Новый');
+INSERT INTO order_status (id, name, description) VALUES (default, 'accepted',  'Принят в обработку');
+INSERT INTO order_status (id, name, description) VALUES (default, 'confirmed', 'Подтвержден');
+INSERT INTO order_status (id, name, description) VALUES (default, 'suspended', 'В работе');
+INSERT INTO order_status (id, name, description) VALUES (default, 'pause',     'Приостановлен');
+INSERT INTO order_status (id, name, description) VALUES (default, 'canceled',  'Отменен');
+INSERT INTO order_status (id, name, description) VALUES (default, 'assembled', 'Собран');
+INSERT INTO order_status (id, name, description) VALUES (default, 'deliver',   'Доставляется');
+INSERT INTO order_status (id, name, description) VALUES (default, 'delivered', 'Доставлен');
+INSERT INTO order_status (id, name, description) VALUES (default, 'paid',      'Оплачен');
 
 
 -- таблица заказов

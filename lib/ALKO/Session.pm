@@ -14,13 +14,13 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-    coockie     - куки
+    token       - куки
     id_merchant - представитель,
     ctime       - время создагия сессии,
     ltime       - время последнего визита представителя,
 =cut
 my %Attribute = (
-	coockie     => undef,
+	token       => undef,
 	id_merchant => undef,
 	ctime       => undef,
 	ltime       => undef,

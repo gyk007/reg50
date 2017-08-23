@@ -10,8 +10,6 @@ my $orders_xml = XML::Simple->new;
 my $file_path = "$ENV{PWD}/../../../data/o/orders.xml";
 my @xml_data;
 
-open my $fh, '>:encoding(utf-8)', $file_path or die "open($file_path): $!";
-
 my $orders->{order} = ALKO::Order->All->List;
 
 for my $order (@{$orders->{order}}) {
@@ -76,6 +74,12 @@ for my $order (@{$orders->{order}}){
 	}
 };
 
+open my $fh, '>:encoding(utf-8)', $file_path or die "open($file_path): $!";
+
+print $fh "<?xml version='1.0' encoding='UTF-8'?>\n";
+
 $orders_xml->XMLout($orders, OutputFile => $fh, NoAttr => 1, RootName => 'orders' );
+
+close $fh;
 
 1;

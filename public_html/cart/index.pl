@@ -6,13 +6,13 @@
 use strict;
 use warnings;
 
-use WooF::Server;
+use ALKO::Server;
 use ALKO::Cart;
 use ALKO::Catalog::Product;
 use ALKO::Client::Shop;
 use ALKO::Client::Net;
 
-my $Server = WooF::Server->new(output_t => 'JSON');
+my $Server = ALKO::Server->new(output_t => 'JSON');
 
 # Добавить товар в корзину
 #

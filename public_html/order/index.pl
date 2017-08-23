@@ -8,13 +8,14 @@ use warnings;
 
 use WooF::Debug;
 use DateTime;
-use WooF::Server;
+use ALKO::Server;
 use ALKO::Order;
 use ALKO::Cart;
 use ALKO::Catalog::Product;
 use ALKO::Client::Shop;
+use ALKO::Order::Status;
 
-my $Server = WooF::Server->new(output_t => 'JSON');
+my $Server = ALKO::Server->new(output_t => 'JSON');
 
 # Создать заказ
 #
@@ -55,7 +56,7 @@ $Server->add_handler(ADD => {
 			$order_price += $_->{product}{price}
 		};
 
-		$order_data->{id_status}   = 1;
+		$order_data->{id_status}   = ALKO::Order::Status->Get(name => 'new')->id;
 		$order_data->{id_net}      = $shop->id_net;
 		$order_data->{id_merchant} = $shop->id_merchant;
 		$order_data->{price}       = $order_price;

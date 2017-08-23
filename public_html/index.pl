@@ -7,9 +7,9 @@ use strict;
 use warnings;
 
 use WooF::Debug;
-use WooF::Server;
+use ALKO::Server;
 
-my $Server = WooF::Server->new;
+my $Server = ALKO::Server->new;
 
 # Простейший обработчик. Клиенту отдается статичный шаблон, в лог веб-сервера - версия постгрис.
 # URL: /

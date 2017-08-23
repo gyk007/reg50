@@ -7,11 +7,11 @@
 use strict;
 use warnings;
 
-use WooF::Server;
+use ALKO::Server;
 use ALKO::Catalog;
 use ALKO::Catalog::Category;
 
-my $Server = WooF::Server->new(output_t => 'JSON');
+my $Server = ALKO::Server->new(output_t => 'JSON');
 
 # Дерево категорий без товара
 # URL: /catalog/
@@ -21,11 +21,11 @@ $Server->add_handler(CATEGORIES => {
 	},
 	call => sub {
 		my $S = shift;
-		
+
 		my $catalog = ALKO::Catalog->new;
-		
+
 		$S->O->{catalog} = exists $S->I->{products} ? $catalog : $catalog->print;
-		
+
 		OK;
 	},
 });
@@ -38,14 +38,14 @@ $Server->add_handler(PRODUCTS => {
 	},
 	call => sub {
 		my $S = shift;
-		
+
 		my $catalog = $S->O->{catalog};
-		
+
 		$catalog->link_products;
 		$catalog->link_propgroups;
 
 		$S->O->{catalog} = $catalog->print;
-		
+
 		OK;
 	},
 });
@@ -60,14 +60,14 @@ $Server->add_handler(CATEGORY => {
 		my $S = shift;
 		my $I = $S->I;
 		my $id = $I->{category};
-		
+
 		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => [qw/ products propgroups /]) or return $S->fail("OBJECT: No such category id='$id'");
 
 		$category->complete_products;
 
-		
+
 		$S->O->{category} = $category;
-		
+
 		OK;
 	},
 });
@@ -75,10 +75,10 @@ $Server->add_handler(CATEGORY => {
 $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
-	
+
 	return [qw/ CATEGORY /]            if exists $I->{category};
 	return [qw/ CATEGORIES PRODUCTS /] if exists $I->{products};
-	
+
 	return [qw/ CATEGORIES /];
 });
 
