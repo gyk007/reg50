@@ -39,7 +39,7 @@ my %Attribute = (
 	bank_account  => undef,
 	bik           => undef,
 	email         => undef,
-	id_file       => {type => 'key'},
+	id_file       => undef,
 	name          => undef,
 	person        => undef,
 	phone         => undef,
