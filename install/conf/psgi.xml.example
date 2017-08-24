@@ -7,12 +7,12 @@
 	</location>
 	<location>
 		<path>/catalog</path>
-		<workers>2</workers>
+		<workers>1</workers>
 		<port>9002</port>
 	</location>
 	<location>
 		<path>/catalog/category</path>
-		<workers>3</workers>
+		<workers>1</workers>
 		<port>9003</port>
 	</location>
 	<location>
@@ -26,8 +26,23 @@
 		<port>9005</port>
 	</location>
 	<location>
-		<path>/client</path>
+		<path>/admin/order</path>
 		<workers>1</workers>
 		<port>9006</port>
+	</location>
+	<location>
+		<path>/admin/catalog/category</path>
+		<workers>1</workers>
+		<port>9007</port>
+	</location>
+	<location>
+		<path>/admin/catalog</path>
+		<workers>1</workers>
+		<port>9008</port>
+	</location>
+	<location>
+		<path>/admin/client</path>
+		<workers>1</workers>
+		<port>9010</port>
 	</location>
 </server>
