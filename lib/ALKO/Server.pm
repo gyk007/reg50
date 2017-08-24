@@ -41,7 +41,7 @@ sub authenticate {
 	my ($I, $O) = ($self->I, $self->O);
 
 	return $self->_auth_by_token    if $I->{token};
-	return $self->_auth_by_password if $I->{password};
+	return $self->_auth_by_password if $I->{password} and $I->{login};
 	return $self->fail('AUTH: Authentication failed');
 }
 
@@ -60,12 +60,12 @@ sub _auth_by_token {
 	return $self->fail('AUTH: Authentication failed') unless $session;
 
 	# Обновляем время последнего визита
-	$session->ltime($dt)->Refresh;
+	$session->ltime($dt);
 
 	my $merchant = ALKO::Client::Merchant->Get(id => $session->{id_merchant});
 
 	delete $I->{token};
-
+	$merchant->net;
 	$O->{USER} = $merchant;
 
 	1;
@@ -84,8 +84,8 @@ sub _auth_by_password {
 	$I->{login}     =~ s/[\s]//g;
 	$I->{password}  =~ s/[\s]//g;
 
-	# Получаем хэш пароля
-	$I->{password} = md5_hex($I->{password});
+	# Получаем хэш пароля (Пока это не работает)
+	#$I->{password} = md5_hex($I->{password});
 
 	my $merchant = ALKO::Client::Merchant->Get(password => $I->{password}, email => $I->{login});
 
@@ -98,7 +98,7 @@ sub _auth_by_password {
 	map { $token .= $all[rand @all]; } (0..14);
 
 	# Создаем сессию
-	ALKO::Session->New({
+	ALKO::Session->new({
 		token       => $token,
 		id_merchant => $merchant->id,
 		ctime       => $dt,
@@ -109,6 +109,8 @@ sub _auth_by_password {
 	delete $I->{login};
 
 	$O->{TOKEN} = $token;
+
+	$merchant->net;
 	$O->{USER}  = $merchant;
 
 	1;

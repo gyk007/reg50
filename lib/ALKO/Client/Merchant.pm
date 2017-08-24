@@ -9,6 +9,8 @@ Class: ALKO::Client::Merchant
 use strict;
 use warnings;
 
+use ALKO::Client::Net;
+
 =begin nd
 Variable: %Attribute
 	Описание членов класса.
@@ -19,6 +21,7 @@ Variable: %Attribute
 	name     - имя
 	password - пароль
 	phone    - телефон
+	net      - организация, экземпляр класса <ALKO::Client::Net>
 =cut
 my %Attribute = (
 	alkoid   => undef,
@@ -26,6 +29,7 @@ my %Attribute = (
 	name     => undef,
 	password => undef,
 	phone    => undef,
+	net      => {mode => 'read', type => 'cache'},
 );
 
 =begin nd
@@ -39,6 +43,24 @@ Returns:
 	ссылку на описание членов класса
 =cut
 sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
+
+=begin nd
+Method: net
+	Получить данные о сети.
+
+Returns:
+	$self->{net}
+=cut
+sub net {
+	my $self = shift;
+	# Если уже есть данные, то ничего не делаем
+	return $self->{net} if defined $self->{net};
+
+	my $net =  ALKO::Client::Net->Get(id_merchant => $self->{id});
+	$net->official;
+
+	$self->{net} = $net;
+}
 
 =begin nd
 Method: Table ( )
