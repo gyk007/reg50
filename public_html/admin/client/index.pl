@@ -6,10 +6,10 @@
 use strict;
 use warnings;
 
-use ALKO::Server;
+use WooF::Server;
 use ALKO::Client::Net;
 
-my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
+my $Server = WooF::Server->new(output_t => 'JSON');
 
 # Список организаций
 #

@@ -8,14 +8,10 @@ use warnings;
 
 use WooF::Debug;
 use DateTime;
-use ALKO::Server;
+use WooF::Server;
 use ALKO::Order;
-use ALKO::Cart;
-use ALKO::Catalog::Product;
-use ALKO::Client::Shop;
 
-my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
-
+my $Server = WooF::Server->new(output_t => 'JSON');
 
 # Получить заказ
 #
