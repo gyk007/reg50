@@ -11,6 +11,7 @@ use warnings;
 
 use ALKO::Catalog::Property;
 use ALKO::Catalog::Property::Value;
+use ALKO::Catalog::Product::Link;
 
 =begin nd
 Variable: %Attribute
@@ -21,6 +22,7 @@ Variable: %Attribute
 	description    - полное описание
 	face           - наименование, выводимое в каталоге
 	face_effective - наименование в каталоге, переопределенное категорией
+	link           - список категорий, экземпляр класса <ALKO::Catalog::Product::Link>
 	name           - наименование
 	properties     - значения свойств; разбиты по группам
 	price          - цена
@@ -31,6 +33,7 @@ my %Attribute = (
 	description    => undef,
 	face           => undef,
 	face_effective => {type => 'cache'},
+	link           => {type => 'cache'},
 	name           => undef,
 	properties     => {mode => 'read/write', type => 'cache'},
 	price          => {type => 'cache'},
@@ -66,6 +69,21 @@ sub price  {
 	my $prop_val = ALKO::Catalog::Property::Value->Get(n_property => $prop->{n}, id_propgroup => $prop->{id_propgroup}, id_product => $self->{id});
 
 	$self->{price} = $prop_val->val_dec if defined $prop_val;
+}
+
+=begin nd
+Method: link
+	Получить цену
+Returns:
+	список категорий - если продукт принадлежит категории
+=cut
+sub link  {
+	my  $self = shift;
+
+	# Если уже есть цена, то ничего не делаем
+	return $self->{link} if defined $self->{link};
+
+	$self->{link} = ALKO::Catalog::Product::Link->All(id_product => $self->{id})->List;
 }
 
 =begin nd

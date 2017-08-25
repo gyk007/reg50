@@ -15,7 +15,7 @@ use ALKO::Catalog::Product;
 use ALKO::Client::Shop;
 use ALKO::Order::Status;
 
-my $Server = ALKO::Server->new(output_t => 'JSON');
+my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 
 # Создать заказ
 #

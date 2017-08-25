@@ -11,6 +11,8 @@ use WooF::Server;
 use ALKO::Catalog;
 use ALKO::Catalog::Category;
 use ALKO::Catalog::Category::Graph;
+use ALKO::Catalog::Product;
+use ALKO::Catalog::Product::Link;
 
 my $Server = WooF::Server->new(output_t => 'JSON');
 
@@ -24,6 +26,7 @@ my $Server = WooF::Server->new(output_t => 'JSON');
 #   category.description=light fun
 #   category.visible=true
 #   category.face=Beer
+#
 $Server->add_handler(ADD => {
 	input => {
 		allow => ['action', category => [qw/ name description visible face /]],
@@ -46,6 +49,58 @@ $Server->add_handler(ADD => {
 		);
 
 		$O->{category} = $category->id;
+
+		OK;
+	},
+});
+
+# Получить все продукты для добавления в категорию.
+# Категория должна быть пуста.
+# POST
+# URL: /catalog/category/?
+#   action=add_product
+#   id_category = 1
+#   id_product  = 2
+#
+$Server->add_handler(ADD_PRODUCT => {
+	input => {
+		allow => ['action', 'id_category', 'id_product'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $product  = ALKO::Catalog::Product->Get(id => $I->{id_product})   or return $S->fail("NOSUCH: Can\'t get Product: no such Product(id => $I->{id_product})");
+		my $category = ALKO::Catalog::Category->Get(id => $I->{id_category}) or return $S->fail("NOSUCH: Can\'t get Product: no such Category(id => $I->{id_category})");
+
+		ALKO::Catalog::Product::Link->new({
+			id_product  => $product->id,
+			id_category => $category->id,
+		});
+
+		OK;
+	},
+});
+
+# Получить все продукты для добавления в категорию.
+# Категория должна быть пуста.
+# URL: /catalog/category/?action = all_product
+#
+$Server->add_handler(ALL_PRODUCT => {
+	input => {
+		allow => [qw/ action /],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $products = ALKO::Catalog::Product->All;
+
+		for (@{$products->List}) {
+			$_->link;
+		}
+
+		$O->{products} = $products->List;
 
 		OK;
 	},
@@ -108,6 +163,33 @@ $Server->add_handler(DELETE => {
 		$category->Remove;
 
 		delete @{$O}{qw/ category catalog node /};
+
+		OK;
+	},
+});
+
+# Получить все продукты для добавления в категорию.
+# Категория должна быть пуста.
+# POST
+# URL: /catalog/category/?
+#   action=delete_product
+#   id_category = 1
+#   id_product  = 2
+#
+$Server->add_handler(DELETE_PRODUCT => {
+	input => {
+		allow => ['action', 'id_category', 'id_product'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $product  = ALKO::Catalog::Product->Get(id => $I->{id_product})   or return $S->fail("NOSUCH: Can\'t get Product: no such Product(id => $I->{id_product})");
+		my $category = ALKO::Catalog::Category->Get(id => $I->{id_category}) or return $S->fail("NOSUCH: Can\'t get Product: no such Category(id => $I->{id_category})");
+
+		my $link = ALKO::Catalog::Product::Link->Get(id_product => $product->id, id_category => $category->id) or return $S->fail("NOSUCH: Can\'t get Product: no such Link(id_product => $product->id, id_category => $category->id)");
+
+		$link->Remove;
 
 		OK;
 	},
@@ -356,11 +438,14 @@ $Server->dispatcher(sub {
 	my $I = $S->I;
 
 	return ['ADD']                        if exists $I->{action} and $I->{action} eq 'add';
+	return ['ADD_PRODUCT']                if exists $I->{action} and $I->{action} eq 'add_product';
 	return ['EDIT']                       if exists $I->{action} and $I->{action} eq 'edit';
+	return ['ALL_PRODUCT']                if exists $I->{action} and $I->{action} eq 'all_product';
 	return [qw/ LEFT /]                   if exists $I->{action} and $I->{action} eq 'left';
 	return [qw/ RIGHT /]                  if exists $I->{action} and $I->{action} eq 'right';
 	return [qw/ CHECK_EMPTY RIGHT_DOWN /] if exists $I->{action} and $I->{action} eq 'rdown';
 	return [qw/ CHECK_EMPTY DELETE /]     if exists $I->{action} and $I->{action} eq 'delete';
+	return ['DELETE_PRODUCT']             if exists $I->{action} and $I->{action} eq 'delete_product';
 	return ['ITEM']                       if exists $I->{id};
 
 	['LIST'];
