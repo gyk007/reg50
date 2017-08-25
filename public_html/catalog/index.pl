@@ -11,7 +11,7 @@ use ALKO::Server;
 use ALKO::Catalog;
 use ALKO::Catalog::Category;
 
-my $Server = ALKO::Server->new(output_t => 'JSON');
+my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 
 # Дерево категорий без товара
 # URL: /catalog/

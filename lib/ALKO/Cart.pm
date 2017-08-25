@@ -20,14 +20,14 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	id_merchant - торговый представитель
- 	name        - название корзины
-	products    - товары, список экземпляров класса <ALKO::Catalog::Product>
+	id_shop  - торговая точка
+ 	name     - название корзины
+	products - товары, список экземпляров класса <ALKO::Catalog::Product>
 =cut
 my %Attribute = (
-	id_merchant => {type => 'key'},
-	name        => undef,
-	products    => {type => 'cache'},
+	id_shop  => {type => 'key'},
+	name     => undef,
+	products => {type => 'cache'},
 );
 
 =begin nd
@@ -57,7 +57,7 @@ sub add_product {
 	my ($self, $product, $quantity) = @_;
 
 	# Получаем товар в корзине
-	my $picked = ALKO::Cart::Pickedup->Get(id_product => $product->{id}, id_merchant => $self->{id_merchant}, ncart => $self->{n});
+	my $picked = ALKO::Cart::Pickedup->Get(id_product => $product->{id}, id_shop => $self->{id_shop}, ncart => $self->{n});
 
  	if ($picked) {
  		# Если товар в корзине уже есть, то прибавляем количество
@@ -65,7 +65,7 @@ sub add_product {
  	} else {
  		# Если такого товара в данной корзине нет, то создаем его
 		$picked = ALKO::Cart::Pickedup->new({
-			id_merchant => $self->{id_merchant},
+			id_shop     => $self->{id_shop},
 			ncart       => $self->{n},
 			id_product  => $product->{id},
 			quantity    => $quantity,
@@ -97,7 +97,7 @@ sub delete_product {
 	my  ($self, $product) = @_;
 
 	# Получаем товар
-	my $picked = ALKO::Cart::Pickedup->Get(id_product => $product->{id}, id_merchant => $self->{id_merchant}, ncart => $self->{n})
+	my $picked = ALKO::Cart::Pickedup->Get(id_product => $product->{id}, id_shop => $self->{id_shop}, ncart => $self->{n})
 		or warn "NOSUCH|WARNING: Can't delete Product from Cart: no such product" , return $self;
 
  	$picked->Remove;
@@ -119,7 +119,7 @@ sub products  {
 	return $self->{products} if defined $self->{products};
 
 	# Получаем товары
-	my $picked = ALKO::Cart::Pickedup->All(id_merchant => $self->{id_merchant}, ncart => $self->{n});
+	my $picked = ALKO::Cart::Pickedup->All(id_shop => $self->{id_shop}, ncart => $self->{n});
 
 	# Получаем массив с id товаров
 	my @id       = keys %{$picked->Hash('id_product')};

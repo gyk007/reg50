@@ -22,8 +22,9 @@ COMMENT ON COLUMN official.person IS 'имя директора';
 ALTER TABLE official DROP CONSTRAINT official_taxcode_key;
 
 -- удаляем ограничение NOT NULL
-ALTER TABLE merchant ALTER password DROP NOT NULL;
-ALTER TABLE merchant ALTER email    DROP NOT NULL;
+ALTER TABLE merchant ALTER password    DROP NOT NULL;
+ALTER TABLE merchant ALTER email       DROP NOT NULL;
+ALTER TABLE shop     ALTER id_merchant DROP NOT NULL;
 
 -- добавляем тип DECIMAL(10, 2)
 ALTER TABLE propvalue ADD COLUMN val_dec DECIMAL(10, 2);

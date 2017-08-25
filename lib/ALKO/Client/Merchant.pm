@@ -8,8 +8,9 @@ Class: ALKO::Client::Merchant
 
 use strict;
 use warnings;
-
+use WooF::Debug;
 use ALKO::Client::Net;
+use ALKO::Client::Shop;
 
 =begin nd
 Variable: %Attribute
@@ -22,6 +23,7 @@ Variable: %Attribute
 	password - пароль
 	phone    - телефон
 	net      - организация, экземпляр класса <ALKO::Client::Net>
+	net      - список торговых точек, экземпляры класса <ALKO::Client::Shop>
 =cut
 my %Attribute = (
 	alkoid   => undef,
@@ -30,6 +32,7 @@ my %Attribute = (
 	password => undef,
 	phone    => undef,
 	net      => {mode => 'read', type => 'cache'},
+	shops    => {mode => 'read', type => 'cache'},
 );
 
 =begin nd
@@ -60,6 +63,33 @@ sub net {
 	$net->official;
 
 	$self->{net} = $net;
+}
+
+=begin nd
+Method: net
+	Получить данные о торговых точках.
+
+Returns:
+	$self->{shops}
+=cut
+sub shops {
+	my $self = shift;
+	# Если уже есть данные, то ничего не делаем
+	return $self->{shops} if defined $self->{shops};
+
+	my $net = $self->{net};
+
+	unless ($net) {
+		$net =  ALKO::Client::Net->Get(id_merchant => $self->{id});
+	}
+
+	my $shops =  ALKO::Client::Shop->All(id_net => $net->id)->List;
+
+	for(@$shops) {
+		$_->official;
+	}
+
+	$self->{shops} = $shops;
 }
 
 =begin nd

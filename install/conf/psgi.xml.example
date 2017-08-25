@@ -45,4 +45,9 @@
 		<workers>1</workers>
 		<port>9010</port>
 	</location>
+	<location>
+		<path>/client</path>
+		<workers>1</workers>
+		<port>9011</port>
+	</location>
 </server>

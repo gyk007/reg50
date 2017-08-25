@@ -104,8 +104,8 @@ COMMENT ON COLUMN net.id_merchant IS 'представитель';
 -- таблица торговых точек
 CREATE TABLE shop (
     id                    SERIAL,
-    id_merchant           INTEGER NOT NULL REFERENCES merchant(id) UNIQUE,
-    id_net                INTEGER REFERENCES net(id),
+    id_merchant           INTEGER REFERENCES merchant(id) UNIQUE,
+    id_net                INTEGER NOT NULL REFERENCES net(id),
     id_official           INTEGER REFERENCES official(id) UNIQUE,
     PRIMARY KEY (id)
 );

@@ -11,6 +11,7 @@ use strict;
 use warnings;
 
 use ALKO::Session;
+use ALKO::Client::Shop;
 use ALKO::Client::Merchant;
 use DateTime;
 use Digest::MD5 qw(md5_hex);
@@ -62,11 +63,21 @@ sub _auth_by_token {
 	# Обновляем время последнего визита
 	$session->ltime($dt);
 
-	my $merchant = ALKO::Client::Merchant->Get(id => $session->{id_merchant});
+	my $merchant = ALKO::Client::Merchant->Get(id => $session->id_merchant);
+
+	my $shop;
+	if ($session->id_shop) {
+		$shop = ALKO::Client::Shop->Get(id => $session->id_shop);
+		$shop->official;
+	}
 
 	delete $I->{token};
+
 	$merchant->net;
+	$merchant->shops;
+
 	$O->{USER} = $merchant;
+	$O->{SHOP} = $shop;
 
 	1;
 }
@@ -97,6 +108,14 @@ sub _auth_by_password {
 	my @all = split(//, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890');
 	map { $token .= $all[rand @all]; } (0..14);
 
+	# Удаляем старые сесси
+	my $sessions = ALKO::Session->All(id_merchant => $merchant->id)->List;
+	if($sessions) {
+		for(@$sessions) {
+			$_->Remove;
+		}
+	}
+
 	# Создаем сессию
 	ALKO::Session->new({
 		token       => $token,
@@ -111,6 +130,8 @@ sub _auth_by_password {
 	$O->{TOKEN} = $token;
 
 	$merchant->net;
+	$merchant->shops;
+
 	$O->{USER}  = $merchant;
 
 	1;

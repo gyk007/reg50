@@ -8,10 +8,11 @@ Class: ALKO::Catalog::Product
 
 use strict;
 use warnings;
-
+use WooF::Debug;
 use ALKO::Catalog::Property;
 use ALKO::Catalog::Property::Value;
 use ALKO::Catalog::Product::Link;
+use ALKO::Client::Offer;
 
 =begin nd
 Variable: %Attribute
@@ -53,22 +54,43 @@ Returns:
 sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
 
 =begin nd
-Method: price
+Method: price (id_shop)
 	Получить цену
 Returns:
 	цена в рублях - если установлена
 	undef         - в противном случае
 =cut
 sub price  {
-	my  $self = shift;
+	my  ($self, $id_shop) = @_;
 
 	# Если уже есть цена, то ничего не делаем
 	return $self->{price} if defined $self->{price};
 
+	# Ищем скидку
+	my $offer;
+	if ($id_shop) {
+		my $offers = ALKO::Client::Offer->All(id_shop => $id_shop, id_product => $self->id, SORT => 'ctime')->List;
+		if ($offers) {
+			$offer = pop @$offers;
+		}
+	}
+
+	# Цена товара
 	my $prop     = ALKO::Catalog::Property->Get(const => 'price');
 	my $prop_val = ALKO::Catalog::Property::Value->Get(n_property => $prop->{n}, id_propgroup => $prop->{id_propgroup}, id_product => $self->{id});
 
-	$self->{price} = $prop_val->val_dec if defined $prop_val;
+	my $price = $prop_val->val_dec if defined $prop_val;
+
+	if ($offer) {
+		if ($offer->type eq 'percent') {
+			my $percent_price = 100 + $offer->value;
+			$price *= ($percent_price / 100);
+		} elsif ($offer->type eq 'rub') {
+			$price += $offer->value;
+		}
+	}
+	debug $price;
+	$self->{price} = $price if defined $price;
 }
 
 =begin nd

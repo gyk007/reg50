@@ -29,6 +29,10 @@ $Server->add_handler(ITEM => {
 
 		$O->{category} = $category->complete_products;
 
+		foreach (@{$category->{elements}}) {
+			$_->price($O->{SHOP}{id})
+		};
+
 		OK;
 	},
 });

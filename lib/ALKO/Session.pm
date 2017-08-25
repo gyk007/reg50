@@ -16,12 +16,14 @@ Variable: %Attribute
 	Члены класса:
     token       - куки
     id_merchant - представитель,
+    id_shop     - торговая точка,
     ctime       - время создагия сессии,
     ltime       - время последнего визита представителя,
 =cut
 my %Attribute = (
 	token       => undef,
-	id_merchant => undef,
+	id_merchant => {mode => 'read'},
+	id_shop     => {mode => 'read/write'},
 	ctime       => undef,
 	ltime       => {mode => 'write'},
 );

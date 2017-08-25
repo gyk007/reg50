@@ -14,7 +14,7 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	id_merchant - торговый представитель
+	id_shop     - торговая точка
 	id_product  - товар
 	ncart       - номер корзины в рамках одного торгового представителя
 	quantity    - количество
@@ -22,11 +22,11 @@ Variable: %Attribute
 
 =cut
 my %Attribute = (
-	id_merchant => {type => 'key'},
-	ncart       => {type => 'key'},
-	id_product  => undef,
-	quantity    => {mode => 'read/write'},
-	product     => {mode=>'write', type => 'cache'},
+	id_shop    => {type => 'key'},
+	ncart      => {type => 'key'},
+	id_product => undef,
+	quantity   => {mode => 'read/write'},
+	product    => {mode=>'write', type => 'cache'},
 );
 
 =begin nd
