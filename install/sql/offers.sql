@@ -1,6 +1,6 @@
--- Сессии
+-- Индивидуальные предложения
 -- step 019
--- class: ALKO::Client::Offers
+-- class: ALKO::Client::Offer
 
 BEGIN;
 
