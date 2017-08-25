@@ -5,11 +5,11 @@
 BEGIN;
 
 -- создаем тип скидки
-CREATE TYPE offers_type AS ENUM ('percent','rub');
+CREATE TYPE offer_type AS ENUM ('percent','rub');
 COMMENT ON TYPE  document_status IS 'тип скидки; percent - скидка в процентах; rub - рублях';
 
 -- таблица индивидуальных предложений
-CREATE TABLE offers (
+CREATE TABLE offer (
     id_merchant INTEGER REFERENCES merchant(id),
     id_product  INTEGER REFERENCES product(id),
     type        offers_type,
