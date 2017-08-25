@@ -18,12 +18,12 @@ CREATE TABLE offer (
     PRIMARY KEY (id_merchant, id_product)
 );
 
-GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE session TO @@DBUSER@@;
+GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE offer TO @@DBUSER@@;
 
-COMMENT ON TABLE  offers             IS 'индивидуальное предложение';
-COMMENT ON COLUMN offers.id_merchant IS 'представитль';
-COMMENT ON COLUMN offers.id_product  IS 'товар';
-COMMENT ON COLUMN offers.type        IS 'тип скидки';
-COMMENT ON COLUMN offers.value       IS 'значение скидки';
+COMMENT ON TABLE  offer             IS 'индивидуальное предложение';
+COMMENT ON COLUMN offer.id_merchant IS 'представитль';
+COMMENT ON COLUMN offer.id_product  IS 'товар';
+COMMENT ON COLUMN offer.type        IS 'тип скидки';
+COMMENT ON COLUMN offer.value       IS 'значение скидки';
 
 COMMIT;
