@@ -6,7 +6,7 @@ BEGIN;
 
 -- создаем тип скидки
 CREATE TYPE offer_type AS ENUM ('percent','rub');
-COMMENT ON TYPE  document_status IS 'тип скидки; percent - скидка в процентах; rub - рублях';
+COMMENT ON TYPE  offer_type IS 'тип скидки; percent - скидка в процентах; rub - рублях';
 
 -- таблица индивидуальных предложений
 CREATE TABLE offer (
