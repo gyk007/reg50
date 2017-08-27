@@ -27,6 +27,8 @@ Variable: %Attribute
 	name           - наименование
 	properties     - значения свойств; разбиты по группам
 	price          - цена
+	offer          - скидка
+	offer_type     - тип скидки
 	visible        - видимость товара в каталоге для покупателя
 =cut
 my %Attribute = (
@@ -38,6 +40,8 @@ my %Attribute = (
 	name           => undef,
 	properties     => {mode => 'read/write', type => 'cache'},
 	price          => {type => 'cache'},
+	offer          => {type => 'cache'},
+	offer_type     => {type => 'cache'},
 	visible        => undef,
 );
 
@@ -64,12 +68,11 @@ sub price  {
 	my  ($self, $id_shop) = @_;
 
 	# Если уже есть цена, то ничего не делаем
-	return $self->{price} if defined $self->{price};
-
+	return $self->{price} if defined $self->{price};	 
 	# Ищем скидку
 	my $offer;
 	if ($id_shop) {
-		my $offers = ALKO::Client::Offer->All(id_shop => $id_shop, id_product => $self->id, SORT => 'ctime')->List;
+		my $offers = ALKO::Client::Offer->All(id_shop => $id_shop, id_product => $self->id, SORT => ['ctime'])->List;		 
 		if ($offers) {
 			$offer = pop @$offers;
 		}
@@ -82,14 +85,18 @@ sub price  {
 	my $price = $prop_val->val_dec if defined $prop_val;
 
 	if ($offer) {
-		if ($offer->type eq 'percent') {
+		if ($offer->type eq 'percent') {			 
+			$self->{offer} = $offer->value;
+			$self->{offer_type} = $offer->type;			 
 			my $percent_price = 100 + $offer->value;
-			$price *= ($percent_price / 100);
+			$price *= ($percent_price / 100);			 
 		} elsif ($offer->type eq 'rub') {
+			$self->{offer} = $offer->value;
+			$self->{offer_type} = $offer->type;
 			$price += $offer->value;
 		}
 	}
-	debug $price;
+	
 	$self->{price} = $price if defined $price;
 }
 
