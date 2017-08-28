@@ -33,7 +33,7 @@ $Server->add_handler(CLIENT => {
 	},
 });
 
-# Выбор торговыой точки
+# Выбор торговой точки
 #
 # POST
 # URL: /client/?
