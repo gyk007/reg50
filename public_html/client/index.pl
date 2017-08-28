@@ -49,7 +49,7 @@ $Server->add_handler(SELECT_SHOP => {
 		my ($I, $O) = ($S->I, $S->O);
 
 		my $session  = ALKO::Session->Get(id_merchant => $O->{USER}->id) or return $S->fail("NOSUCH: Can\'t get Session: no such session(id_merchant => $O->{USER}->id)");
-		my $shop     = ALKO::Client::Shop->Get(id => $I->{shop}{id}) or return $S->fail("NOSUCH: Can\'t get Shop: no such shop(id => $I->{shop}{id})");
+		my $shop     = ALKO::Client::Shop->Get(id => $I->{shop}{id})     or return $S->fail("NOSUCH: Can\'t get Shop: no such shop(id => $I->{shop}{id})");
 
 		$session->id_shop($shop->id)->Save;
 
