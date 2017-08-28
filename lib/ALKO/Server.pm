@@ -63,21 +63,9 @@ sub _auth_by_token {
 	# Обновляем время последнего визита
 	$session->ltime($dt);
 
-	my $merchant = ALKO::Client::Merchant->Get(id => $session->id_merchant);
-
-	my $shop;
-	if ($session->id_shop) {
-		$shop = ALKO::Client::Shop->Get(id => $session->id_shop);
-		$shop->official;
-	}
-
 	delete $I->{token};
 
-	$merchant->net;
-	$merchant->shops;
-
-	$O->{USER} = $merchant;
-	$O->{SHOP} = $shop;
+	$O->{SESSION} = $session;
 
 	1;
 }
@@ -117,7 +105,7 @@ sub _auth_by_password {
 	}
 
 	# Создаем сессию
-	ALKO::Session->new({
+	my $session = ALKO::Session->new({
 		token       => $token,
 		id_merchant => $merchant->id,
 		ctime       => $dt,
@@ -129,10 +117,7 @@ sub _auth_by_password {
 
 	$O->{TOKEN} = $token;
 
-	$merchant->net;
-	$merchant->shops;
-
-	$O->{USER} = $merchant;
+	$O->{SESSION} = $session;
 
 	1;
 }

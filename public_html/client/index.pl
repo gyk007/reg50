@@ -6,7 +6,7 @@
 
 use strict;
 use warnings;
-
+use WooF::Debug;
 use ALKO::Server;
 use ALKO::Client::Net;
 use ALKO::Session;
@@ -29,6 +29,13 @@ $Server->add_handler(CLIENT => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
+		my $merchant = ALKO::Client::Merchant->Get(id => $O->{SESSION}->id_merchant);
+
+		$merchant->net;
+		$merchant->shops;
+
+		$O->{USER} = $merchant;
+
 		OK;
 	},
 });
@@ -48,10 +55,9 @@ $Server->add_handler(SELECT_SHOP => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		my $session  = ALKO::Session->Get(id_merchant => $O->{USER}->id) or return $S->fail("NOSUCH: Can\'t get Session: no such session(id_merchant => $O->{USER}->id)");
-		my $shop     = ALKO::Client::Shop->Get(id => $I->{shop})         or return $S->fail("NOSUCH: Can\'t get Shop: no such shop(id => $I->{shop})");
+		my $shop = ALKO::Client::Shop->Get(id => $I->{shop}) or return $S->fail("NOSUCH: Can\'t get Shop: no such shop(id => $I->{shop})");
 
-		$session->id_shop($shop->id)->Save;
+		$O->{SESSION}->id_shop($shop->id)->Save;
 
 		$shop->official;
 
