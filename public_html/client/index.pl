@@ -37,19 +37,19 @@ $Server->add_handler(CLIENT => {
 #
 # POST
 # URL: /client/?
-#   action  = select_shop
-#   shop.id = 20
+#   action = select_shop
+#   shop   = 20
 #
 $Server->add_handler(SELECT_SHOP => {
 	input => {
-		allow => ['action', shop =>[qw/ id /]],
+		allow => ['action', 'shop'],
 	},
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
 		my $session  = ALKO::Session->Get(id_merchant => $O->{USER}->id) or return $S->fail("NOSUCH: Can\'t get Session: no such session(id_merchant => $O->{USER}->id)");
-		my $shop     = ALKO::Client::Shop->Get(id => $I->{shop}{id})     or return $S->fail("NOSUCH: Can\'t get Shop: no such shop(id => $I->{shop}{id})");
+		my $shop     = ALKO::Client::Shop->Get(id => $I->{shop})         or return $S->fail("NOSUCH: Can\'t get Shop: no such shop(id => $I->{shop})");
 
 		$session->id_shop($shop->id)->Save;
 
