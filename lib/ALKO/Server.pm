@@ -132,7 +132,7 @@ sub _auth_by_password {
 	$merchant->net;
 	$merchant->shops;
 
-	$O->{USER}  = $merchant;
+	$O->{USER} = $merchant;
 
 	1;
 }
