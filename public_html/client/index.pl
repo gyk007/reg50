@@ -37,8 +37,8 @@ $Server->add_handler(CLIENT => {
 #
 # POST
 # URL: /client/?
-#   action      = select_shop
-#   shop.id     = 20
+#   action  = select_shop
+#   shop.id = 20
 #
 $Server->add_handler(SELECT_SHOP => {
 	input => {
