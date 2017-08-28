@@ -30,11 +30,17 @@ $Server->add_handler(CLIENT => {
 		my ($I, $O) = ($S->I, $S->O);
 
 		my $merchant = ALKO::Client::Merchant->Get(id => $O->{SESSION}->id_merchant);
-
 		$merchant->net;
 		$merchant->shops;
 
+		my $shop;
+		if ($O->{SESSION}->id_shop) {
+			$shop = ALKO::Client::Shop->Get(id => $O->{SESSION}->id_shop);
+			$shop->official;
+		}
+
 		$O->{USER} = $merchant;
+		$O->{SHOP} = $shop;
 
 		OK;
 	},

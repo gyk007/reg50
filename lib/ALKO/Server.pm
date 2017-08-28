@@ -41,8 +41,8 @@ sub authenticate {
 	my $self = shift;
 	my ($I, $O) = ($self->I, $self->O);
 
-	return $self->_auth_by_token    if $I->{token};
-	return $self->_auth_by_password if $I->{password} and $I->{login};
+	return $self->_auth_by_token    if exists $I->{token};
+	return $self->_auth_by_password if exists $I->{password} and exists $I->{login};
 	return $self->fail('AUTH: Authentication failed');
 }
 
