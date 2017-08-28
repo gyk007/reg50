@@ -16,13 +16,10 @@ use ALKO::Client::Shop;
 my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 
 
-# Добавить товар в корзину
+# Получить данные клиента
 #
-# POST
-# URL: /client/?
-#   action      = select_shop
-#   shop.id     = 20
-#   merchant.id = 20
+# GET
+# URL: /client/
 #
 $Server->add_handler(CLIENT => {
 	input => {
@@ -36,7 +33,7 @@ $Server->add_handler(CLIENT => {
 	},
 });
 
-# Добавить товар в корзину
+# Выбор торговыой точки
 #
 # POST
 # URL: /client/?

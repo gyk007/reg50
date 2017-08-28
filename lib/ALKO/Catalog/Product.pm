@@ -68,11 +68,11 @@ sub price  {
 	my  ($self, $id_shop) = @_;
 
 	# Если уже есть цена, то ничего не делаем
-	return $self->{price} if defined $self->{price};	 
+	return $self->{price} if defined $self->{price};
 	# Ищем скидку
 	my $offer;
 	if ($id_shop) {
-		my $offers = ALKO::Client::Offer->All(id_shop => $id_shop, id_product => $self->id, SORT => ['ctime'])->List;		 
+		my $offers = ALKO::Client::Offer->All(id_shop => $id_shop, id_product => $self->id, SORT => ['ctime'])->List;
 		if ($offers) {
 			$offer = pop @$offers;
 		}
@@ -85,31 +85,31 @@ sub price  {
 	my $price = $prop_val->val_dec if defined $prop_val;
 
 	if ($offer) {
-		if ($offer->type eq 'percent') {			 
+		if ($offer->type eq 'percent') {
 			$self->{offer} = $offer->value;
-			$self->{offer_type} = $offer->type;			 
+			$self->{offer_type} = $offer->type;
 			my $percent_price = 100 + $offer->value;
-			$price *= ($percent_price / 100);			 
+			$price *= ($percent_price / 100);
 		} elsif ($offer->type eq 'rub') {
 			$self->{offer} = $offer->value;
 			$self->{offer_type} = $offer->type;
 			$price += $offer->value;
 		}
 	}
-	
+
 	$self->{price} = $price if defined $price;
 }
 
 =begin nd
 Method: link
-	Получить цену
+	Получить список категорий в которых находится данный товар
 Returns:
 	список категорий - если продукт принадлежит категории
 =cut
 sub link  {
 	my  $self = shift;
 
-	# Если уже есть цена, то ничего не делаем
+	# Если уже есть данные, то ничего не делаем
 	return $self->{link} if defined $self->{link};
 
 	$self->{link} = ALKO::Catalog::Product::Link->All(id_product => $self->{id})->List;
