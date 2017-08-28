@@ -28,9 +28,9 @@ $Server->add_handler(ITEM => {
 		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => [qw/ products propgroups /]) or return $S->fail("Can't get Category($id)");
 
 		$O->{category} = $category->complete_products;
-		 
-		foreach (@{$category->{extend}{products}{elements}}) {			 
-			$_->price($O->{SHOP}{id})
+
+		foreach (@{$category->{extend}{products}{elements}}) {
+			$_->price($O->{SESSION}->id_shop)
 		};
 
 		OK;

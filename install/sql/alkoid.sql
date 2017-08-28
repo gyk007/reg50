@@ -38,6 +38,11 @@ UPDATE paramvalue SET value = 'decimal' WHERE id_propgroup = 1 AND n_propgroup =
 INSERT INTO property (id_propgroup, n, id_proptype, name, visible) VALUES (1, 8, 1, 'Qty', true);
 INSERT INTO paramvalue (id_propgroup, n_propgroup, id_proptype, n_proptype, value) VALUES (1, 8, 1, 1, 'integer');
 
+-- добавляем фильр по крепости (% об)
+UPDATE property SET filters = true, id_filterui = 1 WHERE n = 5;
+INSERT INTO filterarg_link (id_propgroup, n_property, id_filterarg) VALUES (1, 5, 1);
+INSERT INTO filterarg_link (id_propgroup, n_property, id_filterarg) VALUES (1, 5, 2);
+
 -- удаляем таблицу client
 DROP TABLE IF EXISTS client;
 
