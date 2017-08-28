@@ -28,15 +28,12 @@ my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 #   order.remark     = String
 #   order.email      = String
 #   rder.email       = 1
-#   cart.id_merchant = 1
-#   order.id_shop    = 2
 #
 $Server->add_handler(ADD => {
 	input => {
 		allow => [
 			'action',
-			order => [qw/ phone address name remark email id_shop price/],
-			cart  => [qw/ id_merchant n /],
+			order => [qw/ phone address name remark email /],
 		],
 	},
 	call => sub {
@@ -45,10 +42,8 @@ $Server->add_handler(ADD => {
 		my $order_data = $I->{order};
 		$order_data->{id_status} = 1;
 
-		return $S->fail("NOSUCH: Can\'t get Shop: no such shop(id => $order_data->{id_shop})") unless $order_data->{id_shop};
-
-		my $shop  = ALKO::Client::Shop->Get(id => $order_data->{id_shop})  or return $S->fail("NOSUCH: Can\'t get Shop: no such shop(id => $order_data->{id_shop})");
-		my $cart  = ALKO::Cart->Get($I->{cart})                            or return $S->fail("NOSUCH: Can\'t get Cart: no such cart(id_merchant => $I->{cart}{id_merchant}, n => $I->{cart}{n})");
+		my $shop  = ALKO::Client::Shop->Get(id => $O->{SESSION}->id_shop) or return $S->fail("NOSUCH: Can\'t get Shop: no such shop(id => $O->{SESSION}->id_shop)");
+		my $cart  = ALKO::Cart->Get(id_shop => $shop->id, n => 1)         or return $S->fail("NOSUCH: Can\'t get Cart: no such cart($shop->id)");
 
 		# Цена заказа
 		my $order_price = 0;
@@ -58,9 +53,10 @@ $Server->add_handler(ADD => {
 
 		$order_data->{id_status}   = ALKO::Order::Status->Get(name => 'new')->id;
 		$order_data->{id_net}      = $shop->id_net;
-		$order_data->{id_merchant} = $shop->id_merchant;
+		$order_data->{id_merchant} = $O->{SESSION}->id_merchant;
 		$order_data->{price}       = $order_price;
 		$order_data->{ctime}       = DateTime->now;
+		$order_data->{id_shop}     = $shop->id;
 
 		my $order = ALKO::Order->new($order_data)->Save or return $S->fail("NOSUCH: Can\'t create order");
 
@@ -71,6 +67,8 @@ $Server->add_handler(ADD => {
 				price      => $_->{product}{price},
 				qty        => $_->{quantity},
 			})->Save;
+			# Удаляем товар из корзины
+			$_->Remove
 		};
 
 		$order->products;
@@ -188,7 +186,7 @@ $Server->add_handler(LIST => {
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
-		my $orders = ALKO::Order->All(id_merchant => 47885) or return $S->fail("NOSUCH: no such orders(id_merchant => 47885)");
+		my $orders = ALKO::Order->All(id_merchant => $O->{SESSION}->id_merchant) or return $S->fail("NOSUCH: no such orders(id_merchant => $O->{SESSION}->id_merchant)");
 
 		for (@{$orders->List}) {
 			$_->status;

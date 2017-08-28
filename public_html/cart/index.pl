@@ -34,7 +34,7 @@ $Server->add_handler(ADD => {
 
 		my $product = ALKO::Catalog::Product->Get(id => $I->{product}{id})  or return $S->fail("OBJECT: Can\'t add Product to Cart: no such product($I->{product}{id})");
 
-		$cart->add_product($product, $I->{product}{quantity})->products;
+		$cart->add_product($product, $I->{product}{quantity})->products($O->{SESSION}->id_shop);
 
 		$O->{cart} = $cart;
 
@@ -54,7 +54,7 @@ $Server->add_handler(CART => {
 
 		my $cart = ALKO::Cart->Get(id_shop => $O->{SESSION}->id_shop, n => 1) or return $S->fail('OBJECT: Can\'t get Cart: no such cart(id_shop => $O->{SHOP}{id}, n => 1)');
 
-		$cart->products;
+		$cart->products($O->{SESSION}->id_shop);
 		$O->{cart} = $cart;
 
 		OK;
@@ -79,7 +79,7 @@ $Server->add_handler(DELETE => {
 
 		my $product = ALKO::Catalog::Product->Get(id => $I->{product}{id})  or return $S->fail("OBJECT: Can\'t delete Product from Cart: no such product($I->{product}{id})");
 
-		$cart->delete_product($product)->products;
+		$cart->delete_product($product)->products($O->{SESSION}->id_shop);
 
 		$O->{cart} = $cart;
 

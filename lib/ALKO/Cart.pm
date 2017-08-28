@@ -109,11 +109,13 @@ sub delete_product {
 Method: products
 	Получить товары в корзине.
 
+Parameters:
+	$id_shop  - id торговой точки
 Returns:
 	$self->{products}
 =cut
 sub products  {
-	my  $self = shift;
+	my  ($self, $id_shop) = @_;
 
 	# Если уже есть товары, то ничего не делаем
 	return $self->{products} if defined $self->{products};
@@ -126,7 +128,7 @@ sub products  {
 	my $products = ALKO::Catalog::Product->All(id => \@id, SORT =>['name ASC'])->Hash;
 
 	for ($picked->List) {
-	    $products->{$_->{id_product}}->price;
+	    $products->{$_->{id_product}}->price($id_shop);
 		$_->product($products->{$_->{id_product}});
 	}
 
