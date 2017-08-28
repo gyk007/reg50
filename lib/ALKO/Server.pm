@@ -115,8 +115,6 @@ sub _auth_by_password {
 	delete $I->{password};
 	delete $I->{login};
 
-	$O->{TOKEN} = $token;
-
 	$O->{SESSION} = $session;
 
 	1;
