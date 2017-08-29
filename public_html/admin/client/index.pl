@@ -5,7 +5,7 @@
 
 use strict;
 use warnings;
-use WooF::Debug;
+
 use WooF::Server;
 use ALKO::Client::Net;
 use ALKO::Client::Official;
@@ -29,7 +29,7 @@ $Server->add_handler(LIST => {
 		# Получаем массив с id товаров
 		my @id = keys %{$clients->Hash('id_official')};
 
-		my $official = ALKO::Client::Official->All(id => \@id, SORT =>['name ASC'])->Hash;
+		my $official = ALKO::Client::Official->All(id => \@id)->Hash;
 
 		$_->official($official->{$_->{id_official}}) for $clients->List;
 
@@ -46,3 +46,5 @@ $Server->dispatcher(sub {
 });
 
 $Server->listen;
+
+
