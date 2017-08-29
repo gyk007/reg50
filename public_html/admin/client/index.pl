@@ -25,9 +25,7 @@ $Server->add_handler(LIST => {
 		my ($I, $O) = ($S->I, $S->O);
 		my $clients = ALKO::Client::Net->All;
 
-		for (@{$clients->List}) {
-			$_->official;
-		}
+		$_->official for $clients->List;
 
 		$O->{clients} = $clients->List;
 		OK;
