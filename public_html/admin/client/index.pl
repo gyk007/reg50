@@ -34,6 +34,7 @@ $Server->add_handler(LIST => {
 		$_->official($official->{$_->{id_official}}) for $clients->List;
 
 		$O->{clients} = $clients->List;
+
 		OK;
 	},
 });
