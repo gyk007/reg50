@@ -23,13 +23,13 @@ $Server->add_handler(LIST => {
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
-		my $clinets = ALKO::Client::Net->All;
+		my $clients = ALKO::Client::Net->All;
 
-		for (@{$clinets->List}) {
+		for (@{$clients->List}) {
 			$_->official;
 		}
 
-		$O->{clients} = $clinets->List;
+		$O->{clients} = $clients->List;
 		OK;
 	},
 });
