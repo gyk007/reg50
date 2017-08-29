@@ -19,7 +19,7 @@ no warnings 'experimental::smartmatch';
 use WooF::Error;
 use WooF::Object::Collection;
 use WooF::Object::Constants;
-
+use WooF::Debug;
 use ALKO::Catalog::Property;
 use ALKO::Catalog::Property::Value;
 use ALKO::Catalog::Property::Type;
@@ -35,7 +35,7 @@ Variable: %Attribute
 	Члены класса:
 	description      - полное описание
 	filter           - коллекция свойств с установленными по ним в данной категории фильтрами
-	groups_effective - группы свойств, включая наследованные
+
 	name             - наименование
 	parents          - коллекция родительских категорий от корня до текущей, включая текушую
 	products         - товары, принадлежащие данной категории
@@ -174,7 +174,7 @@ sub complete_products {
 			# копируем свойства
 			my $src_group = $self->groups_effective->First_Item(id => $dst_group->id);
 			$dst_group->properties($src_group->properties->Clone(id_propgroup => 'id_propgroup', n => 'n')->Set_State(NOSYNC));
-
+			my $prop_t = ALKO::Catalog::Property::Type->All->Hash('id');
 			# устанавливаем каждому свойству значение
 			for my $prop ($dst_group->properties->List) {
 				if (
@@ -185,8 +185,9 @@ sub complete_products {
 						exists $value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}
 				) {
 					# заводим движок
-					my $proptype = ALKO::Catalog::Property::Type->Get($prop->id_proptype);
-					my $engine_class = 'ALKO::Catalog::Property::Type::Engine::' . $proptype->class;
+					my $proptype = $prop_t->{$prop->id_proptype};
+
+					my $engine_class = 'ALKO::Catalog::Property::Type::Engine::' . $proptype->[0]->class;
 					my $module = $engine_class;
 					$module =~ s!::!/!g;
 					$module .= '.pm';

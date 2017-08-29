@@ -58,42 +58,51 @@ Returns:
 sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
 
 =begin nd
-Method: price (id_shop)
+Method: price (id_shop, $offers, $price)
 	Получить цену
+Parameters:
+	$id_shop  - ид торговой точки
+	$offers   - список скидок массив или хэш экземпляров класса <ALKO::Client::Official>
+	$price    - стоимость товара
 Returns:
 	цена в рублях - если установлена
 	undef         - в противном случае
 =cut
 sub price  {
-	my  ($self, $id_shop) = @_;
-
+	my  ($self, $id_shop, $offers, $price) = @_;
 	# Если уже есть цена, то ничего не делаем
 	return $self->{price} if defined $self->{price};
-	# Ищем скидку
+
+	# Ищем скидку если мы ее не передали
 	my $offer;
-	if ($id_shop) {
-		my $offers = ALKO::Client::Offer->All(id_shop => $id_shop, id_product => $self->id, SORT => ['ctime'])->List;
-		if ($offers) {
-			$offer = pop @$offers;
-		}
+	if ($id_shop and !$offers) {
+		$offers = ALKO::Client::Offer->All(id_shop => $id_shop, id_product => $self->id, SORT => ['ctime'])->List;
 	}
 
-	# Цена товара
-	my $prop     = ALKO::Catalog::Property->Get(const => 'price');
-	my $prop_val = ALKO::Catalog::Property::Value->Get(n_property => $prop->{n}, id_propgroup => $prop->{id_propgroup}, id_product => $self->{id});
+	# Если есть скидки, берем последнюю
+	if($offers) {
+		$offer = pop @$offers if ref $offers eq 'ARRAY';
+		$offer = $offers      if ref $offers eq 'HASH';
+	}
 
-	my $price = $prop_val->val_dec if defined $prop_val;
+	# Цена товара, ищем если ее не передали
+	unless ($price) {
+		my $prop     = ALKO::Catalog::Property->Get(const => 'price');
+		my $prop_val = ALKO::Catalog::Property::Value->Get(n_property => $prop->{n}, id_propgroup => $prop->{id_propgroup}, id_product => $self->{id});
+		$price = $prop_val->val_dec if defined $prop_val;
+	}
 
+	# Расчитываем цену с учетом скидки
 	if ($offer) {
 		if ($offer->type eq 'percent') {
-			$self->{offer} = $offer->value;
+			$self->{offer}      = $offer->value;
 			$self->{offer_type} = $offer->type;
-			my $percent_price = 100 + $offer->value;
+			my $percent_price   = 100 + $offer->value;
 			$price *= ($percent_price / 100);
 		} elsif ($offer->type eq 'rub') {
-			$self->{offer} = $offer->value;
+			$self->{offer}      = $offer->value;
 			$self->{offer_type} = $offer->type;
-			$price += $offer->value;
+			$price             += $offer->value;
 		}
 	}
 
