@@ -5,9 +5,10 @@
 
 use strict;
 use warnings;
-
+use WooF::Debug;
 use WooF::Server;
 use ALKO::Client::Net;
+use ALKO::Client::Official;
 
 my $Server = WooF::Server->new(output_t => 'JSON');
 
@@ -25,7 +26,12 @@ $Server->add_handler(LIST => {
 		my ($I, $O) = ($S->I, $S->O);
 		my $clients = ALKO::Client::Net->All;
 
-		$_->official for $clients->List;
+		# Получаем массив с id товаров
+		my @id = keys %{$clients->Hash('id_official')};
+
+		my $official = ALKO::Client::Official->All(id => \@id, SORT =>['name ASC'])->Hash;
+
+		$_->official($official->{$_->{id_official}}) for $clients->List;
 
 		$O->{clients} = $clients->List;
 		OK;

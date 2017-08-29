@@ -41,16 +41,24 @@ sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
 =begin nd
 Method: official
 	Получить данные о магазине.
+Parameters:
+	$official  - экземпляр класса <ALKO::Client::Official>
 
 Returns:
 	$self->{official}
 =cut
 sub official {
-	my $self = shift;
+	my ($self,  $official)  = @_;
 	# Если уже есть данные, то ничего не делаем
 	return $self->{official} if defined $self->{official};
 
-	$self->{official} = ALKO::Client::Official->Get(id => $self->{id_official});
+	if ($official) {
+		$self->{official} = $official;
+	} else {
+		$self->{official} = ALKO::Client::Official->Get(id => $self->{id_official});
+	}
+
+	$self->{official};
 }
 
 =begin nd
