@@ -165,6 +165,7 @@ sub complete_products {
 	$value{id_product}{$_->id_product}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n_property} = $_
 		for ALKO::Catalog::Property::Value->All(id_product => [$self->products->List('id')])->List;
 
+	my $prop_t = ALKO::Catalog::Property::Type->All->Hash('id');
 	# копируем в каждый товар все свойства и заполняем значениями
 	for my $product ($self->products->List) {
 		# копируем группы
@@ -174,7 +175,7 @@ sub complete_products {
 			# копируем свойства
 			my $src_group = $self->groups_effective->First_Item(id => $dst_group->id);
 			$dst_group->properties($src_group->properties->Clone(id_propgroup => 'id_propgroup', n => 'n')->Set_State(NOSYNC));
-			my $prop_t = ALKO::Catalog::Property::Type->All->Hash('id');
+
 			# устанавливаем каждому свойству значение
 			for my $prop ($dst_group->properties->List) {
 				if (
@@ -202,6 +203,7 @@ sub complete_products {
 						when ('decimal') {$store_t = 'val_dec'}
 						default {return warn "CATALOG: Stored value type not defined"}
 					}
+
 					$engine->store($value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}->$store_t);
 
 					# движок вернул результаты своей работы

@@ -110,18 +110,23 @@ sub price  {
 }
 
 =begin nd
-Method: link
+Method: link($links)
 	Получить список категорий в которых находится данный товар
+Parameters:
+	$links  - категории в которых находится продукт, массив или хэш экземпляров класса <ALKO::Catalog::Product::Link>
 Returns:
 	список категорий - если продукт принадлежит категории
 =cut
 sub link  {
-	my  $self = shift;
+	my  ($self, $links) = @_;
 
 	# Если уже есть данные, то ничего не делаем
 	return $self->{link} if defined $self->{link};
 
-	$self->{link} = ALKO::Catalog::Product::Link->All(id_product => $self->{id})->List;
+	$self->{link} = ALKO::Catalog::Product::Link->All(id_product => $self->{id})->List unless $links;
+	$self->{link} = $links if $links;
+
+	$self->{link}
 }
 
 =begin nd

@@ -94,10 +94,12 @@ $Server->add_handler(ALL_PRODUCT => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
+		my $links = ALKO::Catalog::Product::Link->All->Hash('id_product');
+
 		my $products = ALKO::Catalog::Product->All;
 
 		for (@{$products->List}) {
-			$_->link;
+			$_->link($links->{$_->{id}});
 		}
 
 		$O->{products} = $products->List;
