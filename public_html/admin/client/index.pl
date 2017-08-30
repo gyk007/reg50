@@ -27,15 +27,16 @@ use constant {
 #
 $Server->add_handler(LIST => {
 	input => {
-		allow => ['action', 'page'],
+		allow => ['page'],
 	},
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
 		# Позиция в выборке
+		debug $I->{page};
 		my $pos = $I->{page} ? $I->{page} * COUNT_PAGE_ELEMET : 0;
-
+		debug $pos;
 		my $clients = ALKO::Client::Net->All(SLICEN => [COUNT_PAGE_ELEMET, $pos], SORT =>['id DESC']);
 
 		# Получаем массив с id товаров
@@ -45,8 +46,12 @@ $Server->add_handler(LIST => {
 
 		$_->official($official->{$_->{id_official}}) for $clients->List;
 
-		$O->{clients}       = $clients->List;
-		$O->{count_clients} = ALKO::Client::Net->Count;
+		my $count_clients = ALKO::Client::Net->Count;
+		# Получаем количесво страниц, округление в большую сторону
+		my $page_count = int(($count_clients / COUNT_PAGE_ELEMET) +0.5);		
+
+		$O->{clients} = $clients->List;
+		$O->{pages}   = $page_count;
 
 		OK;
 	},
