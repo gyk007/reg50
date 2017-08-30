@@ -4,9 +4,9 @@ use base qw / WooF::Object /;
 =begin nd
 Class: WooF::Object::Simple
 	Базовый класс для сущностей, имеющих в качестве первичного ключа единственный атрибут с именм 'id'.
-	
+
 	Потомки должны наследовать атрибуты.
-	Для этого у них должен быть метод 
+	Для этого у них должен быть метод
 	sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
 =cut
 
@@ -48,17 +48,17 @@ sub Create {
 	my @attrs;
 	my @values = map {
 		push @attrs, $_;
-		
+
 		($_ => $self->{$_});
 	} grep $self->{$_}, keys %{$self->Attribute};
-	
+
 	my @ph = split //, '?' x @attrs;
 
 	my $q;
 	{
 		local $" = ', ';
 
-		$q = @attrs ? 
+		$q = @attrs ?
 				  "INSERT INTO $table (@attrs) VALUES (@ph) RETURNING id"
 				: "INSERT INTO $table (id) VALUES (default) RETURNING id";
 	}
@@ -71,14 +71,14 @@ sub Create {
 =begin nd
 Method: Edit (@attributes)
 	Обновить указанные атрибуты экземпляра.
-	
+
 	Метод не проверяет указанные в атрибутах разрешения на геттеры/сеттеры и
 	вообще, являются переданные аргументы легальными именами статичных атрибутов.
 	Корректность входных аргументов целиком лежит на коде вызова.
-	
+
 Parameters:
 	@attributes - новые значения атрибутов; хеш, упакованный в массив
-	
+
 Returns:
 	$self
 =cut
@@ -89,14 +89,14 @@ sub Edit {
 	my $modified;
 	while (my ($attr, $value) = each %$in) {
 		next if $attr eq 'id';
-		
+
 		if (exists $self->Attribute->{$attr}) {
 			$self->{$attr} = $value;
 			++$modified;
 		}
 	}
 	$self->Modified if $modified;
-	
+
 	$self;
 }
 
@@ -109,7 +109,7 @@ Returns:
 =cut
 sub Generate_Key {
 	my $self = shift;
-	
+
 	my $table = $self->Table;
 	my $q = qq{SELECT nextval('${table}_id_seq')};
 
@@ -169,7 +169,7 @@ sub Key_attrs { {id => +shift->Attribute->{id}} }
 Method: Prepare_key ( )
 	 Готовит ключ для вставки.
 	 Поскольку в базе стоит последовательность по дефолту, то и делать ничего не надо.
-	 
+
 Returns:
 	true
 =cut
@@ -195,7 +195,7 @@ Returns:
 sub Table {
 	my $self = shift;
 	my $class = ref $self;
-	
+
 	return warn "OBJECT: Table method must be redefined in subclass $class";
 }
 
