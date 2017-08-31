@@ -7,6 +7,7 @@ Package: ALKO::SendMail
 use strict;
 use warnings;
 use Error;
+use WooF::Debug;
 use Encode;	                            # модуль для перекодирования строк
 use Email::Sender::Simple qw(sendmail); # модуль  отправки email по протоколу SMTP
 use Email::Sender::Transport::SMTP;     # модуль  отправки email по протоколу SMTP
@@ -35,20 +36,22 @@ Parameters:
 =cut
 sub send_mail{
 	my %email = %{shift()};
+
+	$email{subject} = decode('UTF-8', $email{subject});
 	$email{subject} = encode('MIME-Header', $email{subject});
 
 	unless ($email{from}) {
-		$email{from} = '"Alaskar Technologies" <info@alaskartech.com>';
+		$email{from} = '"REG50" <noreply@nixteam.ru>';
 	}
 
 	# Шаблон письма
 	if ($email{template}) {
 		my $simple = XML::Simple->new();
 		#считываем конфигфайл с именами и путями к еmail шаблонам
-		my $templates = $simple->XMLin("$ENV{PWD}/conf/email_template.xml");
+		my $templates = $simple->XMLin("$ENV{PWD}/install/conf/email_template.xml");
 		#создаем html шаблон для email
 		my $tt = Template->new({
-			INCLUDE_PATH => "$ENV{PWD}/template/",
+			INCLUDE_PATH => "$ENV{PWD}/templates/",
 			INTERPOLATE  => 0,
 			RELATIVE     => 1,
 			ENCODING     => 'utf8'
@@ -85,10 +88,10 @@ sub send_mail{
 
 	# Настройка SMTP
 	my $transport = Email::Sender::Transport::SMTP->new({
-		host          => 'mail.alaskartech.com',
+		host          => 'smtp.yandex.ru',
 		port          => '465',
-		sasl_username => 'noreply@alaskartech.com',
-		sasl_password => 'alaskaR&7',
+		sasl_username => 'noreply@nixteam.ru',
+		sasl_password => 'baikal',
 		ssl           => 1
 	});
 	# Отправка email с помощью SMTP протокола

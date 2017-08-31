@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  <имя_шаблона>путь к шаблону</имя_шаблонаl> -->
+<email_templates>
+	<reg>registration_email.tpl</reg>
+</email_templates>
