@@ -57,9 +57,9 @@ sub send_mail{
 			ENCODING     => 'utf8'
 		});
 		$tt->process($templates->{"$email{template}"}, $email{info}, \$email{message}) or systemError('Template not found');
-	} else {
-		utf8::encode($email{message});
 	}
+
+	utf8::encode($email{message});
 
 	my $message;
 	if ($email{file}) {

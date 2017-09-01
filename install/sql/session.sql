@@ -28,4 +28,26 @@ COMMENT ON COLUMN session.ctime       IS 'время создания сесси
 COMMENT ON COLUMN session.ltime       IS 'время последнего визита';
 
 
+-- таблица HTTP-сессий для регистрации клиента
+CREATE TABLE reg_session (
+    id          SERIAL,
+    token       VARCHAR(128) UNIQUE,
+    id_merchant INTEGER REFERENCES merchant(id),
+    ctime       TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    dtime       TIMESTAMP(6) WITH TIME ZONE NOT NULL,
+    count       INTEGER NOT NULL,
+
+    PRIMARY KEY (id)
+);
+
+GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE reg_session TO @@DBUSER@@;
+
+COMMENT ON TABLE  reg_session             IS 'HTTP-сессии для регистрации';
+COMMENT ON COLUMN reg_session.id          IS 'id';
+COMMENT ON COLUMN reg_session.token       IS 'токен';
+COMMENT ON COLUMN reg_session.id_merchant IS 'представитель';
+COMMENT ON COLUMN reg_session.ctime       IS 'время создания сессии';
+COMMENT ON COLUMN reg_session.dtime       IS 'время конца срока дейсвия сессии';
+COMMENT ON COLUMN reg_session.count       IS 'количесво посещений по текущей сессии';
+
 COMMIT;

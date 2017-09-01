@@ -27,9 +27,7 @@ for my $order (@{$orders->{order}}) {
 
 	my $products->{product} = $order->{products}{elements};
 	for (@{$products->{product}}) {
-		$_->{id}    = $_->{product}{alkoid};
-		$_->{name}  = $_->{product}{name};
-
+		$_->{id}  = $_->{product}{alkoid};
 		 delete @{$_}{qw(
 			id_order
 			id_product

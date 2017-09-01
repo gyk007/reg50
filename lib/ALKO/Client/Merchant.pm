@@ -26,11 +26,11 @@ Variable: %Attribute
 	net      - список торговых точек, экземпляры класса <ALKO::Client::Shop>
 =cut
 my %Attribute = (
-	alkoid   => undef,
-	email    => undef,
-	name     => undef,
-	password => undef,
-	phone    => undef,
+	alkoid   => {mode => 'read/write'},
+	email    => {mode => 'read/write'},
+	name     => {mode => 'read/write'},
+	password => {mode => 'read/write'},
+	phone    => {mode => 'read/write'},
 	net      => {mode => 'read', type => 'cache'},
 	shops    => {mode => 'read', type => 'cache'},
 );

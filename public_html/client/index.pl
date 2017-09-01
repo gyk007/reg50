@@ -29,7 +29,7 @@ $Server->add_handler(CLIENT => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		my $merchant = ALKO::Client::Merchant->Get(id => $O->{SESSION}->id_merchant);
+		my $merchant = ALKO::Client::Merchant->Get(id => $O->{SESSION}->id_merchant) or return $S->fail("NOSUCH: Can\'t get Merchant: no such merchant(id => $O->{SESSION}->id_merchant)");
 		$merchant->net;
 		$merchant->shops;
 
@@ -41,6 +41,58 @@ $Server->add_handler(CLIENT => {
 
 		$O->{USER} = $merchant;
 		$O->{SHOP} = $shop;
+
+		OK;
+	},
+});
+
+# Получить данные клиента для регистрации
+#
+# GET
+# URL: /client/?
+#   action = get_reg_data
+#
+$Server->add_handler(GET_REG_DATA => {
+	input => {
+		allow => ['action'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $merchant = ALKO::Client::Merchant->Get(id => $O->{SESSION}->id_merchant) or return $S->fail("NOSUCH: Can\'t get Merchant: no such merchant(id => $O->{SESSION}->id_merchant)");
+
+		$O->{merchant} = $merchant;
+
+		OK;
+	},
+});
+
+
+# Получить данные клиента для регистрации
+#
+# GET
+# URL: /client/?
+#   action      = registration
+#   phone       = String
+#   password    = String
+#	name        = String
+#
+$Server->add_handler(REGISTRATION => {
+	input => {
+		allow => ['action', 'phone', 'password', 'name'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $merchant = ALKO::Client::Merchant->Get(id => $O->{SESSION}->id_merchant) or return $S->fail("NOSUCH: Can\'t get Merchant: no such merchant(id => $O->{SESSION}->id_merchant)");
+
+		$merchant->phone($I->{phone});
+		$merchant->password($I->{password});
+		$merchant->name($I->{name});
+
+		$merchant->Save;
 
 		OK;
 	},
@@ -77,8 +129,9 @@ $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
 
-	return ['SELECT_SHOP'] if exists $I->{action} and $I->{action} eq 'select_shop';
-
+	return ['SELECT_SHOP']  if exists $I->{action} and $I->{action} eq 'select_shop';
+	return ['GET_REG_DATA'] if exists $I->{action} and $I->{action} eq 'get_reg_data';
+	return ['REGISTRATION'] if exists $I->{action} and $I->{action} eq 'registration';
 	['CLIENT'];
 
 });

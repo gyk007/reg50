@@ -6,11 +6,13 @@
 use strict;
 use warnings;
 use WooF::Debug;
+use DateTime;
 use WooF::Server;
 use ALKO::Client::Net;
 use ALKO::Client::Official;
 use ALKO::Client::Shop;
 use ALKO::Client::Merchant;
+use ALKO::RegistrationSession;
 use ALKO::SendMail qw(send_mail);
 
 my $Server = WooF::Server->new(output_t => 'JSON');
@@ -149,24 +151,62 @@ $Server->add_handler(SEARCH => {
 #
 # GET
 # URL: /client/?
-#   action = registration
-#   email  = string
+#   action      = registration
+#   email       = string
+#   id_merchant = 1
 #
 $Server->add_handler(REGISTRATION => {
 	input => {
-		allow => ['action', 'email'],
+		allow => ['action', 'email', 'id_merchant'],
 	},
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
+		my $ctime = DateTime->now;
+		my $dtime = DateTime->now->add(days => 2);
+
+		my $merchant = ALKO::Client::Merchant->Get(id => $I->{id_merchant}) or return $S->fail("NOSUCH: no such merchant(id => $I->{id_merchant})");
+
+		# Проверяем сущесвует ли такой емайл
+		my $is_merchant = ALKO::Client::Merchant->Get(email => $I->{email});
+		if ($is_merchant) {
+			return $S->fail("EMAIL: $I->{email} is already in use") if $is_merchant->id != $merchant->id;
+		}
+
+		# Удаляем данные представителя
+		$merchant->email($I->{email});
+		$merchant->name('');
+		$merchant->password('');
+		$merchant->phone('');
+
+		$merchant->Save;
+
+
+		# Создаем токен
+		my $token;
+		my @all = split(//, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890');
+		map { $token .= $all[rand @all]; } (0..14);
+
+		# Создаем сессию для регистрации
+		ALKO::RegistrationSession->new({
+			token       => $token,
+			id_merchant => $merchant->id,
+			ctime       => $ctime,
+			dtime       => $dtime,
+			count       => 1
+		})->Save;
+
+		#  Данные для Email
+		my $email_data->{token} = $token;
+
 		send_mail({
 			template => 'reg',
 			to       => $I->{email},
 			subject  => 'REG50 Регистрация Клиента',
+			info     => $email_data
 		});
 
-		debug "OK";
 		OK;
 	},
 });

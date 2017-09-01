@@ -11,6 +11,7 @@ use strict;
 use warnings;
 
 use ALKO::Session;
+use ALKO::RegistrationSession;
 use ALKO::Client::Shop;
 use ALKO::Client::Merchant;
 use DateTime;
@@ -41,9 +42,45 @@ sub authenticate {
 	my $self = shift;
 	my ($I, $O) = ($self->I, $self->O);
 
-	return $self->_auth_by_token    if exists $I->{token};
-	return $self->_auth_by_password if exists $I->{password} and exists $I->{login};
+	return $self->_auth_by_token     if exists $I->{token};
+	return $self->_auth_by_reg_token if exists $I->{reg_token};
+	return $self->_auth_by_password  if exists $I->{password} and exists $I->{login};
 	return $self->fail('AUTH: Authentication failed');
+}
+
+
+=begin nd
+Method: _auth_by_reg_token
+	авторизация при регистрации
+=cut
+sub _auth_by_reg_token {
+	my $self = shift;
+	my ($I, $O) = ($self->I, $self->O);
+
+	my $dnow = DateTime->now;
+	my $session = ALKO::RegistrationSession->Get(token => $I->{reg_token});
+
+	# Проверяем существование сессии
+	return $self->fail('AUTH: Authentication failed') unless $session;
+
+	# Проверяем время дейсвия сессии
+	my ($date, $time)        = split(' ', $session->dtime);
+	my ($year, $month, $day) = split('-', $date);
+	my ($hour,$minute)       = split(':', $time);
+	my $dtime = DateTime->new(
+		year   => $year,
+		month  => $month,
+		day    => $day,
+		hour   => $hour,
+		minute => $minute,
+	);
+	return $self->fail('AUTH: Authentication failed') if ($dtime->epoch < $dnow->epoch);
+
+	delete $I->{reg_token};
+
+	$O->{SESSION} = $session;
+
+	1;
 }
 
 =begin nd
@@ -83,6 +120,7 @@ sub _auth_by_password {
 	$I->{login}     =~ s/[\s]//g;
 	$I->{password}  =~ s/[\s]//g;
 
+	return $self->fail('AUTH: Authentication failed') unless $I->{password};
 	# Получаем хэш пароля (Пока это не работает)
 	#$I->{password} = md5_hex($I->{password});
 
