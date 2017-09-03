@@ -22,7 +22,7 @@ Variable: %Attribute
 =cut
 my %Attribute = (
 	id_official => undef,
-	id_merchant => undef,
+	id_merchant => {mode => 'read'},
 	official    => {mode => 'read', type => 'cache'},
 );
 

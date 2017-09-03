@@ -24,9 +24,9 @@ Variable: %Attribute
 =cut
 my %Attribute = (
 	id_order   => {type => 'key'},
-	id_product => undef,
-	qty        => undef,
-	price      => undef,
+	id_product => {mode => 'read'},
+	qty        => {mode => 'read'},
+	price      => {mode => 'read'},
 	product    => {mode => 'read', type => 'cache'},
 );
 

@@ -14,6 +14,9 @@ use ALKO::Cart;
 use ALKO::Catalog::Product;
 use ALKO::Client::Shop;
 use ALKO::Order::Status;
+use ALKO::Statistic::Shop;
+use ALKO::Statistic::Net;
+use ALKO::Statistic::Product;
 
 my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 
@@ -48,8 +51,10 @@ $Server->add_handler(ADD => {
 		# Цена заказа
 		my $order_price = 0;
 		for (@{$cart->products->List}) {
-			$order_price += $_->{product}{price}
+			$order_price += $_->product->price($O->{SESSION}->id_shop) * $_->quantity;			 
 		};
+
+		debug $order_price;
 
 		$order_data->{id_status}   = ALKO::Order::Status->Get(name => 'new')->id;
 		$order_data->{id_net}      = $shop->id_net;
@@ -61,12 +66,27 @@ $Server->add_handler(ADD => {
 		my $order = ALKO::Order->new($order_data)->Save or return $S->fail("NOSUCH: Can\'t create order");
 
 		for (@{$cart->products->List}) {
-			ALKO::Order::Product->new({
+			my $ordrer_prod = ALKO::Order::Product->new({
 				id_order   => $order->id,
 				id_product => $_->{product}{id},
 				price      => $_->{product}{price},
 				qty        => $_->{quantity},
-			})->Save;
+			})->Save;			 
+
+			# Добавляем статистику товара			 
+			my $stat_prod = ALKO::Statistic::Product->Get(id_product => $ordrer_prod->id_product);
+			if ($stat_prod) {
+				$stat_prod->qty($stat_prod->qty + $ordrer_prod->qty);
+				$stat_prod->price($stat_prod->price + ($ordrer_prod->price * $ordrer_prod->qty));
+			} else {
+				$stat_prod = ALKO::Statistic::Product->new({
+					id_product => $ordrer_prod->id_product,
+					name    => $ordrer_prod->product->name,
+					qty     => $ordrer_prod->qty,
+					price   => ($ordrer_prod->price * $ordrer_prod->qty)
+				});
+			}
+			$stat_prod->Save;
 			# Удаляем товар из корзины
 			$_->Remove
 		};
@@ -74,6 +94,37 @@ $Server->add_handler(ADD => {
 		$order->products;
 		$order->status;
 		$order->shop;
+
+		# Добавляем статистику
+		# Статистика торговой точки
+		my $stat_shop = ALKO::Statistic::Shop->Get(id_shop => $shop->id);
+		if ($stat_shop) {
+			$stat_shop->qty($stat_shop->qty + 1);
+			$stat_shop->price($stat_shop->price + $order_price);
+		} else {
+			$stat_shop = ALKO::Statistic::Shop->new({
+				id_shop => $shop->id,
+				name    => $shop->official->name,
+				qty     => 1,
+				price   => $order_price
+			});
+		}
+		$stat_shop->Save;
+
+		# Статистика сети
+		my $stat_net = ALKO::Statistic::Net->Get(id_net => $shop->id_net);
+		if ($stat_net) {
+			$stat_net->qty($stat_net->qty + 1);
+			$stat_net->price($stat_net->price + $order_price);
+		} else {
+			$stat_net = ALKO::Statistic::Net->new({
+				id_net  => $shop->id_net,
+				name    => $shop->net->official->name,
+				qty     => 1,
+				price   => $order_price
+			});
+		}
+		$stat_net->Save;
 
 		$O->{order}     = $order;
 		$O->{documents} = ALKO::Order::Document->All(id_order => $order->id)->List;

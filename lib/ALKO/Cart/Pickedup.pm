@@ -26,7 +26,7 @@ my %Attribute = (
 	ncart      => {type => 'key'},
 	id_product => undef,
 	quantity   => {mode => 'read/write'},
-	product    => {mode=>'write', type => 'cache'},
+	product    => {mode => 'read/write', type => 'cache'},
 );
 
 =begin nd

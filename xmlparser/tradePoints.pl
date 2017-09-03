@@ -15,30 +15,12 @@ my $clients = XML::Simple->new;
 my $clients = $clients->XMLin("$ENV{PWD}/../../../data/i/trade_points.xml", KeyAttr => { trade_point => 'id' });
 
 while( my( $key, $value ) = each %{$clients->{trade_point}} ){
-	my $contractor = ALKO::Client::Official->Get(alkoid => $value->{id_contractor});
-	my $merchant   = ALKO::Client::Merchant->Get(alkoid => $value->{id_contractor});
-
 	# Добавляем представителя если его не существует
-	unless ($merchant) {
-		$merchant = ALKO::Client::Merchant->new({
-			phone  => $value->{person}{phoneperson} ? $value->{person}{phoneperson} : undef,
-			name   => $value->{person}{content}     ? $value->{person}{content} : undef,
-			alkoid => $value->{id_contractor},
-		})->Save if ref $value->{person} eq 'HASH';
-
-		$merchant = ALKO::Client::Merchant->new({
-			name   => $value->{person} ? $value->{person} : undef,
-			alkoid => $value->{id_contractor},
-		})->Save unless ref $value->{person} eq 'HASH';
-	}
-
-	# Добавляем организацию если не ее существует
-	my $net = ALKO::Client::Net->Get(id_official => $contractor->{id}, id_merchant => $merchant->{id});
-	$net = ALKO::Client::Net->new({
-		id_official => $contractor->id,
-		id_merchant => $merchant->id,
-	})->Save unless $net;
-
+	my $merchant   = ALKO::Client::Merchant->Get(alkoid => $key);	 
+	$merchant = ALKO::Client::Merchant->new({			 
+		alkoid => $key,
+	})->Save unless $merchant; 	 
+ 
 	# Добавляем реквизиты торговой точки если их не существует
 	my $official = ALKO::Client::Official->Get(alkoid => $key);
 	unless ($official) {
@@ -56,14 +38,19 @@ while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 		$official->Save;
 	}
 
+	# Получаем организацию
+	my $net_official = ALKO::Client::Official->Get(alkoid => $value->{id_contractor});	 
+	my $net          = ALKO::Client::Net->Get(id_official => $net_official->{id});
+
 	# Добавляем магазин если его не существует
 	my $shop = ALKO::Client::Shop->Get(id_official => $official->id);
 	$shop = ALKO::Client::Shop->new({
 		id_official => $official->id,
 		id_net      => $net->id,
+		id_merchant => $merchant->id,
 	})->Save unless $shop;
 
-	# Добавлям корзину для пользователя
+	# Добавлям корзину для магазина
 	ALKO::Cart->new({
 		id_shop => $shop->id,
 		n       => 1,
@@ -71,36 +58,36 @@ while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 
 	debug $shop->id;
 
-
 	# Индивидуальные предложения
 	if($value->{offers}{product}){
-		if (ref $value->{offers}{product} eq 'ARRAY'){
+		if (ref $value->{offers}{product} eq 'ARRAY'){			
 			for (@{$value->{offers}{product}}) {
 				my $prod = ALKO::Catalog::Product->Get(alkoid => $_->{id});
-				if ($prod and  $_->{discount}{content}) {
+				if ($prod and $_->{discount}{content}) {
 					ALKO::Client::Offer->new({
 						id_shop    => $shop->id,
 						id_product => $prod->id,
 						type       => $_->{discount}{type},
 						value      => $_->{discount}{content},
 						ctime      => $_->{date},
-					})
+					})->Save;
 				} elsif(!$prod) {
 					print "Такого товара не существует\n"
 				} else {
 					print "Нулевая скидка\n"
 				}
 			}
-		} elsif (ref $value->{offers}{product} eq 'HASH') {
+		} 
+		elsif (ref $value->{offers}{product} eq 'HASH') {
 			my $prod = ALKO::Catalog::Product->Get(alkoid => $value->{offers}{product}{id});
-			if ($prod  $_->{discount}{content}) {
+			if ($prod and $_->{discount}{content}) {
 				ALKO::Client::Offer->new({
 					id_shop    => $shop->id,
 					id_product => $prod->id,
 					type       => $value->{offers}{product}{discount}{type},
 					value      => $value->{offers}{product}{discount}{content},
 					ctime      => $value->{offers}{product}{date},
-				})
+				})->Save;
 			} elsif (!$prod) {
 				print "Такого товара не существует\n"
 			} else {

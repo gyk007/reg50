@@ -10,6 +10,11 @@ use WooF::Debug;
 use DateTime;
 use WooF::Server;
 use ALKO::Order;
+use ALKO::Order::Product;
+use ALKO::Client::Shop;
+use ALKO::Statistic::Shop;
+use ALKO::Statistic::Net;
+use ALKO::Statistic::Product;
 
 my $Server = WooF::Server->new(output_t => 'JSON');
 
@@ -63,10 +68,37 @@ $Server->add_handler(LIST => {
 	},
 });
 
+# Список заказов
+#
+# GET
+# URL: /order/
+#   action = statistic
+#
+$Server->add_handler(STATISTIC => {
+	input => {
+		allow => ['action'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $net      = ALKO::Statistic::Net->All;
+		my $shop     = ALKO::Statistic::Shop->All;
+		my $product  = ALKO::Statistic::Product->All;
+
+		$O->{product}  = $product->List;
+		$O->{shop}     = $shop->List;
+		$O->{net}      = $net->List;
+
+		OK;
+	},
+});
+
 $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
-	return ['ORDER'] if exists $I->{action} and $I->{action} eq 'order';
+	return ['ORDER']     if exists $I->{action} and $I->{action} eq 'order';
+	return ['STATISTIC'] if exists $I->{action} and $I->{action} eq 'statistic';
 
 	['LIST'];
 });

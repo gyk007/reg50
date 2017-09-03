@@ -16,12 +16,12 @@ use ALKO::Client::Shop;
 my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 
 
-# Получить данные клиента
+# Получить данные представителя
 #
 # GET
 # URL: /client/
 #
-$Server->add_handler(CLIENT => {
+$Server->add_handler(MERCHANT => {
 	input => {
 		allow => [],
 	},
@@ -132,7 +132,7 @@ $Server->dispatcher(sub {
 	return ['SELECT_SHOP']  if exists $I->{action} and $I->{action} eq 'select_shop';
 	return ['GET_REG_DATA'] if exists $I->{action} and $I->{action} eq 'get_reg_data';
 	return ['REGISTRATION'] if exists $I->{action} and $I->{action} eq 'registration';
-	['CLIENT'];
+	['MERCHANT'];
 
 });
 

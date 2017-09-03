@@ -8,11 +8,8 @@ use WooF::Install;
 
 my $install = WooF::Install->new(__FILE__);
 
-$install->sql('filter.sql');
+$install->sql('session.sql');
 
 $install->complete(<<MSG);
-Созданы таблицы для фильтров.
-Заведен фильтр для Price.
+- Добавлены таблицы для сессий
 MSG
-
-

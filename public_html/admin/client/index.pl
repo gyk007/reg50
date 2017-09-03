@@ -25,7 +25,7 @@ use constant {
 	COUNT_PAGE_ELEMET => 8,
 };
 
-# Получить список магазинов
+# Получить данные представителя сети
 #
 # GET
 # URL: /client/?
@@ -42,7 +42,7 @@ $Server->add_handler(NET_MRCHANT => {
 
 
 		my $net      = ALKO::Client::Net->Get(id => $I->{id_net})  or return $S->fail("NOSUCH: no such net(id => $I->{id_net})");
-		my $merchant = ALKO::Client::Merchant->Get(id => $net->{id_merchant});
+		my $merchant = ALKO::Client::Merchant->Get(id => $net->id_merchant);
 
 		$O->{merchant} = $merchant;
 
@@ -147,6 +147,33 @@ $Server->add_handler(SEARCH => {
 	},
 });
 
+
+# Получить данные представителя магазина
+#
+# GET
+# URL: /client/?
+#   action = shopMerchant
+#   id_shop  = 1
+#
+$Server->add_handler(SHOP_MERCHANT => {
+	input => {
+		allow => ['action', 'id_shop'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+
+		my $shop      = ALKO::Client::Shop->Get(id => $I->{id_shop})  or return $S->fail("NOSUCH: no such shop(id => $I->{id_net})");
+		my $merchant = ALKO::Client::Merchant->Get(id => $shop->id_merchant);
+
+		$O->{merchant} = $merchant;
+
+		OK;
+	},
+});
+
+
 # Поиск
 #
 # GET
@@ -182,6 +209,9 @@ $Server->add_handler(REGISTRATION => {
 
 		$merchant->Save;
 
+		# Удаляем сессию для регистрации  если она существует
+		my $old_session = ALKO::RegistrationSession->Get(id_merchant => $merchant->id);
+		$old_session->Remove if $old_session;			 
 
 		# Создаем токен
 		my $token;
@@ -240,10 +270,11 @@ $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
 
-	return ['NET_MRCHANT']  if exists $I->{action} and $I->{action} eq 'netMerchant';
-	return ['SEARCH']       if exists $I->{action} and $I->{action} eq 'search';
-	return ['REGISTRATION'] if exists $I->{action} and $I->{action} eq 'registration';
-	return ['SHOPS']        if exists $I->{action} and $I->{action} eq 'shops';
+	return ['NET_MRCHANT']   if exists $I->{action} and $I->{action} eq 'netMerchant';
+	return ['SHOP_MERCHANT'] if exists $I->{action} and $I->{action} eq 'shopMerchant';
+	return ['SEARCH']        if exists $I->{action} and $I->{action} eq 'search';
+	return ['REGISTRATION']  if exists $I->{action} and $I->{action} eq 'registration';
+	return ['SHOPS']         if exists $I->{action} and $I->{action} eq 'shops';
 
 	['LIST'];
 });

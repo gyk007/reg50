@@ -40,7 +40,7 @@ my %Attribute = (
 	bik           => undef,
 	email         => undef,
 	id_file       => undef,
-	name          => undef,
+	name          => {mode => 'read'},
 	person        => undef,
 	phone         => undef,
 	regaddress    => undef,

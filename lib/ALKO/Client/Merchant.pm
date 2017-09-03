@@ -60,6 +60,12 @@ sub net {
 	return $self->{net} if defined $self->{net};
 
 	my $net =  ALKO::Client::Net->Get(id_merchant => $self->{id});
+
+	unless ($net) {
+		my $shop = ALKO::Client::Shop->Get(id_merchant => $self->{id});
+		$net     = ALKO::Client::Net->Get(id => $shop->{id_net});
+	}
+
 	$net->official;
 
 	$self->{net} = $net;
@@ -76,14 +82,17 @@ sub shops {
 	my $self = shift;
 	# Если уже есть данные, то ничего не делаем
 	return $self->{shops} if defined $self->{shops};
-
-	my $net = $self->{net};
-
-	unless ($net) {
-		$net =  ALKO::Client::Net->Get(id_merchant => $self->{id});
+	
+	# Всегда нужно проверить является ли представитель представителем сети
+	# так делать нельзя $net = $self->{net}  
+	my $net = ALKO::Client::Net->Get(id_merchant => $self->{id});
+	
+	my $shops;
+	if ($net) {
+		$shops = ALKO::Client::Shop->All(id_net => $net->id)->List;
+	} else  {
+		$shops = ALKO::Client::Shop->All(id_merchant => $self->{id})->List;
 	}
-
-	my $shops =  ALKO::Client::Shop->All(id_net => $net->id)->List;
 
 	for(@$shops) {
 		$_->official;

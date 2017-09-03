@@ -37,7 +37,7 @@ my %Attribute = (
 	face           => undef,
 	face_effective => {type => 'cache'},
 	link           => {type => 'cache'},
-	name           => undef,
+	name           => {mode => 'read'},
 	properties     => {mode => 'read/write', type => 'cache'},
 	price          => {type => 'cache'},
 	offer          => {type => 'cache'},
