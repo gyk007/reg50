@@ -16,7 +16,7 @@ CREATE TABLE offer (
     value      DECIMAL(10, 2),
     ctime      TIMESTAMP(6) WITH TIME ZONE,
 
-    PRIMARY KEY (id_product, id_shop)
+    PRIMARY KEY (id_shop, id_product)
 );
 
 GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE offer TO @@DBUSER@@;

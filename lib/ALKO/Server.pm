@@ -98,7 +98,7 @@ sub _auth_by_token {
 	return $self->fail('AUTH: Authentication failed') unless $session;
 
 	# Обновляем время последнего визита
-	$session->ltime($dt);
+	#$session->ltime($dt);
 
 	delete $I->{token};
 

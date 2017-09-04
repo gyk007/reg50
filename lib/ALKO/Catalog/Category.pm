@@ -164,14 +164,35 @@ sub complete_products {
 	}
 
 	# развесистый хеш значений свойств с обособленными ключам, чтобы легче дампить
+	my %val_brends;
+	my %val_countries;
+	my %val_manufacturer;
 	my %value;
-	$value{id_product}{$_->id_product}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n_property} = $_
-		for ALKO::Catalog::Property::Value->All(id_product => [$self->products->List('id')])->List;
+	for (ALKO::Catalog::Property::Value->All(id_product => [$self->products->List('id')])->List) {
+		$value{id_product}{$_->id_product}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n_property} = $_;
+		# Значения для табличных свойств
+		$val_countries{$_->val_int}    = 7  if $_->n_property == 7;
+		$val_brends{$_->val_int}       = 2  if $_->n_property == 2;
+		$val_manufacturer{$_->val_int} = 3  if $_->n_property == 3;
+	};
+
+	my @id_countries;
+	my @id_manufacturer;
+	my @id_brends;
+
+	# Скадываем нужные id для табличных свойств
+	push @id_countries,    $_ for (keys %val_countries);
+	push @id_brends,       $_ for (keys %val_brends);
+	push @id_manufacturer, $_ for (keys %val_manufacturer);
 
 	my $prop_t = ALKO::Catalog::Property::Type->All->Hash('id');
 
 	# Достаем все страны
-	my $countries = ALKO::Country->All;
+	my $countries = ALKO::Country->All(id => \@id_countries);
+	# Достаем всеx производителей
+	my $manufacturers = ALKO::Catalog::Manufacturer(id => \@id_countries);
+	# Достаем все бренды
+	my $brands = ALKO::Catalog::Brand(id => \@id_countries);
 
 	# копируем в каждый товар все свойства и заполняем значениями
 	for my $product ($self->products->List) {
