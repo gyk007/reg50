@@ -190,9 +190,9 @@ sub complete_products {
 	# Достаем все страны
 	my $countries = ALKO::Country->All(id => \@id_countries);
 	# Достаем всеx производителей
-	my $manufacturers = ALKO::Catalog::Manufacturer(id => \@id_countries);
+	my $manufacturers = ALKO::Catalog::Manufacturer->All(id => \@id_countries);
 	# Достаем все бренды
-	my $brands = ALKO::Catalog::Brand(id => \@id_countries);
+	my $brands = ALKO::Catalog::Brand->All(id => \@id_countries);
 
 	# копируем в каждый товар все свойства и заполняем значениями
 	for my $product ($self->products->List) {
