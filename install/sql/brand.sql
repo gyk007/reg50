@@ -8,10 +8,10 @@ BEGIN;
 
 
 CREATE TABLE manufacturer (
-        id          SERIAL,
-        name        VARCHAR(128) NOT NULL DEFAULT 'UNKNOWN',
-        description VARCHAR(4096),
-        PRIMARY KEY (id)
+    id          SERIAL,
+    name        VARCHAR(128) NOT NULL DEFAULT 'UNKNOWN',
+    description VARCHAR(4096),
+    PRIMARY KEY (id)
 );
 
 GRANT SELECT, UPDATE         ON SEQUENCE manufacturer_id_seq TO @@DBUSER@@;
@@ -24,11 +24,11 @@ COMMENT ON COLUMN manufacturer.description IS 'описание';
 
 
 CREATE TABLE brand (
-        id          SERIAL,
-        id_manufacturer INTEGER REFERENCES manufacturer(id) ON UPDATE CASCADE,
-        name        VARCHAR(128) NOT NULL DEFAULT 'UNKNOWN',
-        description VARCHAR(4096),
-        PRIMARY KEY (id)
+    id              SERIAL,
+    id_manufacturer INTEGER REFERENCES manufacturer(id) ON UPDATE CASCADE,
+    name            VARCHAR(128) NOT NULL DEFAULT 'UNKNOWN',
+    description     VARCHAR(4096),
+    PRIMARY KEY (id)
 );
 
 GRANT SELECT, UPDATE         ON SEQUENCE brand_id_seq TO @@DBUSER@@;

@@ -14,11 +14,11 @@ use ALKO::Catalog::Manufacturer;
 use ALKO::Country;
 
 my $category = XML::Simple->new;
-my $category = $category->XMLin("$ENV{PWD}/../../../data/i/category.xml", KeyAttr => { category => 'id' });
+my $category = $category->XMLin("$ENV{PWD}/../../../data/i/categories.xml", KeyAttr => { category => 'id' });
 
 while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 	# Выводим id категории в консоль
-	print "$key \n";
+	print "$id_categ \n";
 
 	# Новая категория
 	ALKO::Catalog::Category->new({
@@ -32,7 +32,7 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 
 	# Добавляем категорию в дерево
 	ALKO::Catalog::Category::Graph->new({
-		down  => $key,
+		down  => $id_categ,
 		sortn => $parent->has_child + 1,
 		top   => $ALKO::Catalog::ROOT,
 	})->Save;
@@ -83,15 +83,24 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 					val_int      => $_->{qty} ? $_->{qty} : 0,
 				})->Save;
 
-				# Бренд
+				# Бренд и производитель
 				my $brend = ALKO::Catalog::Brand->Get(alkoid => $_->{brand}) if  $_->{brand};
 				if ($brend) {
+					# Бренд
 					ALKO::Catalog::Property::Value->new({
 						id_product   => $product->{id},
 						id_propgroup => 1,
 						n_property   => 2,
 						val_int      => $brend->{id},
 					})->Save;
+
+					# Производитель
+					ALKO::Catalog::Property::Value->new({
+						id_product   => $product->{id},
+						id_propgroup => 1,
+						n_property   => 3,
+						val_int      => $brend->{id_manufacturer},
+					})->Save if $brend->{id_manufacturer};
 				}
 
 				for my $param (@{$_->{parameters}{parameter}}) {
@@ -171,14 +180,23 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 				val_int      => $products->{qty} ? $products->{qty} : 0,
 			})->Save;
 
-			# Бренд
+			# Бренд и производитель
 			my $brend = ALKO::Catalog::Brand->Get(alkoid => $products->{brand})  if  $products->{brand};
 			if ($brend) {
+				# Бренд
 				ALKO::Catalog::Property::Value->new({
 					id_product   => $product->{id},
 					id_propgroup => 1,
 					n_property   => 2,
 					val_int      => $brend->{id},
+				})->Save;
+
+				# Производитель
+				ALKO::Catalog::Property::Value->new({
+					id_product   => $product->{id},
+					id_propgroup => 1,
+					n_property   => 3,
+					val_int      => $brend->{id_manufacturer},
 				})->Save;
 			}
 

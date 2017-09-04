@@ -8,20 +8,24 @@ use ALKO::Client::Merchant;
 use ALKO::Client::Offer;
 use ALKO::Catalog::Product;
 use ALKO::Cart;
+use WooF::DB;
 use XML::Simple;
-use WooF::Debug;
 
 my $clients = XML::Simple->new;
 my $clients = $clients->XMLin("$ENV{PWD}/../../../data/i/trade_points.xml", KeyAttr => { trade_point => 'id' });
 
+# Удаляем все индивидуальные предложения
+my $q = qq{	DELETE FROM offer};
+ALKO::Client::Offer->S->D->exec($q) or die "ERROR SQL: $q";
+
 while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 	# Добавляем представителя если его не существует
-	my $merchant   = ALKO::Client::Merchant->Get(alkoid => $key);	 
-	$merchant = ALKO::Client::Merchant->new({			 
+	my $merchant   = ALKO::Client::Merchant->Get(alkoid => $key);
+	$merchant = ALKO::Client::Merchant->new({
 		alkoid => $key,
-	})->Save unless $merchant; 	 
- 
-	# Добавляем реквизиты торговой точки если их не существует
+	})->Save unless $merchant;
+
+	# Добавляем реквизиты торговой точки если их не существует, или обновляем
 	my $official = ALKO::Client::Official->Get(alkoid => $key);
 	unless ($official) {
 		$official = ALKO::Client::Official->new({
@@ -35,32 +39,43 @@ while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 		$official->{address}       = undef if ref $value->{delivery_address} eq 'HASH';
 		$official->{taxreasoncode} = undef if ref $value->{kpp}              eq 'HASH';
 
-		$official->Save;
+		print "Добавлена торговая точка: $key \n";
+	} else {
+		$official->{name}          = $value->{name}             if ref $value->{name}             ne 'HASH';
+		$official->{address}       = $value->{delivery_address} if ref $value->{delivery_address} ne 'HASH';
+		$official->{taxreasoncode} = $value->{kpp}              if ref $value->{kpp}              ne 'HASH';
+
+		print "Обновлена торговая точка: $key \n";
 	}
+	$official->Save;
 
 	# Получаем организацию
-	my $net_official = ALKO::Client::Official->Get(alkoid => $value->{id_contractor});	 
+	my $net_official = ALKO::Client::Official->Get(alkoid => $value->{id_contractor});
 	my $net          = ALKO::Client::Net->Get(id_official => $net_official->{id});
 
-	# Добавляем магазин если его не существует
+	# Добавляем магазин если его не существует или обновляем
 	my $shop = ALKO::Client::Shop->Get(id_official => $official->id);
-	$shop = ALKO::Client::Shop->new({
-		id_official => $official->id,
-		id_net      => $net->id,
-		id_merchant => $merchant->id,
-	})->Save unless $shop;
+	unless ($shop) {
+		$shop = ALKO::Client::Shop->new({
+			id_official => $official->id,
+			id_net      => $net->id,
+			id_merchant => $merchant->id,
+		});
+	} else {
+		$shop->{id_net} = $net->id;
+	}
+	$shop->Save;
 
-	# Добавлям корзину для магазина
-	ALKO::Cart->new({
+	# Добавлям корзину для магазина если не существует
+	my $cart = ALKO::Cart->Get(id_shop => $shop->id);
+	$cart = ALKO::Cart->new({
 		id_shop => $shop->id,
 		n       => 1,
-	})->Save;
-
-	debug $shop->id;
+	})->Save unless $cart;
 
 	# Индивидуальные предложения
 	if($value->{offers}{product}){
-		if (ref $value->{offers}{product} eq 'ARRAY'){			
+		if (ref $value->{offers}{product} eq 'ARRAY'){
 			for (@{$value->{offers}{product}}) {
 				my $prod = ALKO::Catalog::Product->Get(alkoid => $_->{id});
 				if ($prod and $_->{discount}{content}) {
@@ -77,7 +92,7 @@ while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 					print "Нулевая скидка\n"
 				}
 			}
-		} 
+		}
 		elsif (ref $value->{offers}{product} eq 'HASH') {
 			my $prod = ALKO::Catalog::Product->Get(alkoid => $value->{offers}{product}{id});
 			if ($prod and $_->{discount}{content}) {

@@ -8,11 +8,11 @@ BEGIN;
 
 -- группы
 CREATE TABLE propgroup (
-        id          SERIAL,
-        name        VARCHAR(1024) NOT NULL DEFAULT 'UNKNOWN',
-        face        VARCHAR(1024),
-        description VARCHAR(4096),
-        PRIMARY KEY (id)
+	id          SERIAL,
+	name        VARCHAR(1024) NOT NULL DEFAULT 'UNKNOWN',
+	face        VARCHAR(1024),
+	description VARCHAR(4096),
+	PRIMARY KEY (id)
 );
 
 GRANT SELECT, UPDATE         ON SEQUENCE propgroup_id_seq TO @@DBUSER@@;
@@ -29,12 +29,12 @@ COMMENT ON COLUMN propgroup.description IS 'описание';
 CREATE TABLE grouplink (
 	id_category  INTEGER REFERENCES category(id)  ON UPDATE CASCADE,
 	id_propgroup INTEGER REFERENCES propgroup(id) ON UPDATE CASCADE,
-        face         VARCHAR(1024),
-        weight       INTEGER NOT NULL DEFAULT 1,
-        visible      BOOLEAN NOT NULL DEFAULT FALSE,
-        joint        BOOLEAN NOT NULL DEFAULT FALSE,
-        UNIQUE (id_category, face), -- не должно быть в одной категории одинаковых групп
-        PRIMARY KEY (id_category, id_propgroup)
+	face         VARCHAR(1024),
+	weight       INTEGER NOT NULL DEFAULT 1,
+	visible      BOOLEAN NOT NULL DEFAULT FALSE,
+	joint        BOOLEAN NOT NULL DEFAULT FALSE,
+	UNIQUE (id_category, face), -- не должно быть в одной категории одинаковых групп
+	PRIMARY KEY (id_category, id_propgroup)
 );
 
 GRANT SELECT, UPDATE, INSERT ON TABLE grouplink TO @@DBUSER@@;
