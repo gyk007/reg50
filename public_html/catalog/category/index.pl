@@ -31,8 +31,6 @@ $Server->add_handler(ITEM => {
 
 		# my $offer = ALKO::Client::Offer->All(id_shop => $O->{SESSION}->id_shop, SORT => ['ctime'])->Hash('id_product');
 
-		# $O->{category} = $category->complete_products;
-
 		# foreach (@{$category->{extend}{products}->List}) {
 		# 	# Цена для данного товара, чтобы не делать лишний запрос к базе в методе price
 		# 	my $price = $_->{properties}{elements}[0]{extend}{properties}{elements}[0]{value};
@@ -41,6 +39,8 @@ $Server->add_handler(ITEM => {
 		# 	# Расчимтываем скидку для продукта, передаем id магазина, массив скидок и цену.
 		# 	$_->price($O->{SESSION}->id_shop, $offer->{$_->{id}}, $price);
 		# };
+
+		$O->{category} = $category->complete_products;
 
 		OK;
 	},
