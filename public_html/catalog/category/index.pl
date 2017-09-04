@@ -26,7 +26,7 @@ $Server->add_handler(ITEM => {
 		my ($I, $O) = ($S->I, $S->O);
 		my $id = $I->{id};
 
-		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => [qw/ products propgroups /]) or return $S->fail("Can't get Category($id)");
+		#my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => [qw/ products propgroups /]) or return $S->fail("Can't get Category($id)");
 
 
 		# my $offer = ALKO::Client::Offer->All(id_shop => $O->{SESSION}->id_shop, SORT => ['ctime'])->Hash('id_product');
