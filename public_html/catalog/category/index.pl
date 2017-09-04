@@ -41,7 +41,7 @@ $Server->add_handler(ITEM => {
 			# $_->price($O->{SESSION}->id_shop, $offer->{$_->{id}}, $price);
 		#};
 
-		$O->{category} = $category;
+		#$O->{category} = $category;
 
 		OK;
 	},
