@@ -31,7 +31,8 @@ sub operate {
 	$module =~ s!::!/!g;
 	$module .= '.pm';
 	require $module or return warn "OBJECT: Can'n load module $module";
-
+	debug $obj;
+	debug $self->{store};
 	my $obj = $src->Get($self->{store}) or return warn "NOSUCH|WARNING: Can't get value for property";
 
 	$obj->name;

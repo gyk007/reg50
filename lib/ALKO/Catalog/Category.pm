@@ -27,7 +27,7 @@ use ALKO::Catalog::Property::Type::Engine;
 use ALKO::Catalog::Filter::UI;
 use ALKO::Catalog::Filter::Arg;
 use ALKO::Catalog::Filter::Arg::PropLink;
-use ALKO::Catalog::Country;
+use ALKO::Country;
 use ALKO::Catalog::Manufacturer;
 use ALKO::Catalog::Brand;
 
@@ -169,12 +169,9 @@ sub complete_products {
 		for ALKO::Catalog::Property::Value->All(id_product => [$self->products->List('id')])->List;
 
 	my $prop_t = ALKO::Catalog::Property::Type->All->Hash('id');
-	# Достаем все старны
-	my $countries = ALKO::Catalog::Country->All;
-	# Достаем все бренды
-	my $brends = ALKO::Catalog::Brand->All;
-	# Достаем всех производителей
-	my $manufacturers = ALKO::Catalog::Manufacturer->All;
+
+	# Достаем все страны
+	my $countries = ALKO::Country->All;
 
 	# копируем в каждый товар все свойства и заполняем значениями
 	for my $product ($self->products->List) {
