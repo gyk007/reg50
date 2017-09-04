@@ -91,7 +91,7 @@ sub _auth_by_token {
 	my $self = shift;
 	my ($I, $O) = ($self->I, $self->O);
 
-	my $dt = DateTime->now();
+	my $dt = DateTime->now;
 	my $session = ALKO::Session->Get(token => $I->{token});
 
 	# Проверяем существование сессии

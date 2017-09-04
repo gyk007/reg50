@@ -25,7 +25,7 @@ my %Attribute = (
 	id_merchant => {mode => 'read'},
 	id_shop     => {mode => 'read/write'},
 	ctime       => undef,
-	ltime       => {mode => 'write'},
+	ltime       => {mode => 'read/write'},
 );
 
 =begin nd
