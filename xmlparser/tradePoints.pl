@@ -12,7 +12,6 @@ use ALKO::Cart;
 use DateTime;
 use WooF::DB;
 use XML::Simple;
-use WooF::Object::Collection;
 use WooF::Debug;
 
 my $clients = XML::Simple->new;
@@ -123,14 +122,13 @@ while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 					}
 
 					# Архив скидок
-					my $collection = WooF::Object::Collection->new('ALKO::Client::ArciveOffer');
-					$collection->Push({
+					ALKO::Client::ArciveOffer->new({
 						id_shop    => $shop->id,
 						id_product => $prod->id,
 						type       => $_->{discount}{type},
 						value      => $_->{discount}{content},
 						ctime      => $_->{date},
-					});
+					})->Save;
 
 				} elsif(!$prod) {
 					print "Такого товара не существует\n"
@@ -151,14 +149,13 @@ while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 				})->Save;
 
 				# Архив скидок
-				my $collection = WooF::Object::Collection->new('ALKO::Client::ArciveOffer');
-				$collection->Push({
+				ALKO::Client::ArciveOffer->new({
 					id_shop    => $shop->id,
 					id_product => $prod->id,
 					type       => $_->{discount}{type},
 					value      => $_->{discount}{content},
 					ctime      => $_->{date},
-				});
+				})->Save;
 
 			} elsif (!$prod) {
 				print "Такого товара не существует\n"
