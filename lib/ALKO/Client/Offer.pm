@@ -1,5 +1,5 @@
 package ALKO::Client::Offer;
-use base qw/ WooF::Object::Simple /;
+use base qw/ WooF::Object /;
 
 =begin nd
 Class: ALKO::Client::Offer
@@ -14,15 +14,15 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	id_shop    - торговая точка
 	id_product - товар
+	id_shop    - торговая точка
 	type       - тип скидки; percent - скидка в процентах; rub - рублях
 	value      - значение скидки
 	ctime      - дата создания
 =cut
 my %Attribute = (
-	id_shop    => undef,
-	id_product => undef,
+	id_product => {type => 'key'},
+	id_shop    => {type => 'key'},
 	type       => {mode => 'read'},
 	value      => {mode => 'read'},
 	ctime      => undef,
@@ -42,8 +42,8 @@ Method: Table ( )
 	Таблица хранения сущности в базе данных.
 
 Returns:
-	Строку 'Offer'.
+	Строку 'offer'.
 =cut
-sub Table { 'Offer' }
+sub Table { 'offer' }
 
 1;

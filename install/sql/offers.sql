@@ -10,6 +10,27 @@ COMMENT ON TYPE  offer_type IS 'тип скидки; percent - скидка в �
 
 -- таблица индивидуальных предложений
 CREATE TABLE offer (
+	id_product INTEGER REFERENCES product(id),
+    id_shop    INTEGER REFERENCES shop(id),
+    type       offers_type,
+    value      DECIMAL(10, 2),
+    ctime      TIMESTAMP(6) WITH TIME ZONE,
+
+    PRIMARY KEY (id_product, id_shop)
+);
+
+GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE offer TO @@DBUSER@@;
+
+COMMENT ON TABLE  offer             IS 'индивидуальное предложение';
+COMMENT ON COLUMN offer.id_product  IS 'товар';
+COMMENT ON COLUMN offer.id_shop     IS 'торговая точка';
+COMMENT ON COLUMN offer.type        IS 'тип скидки';
+COMMENT ON COLUMN offer.value       IS 'значение скидки';
+COMMENT ON COLUMN offer.ctime       IS 'дата создания';
+
+
+-- таблица архива индивидуальных предложений
+CREATE TABLE archive_offer (
     id         SERIAL,
     id_shop    INTEGER REFERENCES shop(id),
     id_product INTEGER REFERENCES product(id),
@@ -20,14 +41,15 @@ CREATE TABLE offer (
     PRIMARY KEY (id)
 );
 
-GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE offer TO @@DBUSER@@;
+GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE archive_offer TO @@DBUSER@@;
 
-COMMENT ON TABLE  offer             IS 'индивидуальное предложение';
-COMMENT ON COLUMN offer.id          IS 'ид';
-COMMENT ON COLUMN offer.id_shop     IS 'торговая точка';
-COMMENT ON COLUMN offer.id_product  IS 'товар';
-COMMENT ON COLUMN offer.type        IS 'тип скидки';
-COMMENT ON COLUMN offer.value       IS 'значение скидки';
-COMMENT ON COLUMN offer.ctime       IS 'дата создания';
+COMMENT ON TABLE  archive_offer             IS 'архив индивидуальных предложений';
+COMMENT ON COLUMN archive_offer.id          IS 'ид';
+COMMENT ON COLUMN archive_offer.id_shop     IS 'торговая точка';
+COMMENT ON COLUMN archive_offer.id_product  IS 'товар';
+COMMENT ON COLUMN archive_offer.type        IS 'тип скидки';
+COMMENT ON COLUMN archive_offer.value       IS 'значение скидки';
+COMMENT ON COLUMN archive_offer.ctime       IS 'дата создания';
 
-COMMIT;49761 74893
+
+COMMIT;
