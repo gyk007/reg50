@@ -11,7 +11,7 @@ use ALKO::Catalog::Product::Link;
 use ALKO::Catalog::Property::Value;
 use ALKO::Catalog::Brand;
 use ALKO::Catalog::Manufacturer;
-use ALKO::Country;
+use ALKO::Catalog::Country;
 
 my $category = XML::Simple->new;
 my $category = $category->XMLin("$ENV{PWD}/../../../data/i/categories.xml", KeyAttr => { category => 'id' });
@@ -108,7 +108,7 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 					if($param->{id} == 1) {
 						my $country = ALKO::Country->Get(name => $param->{value});
 
-						$country = ALKO::Country->new({
+						$country = ALKO::Catalog::Country->new({
 							name => $param->{value},
 						})->Save unless $country;
 
@@ -203,7 +203,7 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 			for my $param (@{$products->{parameters}{parameter}}) {
 				# Страна
 				if($param->{id} == 1) {
-					my $country = ALKO::Country->Get(name => $param->{value});
+					my $country = ALKO::Catalog::Country->Get(name => $param->{value});
 
 					$country = ALKO::Country->new({
 						name => $param->{value},
