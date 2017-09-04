@@ -28,18 +28,18 @@ $Server->add_handler(ITEM => {
 
 		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => [qw/ products propgroups /]) or return $S->fail("Can't get Category($id)");
 
-		my $offer = ALKO::Client::Offer->All(id_shop => $O->{SESSION}->id_shop)->Hash('id_product');
+		#my $offer = ALKO::Client::Offer->All(id_shop => $O->{SESSION}->id_shop)->Hash('id_product');
 
 		$category->complete_products;
 
-		for ($category->products->List) {
+		#for ($category->products->List) {
 			# # Цена для данного товара, чтобы не делать лишний запрос к базе в методе price
-			my $price = $_->{properties}{elements}[0]{extend}{properties}{elements}[0]{value};
+		#	my $price = $_->{properties}{elements}[0]{extend}{properties}{elements}[0]{value};
 			# # Если это уберем то при $offer->{$_->{id} = undef метод price сделает ненужный запрос в базу,
 			# $offer->{$_->{id}} = 1 unless $offer->{$_->{id}};
 			# # Расчимтываем скидку для продукта, передаем id магазина, массив скидок и цену.
 			# $_->price($O->{SESSION}->id_shop, $offer->{$_->{id}}, $price);
-		};
+		#};
 
 		$O->{category} = $category;
 
