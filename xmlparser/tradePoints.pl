@@ -13,6 +13,7 @@ use DateTime;
 use WooF::DB;
 use XML::Simple;
 use WooF::Debug;
+use WooF::Object::Collection;
 
 my $clients = XML::Simple->new;
 my $clients = $clients->XMLin("$ENV{PWD}/../../../data/i/trade_points.xml", KeyAttr => { trade_point => 'id' });
@@ -121,7 +122,6 @@ while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 						})->Save;
 					}
 
-					# Архив скидок
 					ALKO::Client::ArciveOffer->new({
 						id_shop    => $shop->id,
 						id_product => $prod->id,
@@ -131,16 +131,54 @@ while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 					})->Save;
 
 				} elsif(!$prod) {
-					print "Такого товара не существует\n"
+					print "Такого товара не существует\n";
 				} else {
-					print "Нулевая скидка\n"
+					print "Нулевая скидка\n";
 				}
 			}
 		}
 		elsif (ref $value->{offers}{product} eq 'HASH') {
-			my $prod = ALKO::Catalog::Product->Get(alkoid => $value->{offers}{product}{id});
-			if ($prod and $_->{discount}{content}) {
-				ALKO::Client::Offer->new({
+		my $prod = ALKO::Catalog::Product->Get(alkoid => $value->{offers}{product}{id});
+		if ($prod and $value->{offers}{product}{discount}{content}) {
+				# Проверяем есть ли скидка,
+				# Если есть то при условии что там старая дата - обнавляем
+				my $disc = ALKO::Client::Offer->Get(id_product => $prod->{id}, id_shop => $shop->id);
+				if($disc) {
+						# Парсим дату xml
+						my ($year_xml, $month_xml, $day_xml)  = split('-', $value->{offers}{product}{date});
+						my $date_xml = DateTime->new(
+							year   => $year_xml,
+							month  => $month_xml,
+							day    => $day_xml,
+						);
+
+						# Парсим дату из базы
+						my ($date_temp, $time_temp)        = split(' ', $disc->{ctime});
+						my ($year_db, $month_db, $day_db)  = split('-', $date_temp);
+						my $date_db = DateTime->new(
+							year  => $year_db,
+							month => $month_db,
+							day   => $day_db,
+						);
+
+						# Если в xml свежая дата то обнавляем скидку
+						if($date_db->epoch < $date_xml->epoch) {
+							$disc->{type}  = $value->{offers}{product}{discount}{type};
+							$disc->{value} = $value->{offers}{product}{discount}{content};
+							$disc->{ctime} = $value->{offers}{product}{date};
+							$disc->Save;
+						}
+				} else {
+					$disc = ALKO::Client::Offer->new({
+						id_shop    => $shop->id,
+						id_product => $prod->id,
+						type       => $value->{offers}{product}{discount}{type},
+						value      => $value->{offers}{product}{discount}{content},
+						ctime      => $value->{offers}{product}{date},
+					})->Save;
+				}
+
+				ALKO::Client::ArciveOffer->new({
 					id_shop    => $shop->id,
 					id_product => $prod->id,
 					type       => $value->{offers}{product}{discount}{type},
@@ -148,24 +186,15 @@ while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 					ctime      => $value->{offers}{product}{date},
 				})->Save;
 
-				# Архив скидок
-				ALKO::Client::ArciveOffer->new({
-					id_shop    => $shop->id,
-					id_product => $prod->id,
-					type       => $_->{discount}{type},
-					value      => $_->{discount}{content},
-					ctime      => $_->{date},
-				})->Save;
-
 			} elsif (!$prod) {
-				print "Такого товара не существует\n"
+				print "Такого товара не существует\n";
 			} else {
-				print "Нулевая скидка\n"
+				print "Нулевая скидка\n";
 			}
 		}
 	}
-
 }
+
 
 print "END \n";
 
