@@ -28,7 +28,7 @@ $Server->add_handler(ITEM => {
 
 		# my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => [qw/ products propgroups /]) or return $S->fail("Can't get Category($id)");
 
-		my $offer = ALKO::Client::Offer->All(id_shop => $O->{SESSION}->id_shop)->Hash('id_product');
+		# my $offer = ALKO::Client::Offer->All(id_shop => $O->{SESSION}->id_shop)->Hash('id_product');
 
 		# foreach (@{$category->{extend}{products}->List}) {
 		# 	# Цена для данного товара, чтобы не делать лишний запрос к базе в методе price
