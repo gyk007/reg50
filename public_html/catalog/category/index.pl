@@ -30,7 +30,7 @@ $Server->add_handler(ITEM => {
 
 		my $offer = ALKO::Client::Offer->All(id_shop => $O->{SESSION}->id_shop)->Hash('id_product');
 
-		foreach (@{$category->{extend}{products}->List}) {
+		foreach ($category->products->List) {
 			# # Цена для данного товара, чтобы не делать лишний запрос к базе в методе price
 			# my $price = $_->{properties}{elements}[0]{extend}{properties}{elements}[0]{value};
 			# # Если это уберем то при $offer->{$_->{id} = undef метод price сделает ненужный запрос в базу,
