@@ -32,7 +32,7 @@ $Server->add_handler(ITEM => {
 
 		for ($category->products->List) {
 			# # Цена для данного товара, чтобы не делать лишний запрос к базе в методе price
-			# my $price = $_->{properties}{elements}[0]{extend}{properties}{elements}[0]{value};
+			my $price = $_->{properties}{elements}[0]{extend}{properties}{elements}[0]{value};
 			# # Если это уберем то при $offer->{$_->{id} = undef метод price сделает ненужный запрос в базу,
 			# $offer->{$_->{id}} = 1 unless $offer->{$_->{id}};
 			# # Расчимтываем скидку для продукта, передаем id магазина, массив скидок и цену.
