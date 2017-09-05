@@ -43,6 +43,9 @@ UPDATE property SET filters = true, id_filterui = 1 WHERE n = 5;
 INSERT INTO filterarg_link (id_propgroup, n_property, id_filterarg) VALUES (1, 5, 1);
 INSERT INTO filterarg_link (id_propgroup, n_property, id_filterarg) VALUES (1, 5, 2);
 
+-- меняем название для свойств тип данных у которых "отдельная таблица"
+UPDATE proptype SET name = 'unitable'  WHERE id = 4;
+
 -- удаляем таблицу client
 DROP TABLE IF EXISTS client;
 
