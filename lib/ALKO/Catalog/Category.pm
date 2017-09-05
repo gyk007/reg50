@@ -27,9 +27,6 @@ use ALKO::Catalog::Property::Type::Engine;
 use ALKO::Catalog::Filter::UI;
 use ALKO::Catalog::Filter::Arg;
 use ALKO::Catalog::Filter::Arg::PropLink;
-use ALKO::Country;
-use ALKO::Catalog::Manufacturer;
-use ALKO::Catalog::Brand;
 
 =begin nd
 Variable: %Attribute
@@ -177,7 +174,7 @@ sub complete_products {
 		$table_prop->{$unitabel->{$_->n_property}[0]->{value}}{$_->val_int} = undef if $unitabel->{$_->n_property};
 	}
 
-	# Заполняем структуру $table_vlaue значениями из таблиц
+	# Заполняем структуру $table_prop значениями из таблиц
 	for my $table_class (keys %$table_prop) {
 		# Временный массив для ид
 		my @id_temp;
