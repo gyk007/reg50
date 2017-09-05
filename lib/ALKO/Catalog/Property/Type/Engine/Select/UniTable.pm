@@ -15,15 +15,17 @@ use warnings;
 use WooF::Error;
 use WooF::Debug;
 =begin nd
-Method: operate ( )
+Method: operate ($data)
 	Вычислить name по хранимому id из указанной таблицы.
+Parameters:
+	$table_prop - ссылка на хэш ($table_prop->{название класса для свойсва}{ид свойсва в таблице} = значение из таблицы)
 
 Returns:
 	строку из name - в случае отсутствия ошибок
 	undef          - если при вычислении возникли ошибки
 =cut
 sub operate {
-	my $self = shift;
+	my ($self, $table_prop) = @_;
 
 	my $src = $self->param('source');
 
@@ -32,9 +34,15 @@ sub operate {
 	$module .= '.pm';
 	require $module or return warn "OBJECT: Can'n load module $module";
 
-	my $obj = $src->Get($self->{store}) or return warn "NOSUCH|WARNING: Can't get value for property";
+	my $value;
+	if($table_prop) {
+		$value = $table_prop->{$src}{$self->{store}};
+	} else {
+		my $obj = $src->Get($self->{store}) or return warn "NOSUCH|WARNING: Can't get value for property";
+		$value  = $obj->name;
+	}
 
-	$obj->name;
+	$value;
 }
 
 1;

@@ -163,36 +163,37 @@ sub complete_products {
 		$_->filterarg($link);
 	}
 
+	# Получаем название классов для свойств занчение которых находятся в отдельной таблице
+	my $unitabel = ALKO::Catalog::Property::Param::Value->All(id_proptype => 4)->Hash('n_propgroup');
+
 	# развесистый хеш значений свойств с обособленными ключам, чтобы легче дампить
-	my %val_brends;
-	my %val_countries;
-	my %val_manufacturer;
 	my %value;
+	# Свойства значения которых находятся в таблице
+	# Получим структуру такого типа  $table_prop->{название класса для свойсва}{ид в таблице этого свойства} = значение этого свойсва
+	my $table_prop;
 	for (ALKO::Catalog::Property::Value->All(id_product => [$self->products->List('id')])->List) {
 		$value{id_product}{$_->id_product}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n_property} = $_;
-		# Значения для табличных свойств
-		$val_countries{$_->val_int}    = 7  if $_->n_property == 7;
-		$val_brends{$_->val_int}       = 2  if $_->n_property == 2;
-		$val_manufacturer{$_->val_int} = 3  if $_->n_property == 3;
-	};
+		# Создаем структуру $table_prop->{название класса для свойсва}{ид в таблице этого свойства} = undef
+		$table_prop->{$unitabel->{$_->n_property}[0]->{value}}{$_->val_int} = undef if $unitabel->{$_->n_property};
+	}
 
-	my @id_countries;
-	my @id_manufacturer;
-	my @id_brends;
+	# Заполняем структуру $table_vlaue значениями из таблиц
+	for my $table_class (keys %$table_prop) {
+		# Временный массив для ид
+		my @id_temp;
+		push  @id_temp, $_  for keys %{$table_prop->{$table_class}};
 
-	# Скадываем нужные id для табличных свойств
-	push @id_countries,    $_ for (keys %val_countries);
-	push @id_brends,       $_ for (keys %val_brends);
-	push @id_manufacturer, $_ for (keys %val_manufacturer);
+		# Подгружаем нужный модкль
+		my $module = $table_class;
+		$module =~ s!::!/!g;
+		$module .= '.pm';
+		require $module or return warn "OBJECT: Can'n load module $module";
+
+		# Заполняем структуру
+		$table_prop->{$table_class}{$_->id} = $_->name for ($table_class->All(id =>\@id_temp)->List);
+	}
 
 	my $prop_t = ALKO::Catalog::Property::Type->All->Hash('id');
-
-	# Достаем все страны
-	my $countries = ALKO::Country->All(id => \@id_countries);
-	# Достаем всеx производителей
-	my $manufacturers = ALKO::Catalog::Manufacturer->All(id => \@id_countries);
-	# Достаем все бренды
-	my $brands = ALKO::Catalog::Brand->All(id => \@id_countries);
 
 	# копируем в каждый товар все свойства и заполняем значениями
 	for my $product ($self->products->List) {
@@ -235,7 +236,7 @@ sub complete_products {
 					$engine->store($value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}->$store_t);
 
 					# движок вернул результаты своей работы
-					$prop->value($engine->operate);
+					$prop->value($engine->operate($table_prop));
 
 					# вычисляем начальные значения фильтра
 					if ($prop->filters and $prop->id_filterui) {
