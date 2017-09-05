@@ -161,9 +161,9 @@ sub complete_products {
 	}
 
 	# Получаем описание для типа свойства  'unitable'
-	my $prop_type_unitable = ALKO::Catalog::Property::Type->Get(name => 'unitable');
+	my $unitable_t = ALKO::Catalog::Property::Type->Get(name => 'unitable');
 	# Получаем название классов для свойств занчение которых находятся в отдельной таблице
-	my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $prop_type_unitable->id)->Hash('id_propgroup');
+	my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $unitable_t->id)->Hash('id_propgroup');
 
 	# Создаем структуру $unitable_hash->{ид группы свойсв}{номер свойсва в группу} = имя класса
 	my $unitable_hash;
