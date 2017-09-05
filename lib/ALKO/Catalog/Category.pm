@@ -160,7 +160,7 @@ sub complete_products {
 		$_->filterarg($link);
 	}
 
-	# Получаем описание для типа свойсва  'unitable'
+	# Получаем описание для типа свойства  'unitable'
 	my $prop_type_unitable = ALKO::Catalog::Property::Type->Get(name => 'unitable');
 	# Получаем название классов для свойств занчение которых находятся в отдельной таблице
 	my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $prop_type_unitable->id)->Hash('id_propgroup');

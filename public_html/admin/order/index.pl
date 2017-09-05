@@ -15,8 +15,32 @@ use ALKO::Client::Shop;
 use ALKO::Statistic::Shop;
 use ALKO::Statistic::Net;
 use ALKO::Statistic::Product;
+use ALKO::Order::Status;
+use JSON;
 
 my $Server = WooF::Server->new(output_t => 'JSON');
+
+# Список всех статусов
+#
+# GET
+# URL: /order/
+#   action = status
+#
+$Server->add_handler(ALL_STATUS => {
+	input => {
+		allow => ['action'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $status = ALKO::Order::Status->All;
+
+
+		$O->{status} = $status->List;
+		OK;
+	},
+});
 
 # Получить заказ
 #
@@ -49,18 +73,27 @@ $Server->add_handler(ORDER => {
 #
 # GET
 # URL: /order/
+#   status   =  (JSON) массив с id статусов
 #
 $Server->add_handler(LIST => {
 	input => {
-		allow => [],
+		allow => ['status'],
 	},
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
-		my $orders = ALKO::Order->All;
+
+		my $orders;
+		if($I->{status}) {
+			my $id_stauts = decode_json($I->{status});
+			$orders = ALKO::Order->All(id_status => $id_stauts);
+		} else {
+			$orders = ALKO::Order->All;
+		}
 
 		for (@{$orders->List}) {
 			$_->status;
+			$_->shop;
 		}
 
 		$O->{orders} = $orders->List;
@@ -97,8 +130,9 @@ $Server->add_handler(STATISTIC => {
 $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
-	return ['ORDER']     if exists $I->{action} and $I->{action} eq 'order';
-	return ['STATISTIC'] if exists $I->{action} and $I->{action} eq 'statistic';
+	return ['ORDER']      if exists $I->{action} and $I->{action} eq 'order';
+	return ['STATISTIC']  if exists $I->{action} and $I->{action} eq 'statistic';
+	return ['ALL_STATUS'] if exists $I->{action} and $I->{action} eq 'status';
 
 	['LIST'];
 });
