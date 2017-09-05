@@ -161,7 +161,7 @@ sub complete_products {
 	}
 
 	# Получаем название классов для свойств занчение которых находятся в отдельной таблице
-	my $unitabel = ALKO::Catalog::Property::Param::Value->All(id_proptype => 4)->Hash('n_propgroup');
+	my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => 4)->Hash('n_propgroup');
 
 	# развесистый хеш значений свойств с обособленными ключам, чтобы легче дампить
 	my %value;
@@ -171,7 +171,7 @@ sub complete_products {
 	for (ALKO::Catalog::Property::Value->All(id_product => [$self->products->List('id')])->List) {
 		$value{id_product}{$_->id_product}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n_property} = $_;
 		# Создаем структуру $table_prop->{название класса для свойсва}{ид в таблице этого свойства} = undef
-		$table_prop->{$unitabel->{$_->n_property}[0]->{value}}{$_->val_int} = undef if $unitabel->{$_->n_property};
+		$table_prop->{$unitable->{$_->n_property}[0]->{value}}{$_->val_int} = undef if $unitable->{$_->n_property};
 	}
 
 	# Заполняем структуру $table_prop значениями из таблиц

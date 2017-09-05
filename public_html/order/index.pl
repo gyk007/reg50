@@ -51,7 +51,7 @@ $Server->add_handler(ADD => {
 		# Цена заказа
 		my $order_price = 0;
 		for (@{$cart->products->List}) {
-			$order_price += $_->product->price($O->{SESSION}->id_shop) * $_->quantity;			 
+			$order_price += $_->product->price($O->{SESSION}->id_shop) * $_->quantity;
 		};
 
 		debug $order_price;
@@ -71,9 +71,9 @@ $Server->add_handler(ADD => {
 				id_product => $_->{product}{id},
 				price      => $_->{product}{price},
 				qty        => $_->{quantity},
-			})->Save;			 
+			})->Save;
 
-			# Добавляем статистику товара			 
+			# Добавляем статистику товара
 			my $stat_prod = ALKO::Statistic::Product->Get(id_product => $ordrer_prod->id_product);
 			if ($stat_prod) {
 				$stat_prod->qty($stat_prod->qty + $ordrer_prod->qty);
@@ -237,7 +237,7 @@ $Server->add_handler(LIST => {
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
-		my $orders = ALKO::Order->All(id_merchant => $O->{SESSION}->id_merchant) or return $S->fail("NOSUCH: no such orders(id_merchant => $O->{SESSION}->id_merchant)");
+		my $orders = ALKO::Order->All(id_shop => $O->{SESSION}->id_shop) or return $S->fail("NOSUCH: no such orders(id_merchant => $O->{SESSION}->id_merchant)");
 
 		for (@{$orders->List}) {
 			$_->status;

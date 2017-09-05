@@ -59,8 +59,8 @@ sub send_mail{
 		$tt->process($templates->{"$email{template}"}, $email{info}, \$email{message}) or systemError('Template not found');
 	}
 
-	utf8::encode($email{message});
 
+	utf8::encode($email{message});
 	my $message;
 	if ($email{file}) {
 		# Создаем email и прекрепляем файл для отправки
