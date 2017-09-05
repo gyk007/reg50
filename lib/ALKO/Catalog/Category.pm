@@ -167,9 +167,9 @@ sub complete_products {
 
 	# Создаем структуру: $unitable_hash->{ид группы свойств}{номер свойства в группе} = имя класса
 	my $unitable_hash;
-	for my $key (keys %$unitable) {
-		for (@{$unitable->{$key}}){
-			$unitable_hash->{$key}{$_->{n_propgroup}} = $_->{value};
+	for my $id_propgroup (keys %$unitable) {
+		for (@{$unitable->{$id_propgroup}}){
+			$unitable_hash->{$id_propgroup}{$_->{n_propgroup}} = $_->{value};
 		}
 	}
 
