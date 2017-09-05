@@ -178,7 +178,6 @@ sub complete_products {
 				$table_prop->{$_->{value}}{$prop->val_int} = undef if $prop->n_property == $_->{n_propgroup};
 			}
 		}
-
 	}
 
 	# Заполняем структуру $table_prop значениями из таблиц
