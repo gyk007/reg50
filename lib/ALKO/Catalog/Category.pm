@@ -163,17 +163,22 @@ sub complete_products {
 	# Получаем описание для типа свойсва  'unitable'
 	my $prop_type_unitable = ALKO::Catalog::Property::Type->Get(name => 'unitable');
 	# Получаем название классов для свойств занчение которых находятся в отдельной таблице
-	my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $prop_type_unitable->id)->Hash('n_propgroup');
+	my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $prop_type_unitable->id);
 
 	# развесистый хеш значений свойств с обособленными ключам, чтобы легче дампить
 	my %value;
 	# Свойства значения которых находятся в таблице
 	# Получим структуру такого типа  $table_prop->{название класса для свойсва}{ид в таблице этого свойства} = значение этого свойсва
 	my $table_prop;
-	for (ALKO::Catalog::Property::Value->All(id_product => [$self->products->List('id')])->List) {
-		$value{id_product}{$_->id_product}{id_propgroup}{$_->id_propgroup}{n_property}{$_->n_property} = $_;
+	for my $prop (ALKO::Catalog::Property::Value->All(id_product => [$self->products->List('id')])->List) {
+		$value{id_product}{$prop->id_product}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n_property} = $prop;
 		# Создаем структуру $table_prop->{название класса для свойсва}{ид в таблице этого свойства} = undef
-		$table_prop->{$unitable->{$_->n_property}[0]->{value}}{$_->val_int} = undef if $unitable->{$_->n_property};
+		for ($unitable->List) {
+			if ($_->{id_propgroup} == $prop->id_propgroup) {
+				$table_prop->{$_->{value}}{$prop->val_int} = undef if $prop->n_property == $_->{n_propgroup};
+			}
+		}
+
 	}
 
 	# Заполняем структуру $table_prop значениями из таблиц
