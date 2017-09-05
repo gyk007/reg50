@@ -6,7 +6,7 @@ use ALKO::Catalog::Brand;
 use XML::Simple;
 
 my $brends = XML::Simple->new;
-my $brends = $brends->XMLin("$ENV{PWD}/../../../data/i/brands.xml", KeyAttr => { brand => 'id' });
+$brends = $brends->XMLin("$ENV{PWD}/../../../data/i/brands.xml", KeyAttr => { brand => 'id' });
 
 while( my( $alkoid, $brand ) = each %{$brends->{brand}} ){
     my $manufacturer    = ALKO::Catalog::Manufacturer->Get(alkoid =>  $brand->{manufacturer});
