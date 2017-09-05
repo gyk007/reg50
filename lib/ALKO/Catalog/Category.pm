@@ -168,9 +168,7 @@ sub complete_products {
 	# Создаем структуру: $unitable_hash->{ид группы свойств}{номер свойства в группе} = имя класса
 	my $unitable_hash;
 	while(my($id_propgroup, $propparam) = each %$unitable){
-		for (@$propparam){
-			$unitable_hash->{$id_propgroup}{$_->{n_propgroup}} = $_->{value};
-		}
+		$unitable_hash->{$id_propgroup}{$_->{n_propgroup}} = $_->{value} for @$propparam;
 	}
 
 	# развесистый хеш значений свойств с обособленными ключам, чтобы легче дампить
