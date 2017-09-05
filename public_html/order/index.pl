@@ -17,6 +17,7 @@ use ALKO::Order::Status;
 use ALKO::Statistic::Shop;
 use ALKO::Statistic::Net;
 use ALKO::Statistic::Product;
+use JSON;
 
 my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 
@@ -133,6 +134,29 @@ $Server->add_handler(ADD => {
 	},
 });
 
+
+# Список всех статусов
+#
+# GET
+# URL: /order/
+#   action = status
+#
+$Server->add_handler(ALL_STATUS => {
+	input => {
+		allow => ['action'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $status = ALKO::Order::Status->All;
+
+
+		$O->{status} = $status->List;
+		OK;
+	},
+});
+
 # Добавить документ в заказ
 #
 # POST
@@ -232,18 +256,26 @@ $Server->add_handler(ORDER => {
 #
 $Server->add_handler(LIST => {
 	input => {
-		allow => [],
+		allow => ['status'],
 	},
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
-		my $orders = ALKO::Order->All(id_shop => $O->{SESSION}->id_shop) or return $S->fail("NOSUCH: no such orders(id_merchant => $O->{SESSION}->id_merchant)");
+
+		my $orders;
+		if($I->{status}) {
+			my $id_stauts = decode_json($I->{status});
+			$orders = $orders = ALKO::Order->All(id_shop => $O->{SESSION}->id_shop, id_status => $id_stauts) or return $S->fail("NOSUCH: no such orders(id_merchant => $O->{SESSION}->id_merchant)");
+		} else {
+	 		$orders = ALKO::Order->All(id_shop => $O->{SESSION}->id_shop) or return $S->fail("NOSUCH: no such orders(id_merchant => $O->{SESSION}->id_merchant)");
+	 	}
 
 		for (@{$orders->List}) {
 			$_->status;
 		}
 
 		$O->{orders} = $orders->List;
+
 		OK;
 	},
 });
@@ -252,6 +284,7 @@ $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
 	return ['ADD']             if exists $I->{action} and $I->{action} eq 'add';
+	return ['ALL_STATUS']      if exists $I->{action} and $I->{action} eq 'status';
 	return ['ORDER']           if exists $I->{action} and $I->{action} eq 'order';
 	return ['ADD_DOCUMENT']    if exists $I->{action} and $I->{action} eq 'add_document';
 	return ['DELETE_DOCUMENT'] if exists $I->{action} and $I->{action} eq 'delete_document';
