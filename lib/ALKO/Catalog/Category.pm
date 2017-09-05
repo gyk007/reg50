@@ -180,7 +180,7 @@ sub complete_products {
 		my @id_temp;
 		push  @id_temp, $_  for keys %{$table_prop->{$table_class}};
 
-		# Подгружаем нужный модкль
+		# Подгружаем нужный модуль
 		my $module = $table_class;
 		$module =~ s!::!/!g;
 		$module .= '.pm';
