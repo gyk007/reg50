@@ -18,6 +18,8 @@ use ALKO::Statistic::Shop;
 use ALKO::Statistic::Net;
 use ALKO::Statistic::Product;
 use JSON;
+use Encode;
+use utf8;
 
 my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 
@@ -54,8 +56,6 @@ $Server->add_handler(ADD => {
 		for (@{$cart->products->List}) {
 			$order_price += $_->product->price($O->{SESSION}->id_shop) * $_->quantity;
 		};
-
-		debug $order_price;
 
 		$order_data->{id_status}   = ALKO::Order::Status->Get(name => 'new')->id;
 		$order_data->{id_net}      = $shop->id_net;
@@ -242,7 +242,9 @@ $Server->add_handler(ORDER => {
 		$order->status;
 		$order->shop;
 
-		$O->{documents} = ALKO::Order::Document->All(id_order => $order->id)->List;
+		my $documents = ALKO::Order::Document->All(id_order => $order->id);
+
+		$O->{documents} = $documents->List;
 		$O->{order}     = $order;
 
 		OK;

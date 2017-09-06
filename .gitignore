@@ -5,3 +5,5 @@ install/conf/global.xml
 install/conf/pid/
 install/conf/psgi.xml
 install/conf/vars
+
+*.pdf

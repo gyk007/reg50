@@ -92,8 +92,8 @@ $Server->add_handler(LIST => {
 		}
 
 		for (@{$orders->List}) {
-			$_->status if $_->{id_stauts};
-			$_->shop   if $_->{id_shop};
+			$_->status;
+			$_->shop;
 		}
 
 		$O->{orders} = $orders->List;

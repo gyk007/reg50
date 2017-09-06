@@ -143,7 +143,6 @@ $Server->add_handler(SEND_MAIL => {
 
 		my $email_data;
 
-		debug "sdfsdds";
 		my $shop     = ALKO::Client::Shop->Get(id => $O->{SESSION}->id_shop);
 		my $merchant = ALKO::Client::Merchant->Get(id => $O->{SESSION}->id_merchant);
 

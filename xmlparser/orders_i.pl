@@ -1,18 +1,20 @@
 #!/usr/bin/perl
 use strict;
+use File::Copy;
+use IO::File;
+use Encode;
+use utf8;
 
 use ALKO::Order;
 use ALKO::Catalog::Product;
 use ALKO::Order::Status;
+use ALKO::Order::Document;
 use XML::Simple;
 use WooF::Debug;
 
 
 my $orders = XML::Simple->new;
 $orders = $orders->XMLin("$ENV{PWD}/../../../data/i/orders.xml", KeyAttr => { order => 'id' });
-
-
-debug $orders;
 
 while( my( $id, $data ) = each %{$orders->{order}} ){
 
@@ -66,5 +68,60 @@ while( my( $id, $data ) = each %{$orders->{order}} ){
        }
     }
 }
+
+my @file_name;
+# Открываем папку с файлами
+opendir DIR, "$ENV{PWD}/../../../data/i/documents/" or die $!;
+while(my $file = readdir DIR) {
+    push (@file_name, $file) if ($file ne '..' and $file ne '.');
+}
+closedir DIR;
+
+for my $name (@file_name){
+    utf8::decode($name);
+    print "$name \n";
+    my ($name_doc, $number_and_ext)  = split('_', $name);
+    my ($number, $ext)               = split(/\./, $number_and_ext);
+
+
+
+    my $order = ALKO::Order->Get(num => $number);
+
+   # НАЗВАНИЕ ДОКУМЕНТОВ В БАЗЕ:
+   # - ТТН
+   # - ТОРГ-12
+   # - Cчет-фактура
+   # - Справки ТТН
+   # - Сертификаты и удостоверения качества
+
+   if ($order) {
+        my $name_in_db;
+        $name_in_db = 'Cчет-фактура' if $name_doc eq 'СчетФактура';
+        $name_in_db = 'ТОРГ-12'      if $name_doc eq 'Торг-12';
+
+        debug $name_in_db;
+
+        my $document = ALKO::Order::Document->Get(id_order => $order->id, name => $name_in_db);
+
+        if ($document) {
+            $document->{file_name} = $name;
+            $document->{status}    = 'uploaded';
+            $document->Refresh;
+        } else {
+            $document = ALKO::Order::Document->new({
+                id_order  => $order->id,
+                name      => $name_in_db,
+                status    => 'uploaded',
+                file_name => $name,
+            })->Save;
+        }
+        # Копируем файлы
+        copy "$ENV{PWD}/../../../data/i/documents/$name" , "$ENV{PWD}/../files/$name" unless (-e "$ENV{PWD}/../files/$name");
+
+   } else {
+        print "Закза № $number не существует \n";
+   }
+
+};
 
 print "END \n";
