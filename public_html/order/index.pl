@@ -263,7 +263,7 @@ $Server->add_handler(LIST => {
 		my ($I, $O) = ($S->I, $S->O);
 
 		my $orders;
-		if($I->{status}) {
+		if ($I->{status}) {
 			my $id_stauts = decode_json($I->{status});
 			$orders = $orders = ALKO::Order->All(id_shop => $O->{SESSION}->id_shop, id_status => $id_stauts) or return $S->fail("NOSUCH: no such orders(id_merchant => $O->{SESSION}->id_merchant)");
 		} else {

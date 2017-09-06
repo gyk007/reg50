@@ -2,4 +2,5 @@
 <!--  <имя_шаблона>путь к шаблону</имя_шаблонаl> -->
 <email_templates>
 	<reg>registration_email.tpl</reg>
+	<contact>client_question_mail.tpl</contact>
 </email_templates>

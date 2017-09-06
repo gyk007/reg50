@@ -12,6 +12,7 @@ use ALKO::Client::Net;
 use ALKO::Session;
 use ALKO::Client::Merchant;
 use ALKO::Client::Shop;
+use ALKO::SendMail qw(send_mail);
 
 my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 
@@ -125,6 +126,46 @@ $Server->add_handler(SELECT_SHOP => {
 	},
 });
 
+# Поиск
+#
+# GET
+# URL: /client/?
+#   action      = send_mail
+#   text        = string
+#
+$Server->add_handler(SEND_MAIL => {
+	input => {
+		allow => ['action', 'text'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $email_data;
+
+		debug "sdfsdds";
+		my $shop     = ALKO::Client::Shop->Get(id => $O->{SESSION}->id_shop);
+		my $merchant = ALKO::Client::Merchant->Get(id => $O->{SESSION}->id_merchant);
+
+		$shop->official;
+		$shop->net;
+
+		$email_data->{text}     = $I->{text};
+		$email_data->{shop}     = $shop->{official}{name};
+		$email_data->{net}      = $shop->{net}{official}{name};
+		$email_data->{merchant} = $merchant->name;
+
+		send_mail({
+			template => 'contact',
+			to       => 'gyk088@gmail.com',
+			subject  => 'REG50 Вопрос от клиента',
+			info     => $email_data
+		});
+
+		OK;
+	},
+});
+
 $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
@@ -132,6 +173,8 @@ $Server->dispatcher(sub {
 	return ['SELECT_SHOP']  if exists $I->{action} and $I->{action} eq 'select_shop';
 	return ['GET_REG_DATA'] if exists $I->{action} and $I->{action} eq 'get_reg_data';
 	return ['REGISTRATION'] if exists $I->{action} and $I->{action} eq 'registration';
+	return ['SEND_MAIL']    if exists $I->{action} and $I->{action} eq 'send_mail';
+
 	['MERCHANT'];
 
 });

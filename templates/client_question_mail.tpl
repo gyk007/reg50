@@ -10,7 +10,16 @@
 	<hr style="border: 0; border-top: 1px solid #EEE; border-bottom: 1px solid white;" />
 	<div style="border: 1px solid #E1E1E8; padding: 10px; width: 800px; background: #F9F9F9;">
 		<p>
-			<a href="http://client.reg50.nixteam.ru/#/registration/[% token %]">Ваша ссылка для регистрации</a>
+			Организация: [% net %]
+		</p>
+		<p>
+			Торговая точка: [% shop %]
+		</p>
+		<p>
+			Представитель: [% merchant %]
+		</p>
+		<p>
+			Вопрос: [% text %]
 		</p>
 	</div>
 	<p>
