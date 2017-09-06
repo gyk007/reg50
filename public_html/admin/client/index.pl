@@ -197,45 +197,47 @@ $Server->add_handler(REGISTRATION => {
 
 		# Проверяем сущесвует ли такой емайл
 		my $is_merchant = ALKO::Client::Merchant->Get(email => $I->{email});
-		if ($is_merchant) {
-			return $S->fail("EMAIL: $I->{email} is already in use") if $is_merchant->id != $merchant->id;
+		if ($is_merchant and ($is_merchant->id != $merchant->id)) {
+			$is_merchant->shops;
+			$is_merchant->net;
+			$O->{merchant} = $is_merchant;
+		} else {
+			# Удаляем данные представителя
+			$merchant->email($I->{email});
+			$merchant->name('');
+			$merchant->password('');
+			$merchant->phone('');
+
+			$merchant->Save;
+
+			# Удаляем сессию для регистрации  если она существует
+			my $old_session = ALKO::RegistrationSession->Get(id_merchant => $merchant->id);
+			$old_session->Remove if $old_session;
+
+			# Создаем токен
+			my $token;
+			my @all = split(//, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890');
+			map { $token .= $all[rand @all]; } (0..14);
+
+			# Создаем сессию для регистрации
+			ALKO::RegistrationSession->new({
+				token       => $token,
+				id_merchant => $merchant->id,
+				ctime       => $ctime,
+				dtime       => $dtime,
+				count       => 1
+			})->Save;
+
+			#  Данные для Email
+			my $email_data->{token} = $token;
+
+			send_mail({
+				template => 'reg',
+				to       => $I->{email},
+				subject  => 'REG50 Регистрация Клиента',
+				info     => $email_data
+			});
 		}
-
-		# Удаляем данные представителя
-		$merchant->email($I->{email});
-		$merchant->name('');
-		$merchant->password('');
-		$merchant->phone('');
-
-		$merchant->Save;
-
-		# Удаляем сессию для регистрации  если она существует
-		my $old_session = ALKO::RegistrationSession->Get(id_merchant => $merchant->id);
-		$old_session->Remove if $old_session;			 
-
-		# Создаем токен
-		my $token;
-		my @all = split(//, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890');
-		map { $token .= $all[rand @all]; } (0..14);
-
-		# Создаем сессию для регистрации
-		ALKO::RegistrationSession->new({
-			token       => $token,
-			id_merchant => $merchant->id,
-			ctime       => $ctime,
-			dtime       => $dtime,
-			count       => 1
-		})->Save;
-
-		#  Данные для Email
-		my $email_data->{token} = $token;
-
-		send_mail({
-			template => 'reg',
-			to       => $I->{email},
-			subject  => 'REG50 Регистрация Клиента',
-			info     => $email_data
-		});
 
 		OK;
 	},

@@ -156,7 +156,7 @@ $Server->add_handler(SEND_MAIL => {
 
 		send_mail({
 			template => 'contact',
-			to       => 'gyk088@gmail.com',
+			to       => 'info@nixteam.ru',
 			subject  => 'REG50 Вопрос от клиента',
 			info     => $email_data
 		});

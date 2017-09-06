@@ -45,24 +45,21 @@ while( my( $id, $data ) = each %{$orders->{order}} ){
 
     $order->Refresh;
 
-    # Обновляем товары
+    my $order_product = ALKO::Order::Product->ALL(id_order => $order->id);
+    # Удалеяем все продукты
+    $_->Remove for $order_product->List;
+
+    # Добавляем товары
     for (@{$data->{products}{product}}) {
        my $product = ALKO::Catalog::Product->Get(alkoid => $_->{id});
 
        if($product) {
-            my $order_product = ALKO::Order::Product->Get(id_order => $order->id, id_product => $product->id);
-            if ($order_product) {
-                $order_product->{price} = $_->{price};
-                $order_product->{qty}   = $_->{qty};
-                $order_product->Refresh;
-            } else {
-                ALKO::Order::Product->new({
-                    id_order    => $order->id,
-                    id_product  => $product->id,
-                    price       => $_->{price},
-                    qty         => $_->{qty},
-                })
-            }
+            ALKO::Order::Product->new({
+                id_order    => $order->id,
+                id_product  => $product->id,
+                price       => $_->{price},
+                qty         => $_->{qty},
+            });
        } else {
             print "Такого товара не существует\n";
        }
