@@ -7,7 +7,7 @@ use WooF::Debug;
 use Data::Structure::Util qw( unbless );
 
 my $orders_xml = XML::Simple->new;
-my $file_path = "$ENV{PWD}/../../../data/o/orders.xml";
+my $file_path = "$ENV{HOME}/data/o/orders.xml";
 my @xml_data;
 
 my $orders->{order} = ALKO::Order->All->List;

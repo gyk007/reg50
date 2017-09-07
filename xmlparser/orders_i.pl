@@ -10,11 +10,13 @@ use ALKO::Catalog::Product;
 use ALKO::Order::Status;
 use ALKO::Order::Document;
 use XML::Simple;
+use WooF::Error;
 use WooF::Debug;
+use FindBin;
 
 
 my $orders = XML::Simple->new;
-$orders = $orders->XMLin("$ENV{PWD}/../../../data/i/orders.xml", KeyAttr => { order => 'id' });
+$orders = $orders->XMLin("$ENV{HOME}/data/i/orders.xml", KeyAttr => { order => 'id' });
 
 while( my( $id, $data ) = each %{$orders->{order}} ){
 
@@ -41,19 +43,22 @@ while( my( $id, $data ) = each %{$orders->{order}} ){
     $order->{deliver_phone}    = $data->{deliver_phone}    if $data->{deliver_phone}    and ref $data->{deliver_phone}    ne 'HASH';
     $order->{sales_name}       = $data->{sales_name}       if $data->{sales_name}       and ref $data->{sales_name}       ne 'HASH';
     $order->{sales_phone}      = $data->{sales_phone}      if $data->{sales_phone}      and ref $data->{sales_phone}      ne 'HASH';
-    $order->{alkoid}           = $data->{alkoid}           if $data->{alkoid}           and ref $data->{alkoid}           ne 'HASH';
+    $order->{alkoid}           = $data->{order_id}         if $data->{order_id}         and ref $data->{order_id}         ne 'HASH';
 
     $order->Refresh;
+    next unless all_right;
 
-    my $order_product = ALKO::Order::Product->ALL(id_order => $order->id);
+    my $order_product = ALKO::Order::Product->All(id_order => $order->id);
     # Удалеяем все продукты
-    $_->Remove for $order_product->List;
+    if ($order_product) {
+	$_->Remove for $order_product->List;
+    }
 
     # Добавляем товары
     for (@{$data->{products}{product}}) {
        my $product = ALKO::Catalog::Product->Get(alkoid => $_->{id});
 
-       if($product) {
+       if ($product) {
             ALKO::Order::Product->new({
                 id_order    => $order->id,
                 id_product  => $product->id,
@@ -61,14 +66,14 @@ while( my( $id, $data ) = each %{$orders->{order}} ){
                 qty         => $_->{qty},
             });
        } else {
-            print "Такого товара не существует\n";
+            debug "Товара с ID = $_->{id} не существует\n";
        }
     }
 }
 
 my @file_name;
 # Открываем папку с файлами
-opendir DIR, "$ENV{PWD}/../../../data/i/documents/" or die $!;
+opendir DIR, "$ENV{HOME}/data/i/documents/" or die $!;
 while(my $file = readdir DIR) {
     push (@file_name, $file) if ($file ne '..' and $file ne '.');
 }
@@ -76,11 +81,9 @@ closedir DIR;
 
 for my $name (@file_name){
     utf8::decode($name);
-    print "$name \n";
+
     my ($name_doc, $number_and_ext)  = split('_', $name);
     my ($number, $ext)               = split(/\./, $number_and_ext);
-
-
 
     my $order = ALKO::Order->Get(num => $number);
 
@@ -95,8 +98,9 @@ for my $name (@file_name){
         my $name_in_db;
         $name_in_db = 'Cчет-фактура' if $name_doc eq 'СчетФактура';
         $name_in_db = 'ТОРГ-12'      if $name_doc eq 'Торг-12';
+	$name_in_db = 'ТТН'          if $name_doc eq 'ТТН';
 
-        debug $name_in_db;
+        debug encode('UTF-8', $name_in_db);
 
         my $document = ALKO::Order::Document->Get(id_order => $order->id, name => $name_in_db);
 
@@ -113,12 +117,12 @@ for my $name (@file_name){
             })->Save;
         }
         # Копируем файлы
-        copy "$ENV{PWD}/../../../data/i/documents/$name" , "$ENV{PWD}/../files/$name" unless (-e "$ENV{PWD}/../files/$name");
+        copy "$ENV{HOME}/data/i/documents/$name", $FindBin::Bin . "/../files/documents/$name";
 
    } else {
-        print "Закза № $number не существует \n";
+        debug "Закза № $number не существует \n";
    }
 
 };
 
-print "END \n";
+debug "END \n";
