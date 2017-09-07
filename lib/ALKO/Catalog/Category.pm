@@ -27,6 +27,7 @@ use ALKO::Catalog::Property::Type::Engine;
 use ALKO::Catalog::Filter::UI;
 use ALKO::Catalog::Filter::Arg;
 use ALKO::Catalog::Filter::Arg::PropLink;
+use ALKO::Country;
 
 =begin nd
 Variable: %Attribute
@@ -161,45 +162,56 @@ sub complete_products {
 	}
 
 	# Получаем описание для типа свойства 'unitable'
-	my $unitable_t = ALKO::Catalog::Property::Type->Get(name => 'unitable');
+	# my $unitable_t = ALKO::Catalog::Property::Type->Get(name => 'unitable');
 	# Получаем название классов для свойств, значение которых находятся в отдельной таблице
-	my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $unitable_t->id)->Hash('n_proptype');
+	#my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $unitable_t->id)->Hash('n_proptype');
 
 	# Создаем структуру: $unitable_hash->{номер типа свойтва}{ид группы свойств}{номер свойства в группе} = имя класса
-	my $unitable_hash;
-	while (my($n_proptype, $propparam) = each %$unitable) {
-		$unitable_hash->{$n_proptype}{$_->{id_propgroup}}{$_->{n_propgroup}} = $_->{value} for @$propparam;
-	}
+	#my $unitable_hash;
+	#while (my($n_proptype, $propparam) = each %$unitable) {
+	#	$unitable_hash->{$n_proptype}{$_->{id_propgroup}}{$_->{n_propgroup}} = $_->{value} for @$propparam;
+	#}
 
 	# развесистый хеш значений свойств с обособленными ключам, чтобы легче дампить
 	my %value;
 	# Свойства, значения которых находятся в таблице
 	# Получим структуру такого типа:  $table_prop->{номер типа свойтва}{название класса для свойсва}{ид в таблице этого свойства} = значение этого свойсва
-	my $table_prop;
+	#my $table_prop;
+
+	# Данне для свосва "Страна производитель"
+	my $country_prop = ALKO::Catalog::Property->Get(name => 'Made in');
+	my $id_country;
 	for my $prop (ALKO::Catalog::Property::Value->All(id_product => [$self->products->List('id')])->List) {
 		$value{id_product}{$prop->id_product}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n_property} = $prop;
+		$id_country->{$prop->val_int} = undef if $country_prop->id_propgroup == $prop->id_propgroup and $country_prop->n == $prop->n_property;
+
 		# Создаем структуру $table_prop->{название класса для свойсва}{ид в таблице этого свойства} = undef
-		while (my($n_proptype, $propparam) = each %$unitable) {			 
-			$table_prop->{$n_proptype}{$unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property}}{$prop->val_int} = undef if $unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property};
-		}		 
+		# while (my($n_proptype, $propparam) = each %$unitable) {			 
+		# 	$table_prop->{$n_proptype}{$unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property}}{$prop->val_int} = undef if $unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property};
+		# }		 
 	}
 
-	while (my($n_proptype, $propparam) = each %$table_prop) {
-		for my $class (keys $propparam) {			 
-			# Временный массив для ид
-			my @id_temp;
-			push  @id_temp, $_  for keys %{$table_prop->{$n_proptype}{$class}};
+	my @id_country;
+	push @id_country, $_ for keys %{$id_country};
+	 
+	my $countries = ALKO::Country->All(id => \@id_country);	 
 
-			# Подгружаем нужный модуль
-			my $module = $class;
-			$module =~ s!::!/!g;
-			$module .= '.pm';
-			require $module or return warn "OBJECT: Can'n load module $module";
+	# while (my($n_proptype, $propparam) = each %$table_prop) {
+	# 	for my $class (keys $propparam) {			 
+	# 		# Временный массив для ид
+	# 		my @id_temp;
+	# 		push  @id_temp, $_  for keys %{$table_prop->{$n_proptype}{$class}};
 
-			# Заполняем структуру
-			$table_prop->{$n_proptype}{$class}{$_->id} = $_->name for ($class->All(id =>\@id_temp)->List);
-		};
-	}
+	# 		# Подгружаем нужный модуль
+	# 		my $module = $class;
+	# 		$module =~ s!::!/!g;
+	# 		$module .= '.pm';
+	# 		require $module or return warn "OBJECT: Can'n load module $module";
+
+	# 		# Заполняем структуру
+	# 		$table_prop->{$n_proptype}{$class}{$_->id} = $_->name for ($class->All(id =>\@id_temp)->List);
+	# 	};
+	# }
 
 	my $prop_t = ALKO::Catalog::Property::Type->All->Hash('id');
 
@@ -244,7 +256,7 @@ sub complete_products {
 					$engine->store($value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}->$store_t);
 
 					# движок вернул результаты своей работы
-					$prop->value($engine->operate($table_prop));
+					$prop->value($engine->operate);
 
 					# вычисляем начальные значения фильтра
 					if ($prop->filters and $prop->id_filterui) {

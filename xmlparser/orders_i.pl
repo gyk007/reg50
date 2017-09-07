@@ -51,7 +51,7 @@ while( my( $id, $data ) = each %{$orders->{order}} ){
     my $order_product = ALKO::Order::Product->All(id_order => $order->id);
     # Удалеяем все продукты
     if ($order_product) {
-	$_->Remove for $order_product->List;
+	   $_->Remove for $order_product->List;
     }
 
     # Добавляем товары
