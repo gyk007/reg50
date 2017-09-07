@@ -83,7 +83,7 @@ sub param {
 
 =begin nd
 Method: want  
-	Виртуальные метод.
+	Виртуальный метод.
 
 Returns:
 	пустой массив
