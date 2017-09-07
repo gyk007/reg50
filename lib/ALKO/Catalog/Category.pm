@@ -189,12 +189,9 @@ sub complete_products {
 		# while (my($n_proptype, $propparam) = each %$unitable) {			 
 		# 	$table_prop->{$n_proptype}{$unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property}}{$prop->val_int} = undef if $unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property};
 		# }		 
-	}
-
-	my @id_country;
-	push @id_country, $_ for keys %{$id_country};
+	} 
 	 
-	my $countries = ALKO::Country->All(id => \@id_country);	 
+	my $countries = ALKO::Country->All(id => [keys %$id_country]);	 
 
 	# while (my($n_proptype, $propparam) = each %$table_prop) {
 	# 	for my $class (keys $propparam) {			 
