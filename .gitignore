@@ -6,4 +6,5 @@ install/conf/pid/
 install/conf/psgi.xml
 install/conf/vars
 
-*.pdf
+*.log
+files/documents

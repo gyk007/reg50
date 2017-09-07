@@ -11,10 +11,11 @@ use ALKO::Order::Status;
 use ALKO::Order::Document;
 use XML::Simple;
 use WooF::Debug;
+use FindBin;
 
 
 my $orders = XML::Simple->new;
-$orders = $orders->XMLin("$ENV{PWD}/../../../data/i/orders.xml", KeyAttr => { order => 'id' });
+$orders = $orders->XMLin("$ENV{HOME}/data/i/orders.xml", KeyAttr => { order => 'id' });
 
 while( my( $id, $data ) = each %{$orders->{order}} ){
 
@@ -68,7 +69,7 @@ while( my( $id, $data ) = each %{$orders->{order}} ){
 
 my @file_name;
 # Открываем папку с файлами
-opendir DIR, "$ENV{PWD}/../../../data/i/documents/" or die $!;
+opendir DIR, "$ENV{HOME}/data/i/documents/" or die $!;
 while(my $file = readdir DIR) {
     push (@file_name, $file) if ($file ne '..' and $file ne '.');
 }
@@ -76,11 +77,9 @@ closedir DIR;
 
 for my $name (@file_name){
     utf8::decode($name);
-    print "$name \n";
+
     my ($name_doc, $number_and_ext)  = split('_', $name);
     my ($number, $ext)               = split(/\./, $number_and_ext);
-
-
 
     my $order = ALKO::Order->Get(num => $number);
 
@@ -95,6 +94,7 @@ for my $name (@file_name){
         my $name_in_db;
         $name_in_db = 'Cчет-фактура' if $name_doc eq 'СчетФактура';
         $name_in_db = 'ТОРГ-12'      if $name_doc eq 'Торг-12';
+	$name_in_db = 'ТТН'          if $name_doc eq 'ТТН';
 
         debug $name_in_db;
 
@@ -113,7 +113,7 @@ for my $name (@file_name){
             })->Save;
         }
         # Копируем файлы
-        copy "$ENV{PWD}/../../../data/i/documents/$name" , "$ENV{PWD}/../files/$name" unless (-e "$ENV{PWD}/../files/$name");
+        copy "$ENV{HOME}/data/i/documents/$name", $FindBin::Bin . "/../files/documents/$name";
 
    } else {
         print "Закза № $number не существует \n";
