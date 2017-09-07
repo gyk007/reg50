@@ -163,39 +163,42 @@ sub complete_products {
 	# Получаем описание для типа свойства 'unitable'
 	my $unitable_t = ALKO::Catalog::Property::Type->Get(name => 'unitable');
 	# Получаем название классов для свойств, значение которых находятся в отдельной таблице
-	my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $unitable_t->id)->Hash('id_propgroup');
+	my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $unitable_t->id)->Hash('n_proptype');
 
-	# Создаем структуру: $unitable_hash->{ид группы свойств}{номер свойства в группе} = имя класса
+	# Создаем структуру: $unitable_hash->{номер типа свойтва}{ид группы свойств}{номер свойства в группе} = имя класса
 	my $unitable_hash;
-	while(my($id_propgroup, $propparam) = each %$unitable){
-		$unitable_hash->{$id_propgroup}{$_->{n_propgroup}} = $_->{value} for @$propparam;
+	while (my($n_proptype, $propparam) = each %$unitable) {
+		$unitable_hash->{$n_proptype}{$_->{id_propgroup}}{$_->{n_propgroup}} = $_->{value} for @$propparam;
 	}
 
 	# развесистый хеш значений свойств с обособленными ключам, чтобы легче дампить
 	my %value;
 	# Свойства, значения которых находятся в таблице
-	# Получим структуру такого типа:  $table_prop->{название класса для свойсва}{ид в таблице этого свойства} = значение этого свойсва
+	# Получим структуру такого типа:  $table_prop->{номер типа свойтва}{название класса для свойсва}{ид в таблице этого свойства} = значение этого свойсва
 	my $table_prop;
 	for my $prop (ALKO::Catalog::Property::Value->All(id_product => [$self->products->List('id')])->List) {
 		$value{id_product}{$prop->id_product}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n_property} = $prop;
 		# Создаем структуру $table_prop->{название класса для свойсва}{ид в таблице этого свойства} = undef
-		$table_prop->{$unitable_hash->{$prop->id_propgroup}{$prop->n_property}}{$prop->val_int} = undef if $unitable_hash->{$prop->id_propgroup}{$prop->n_property};
+		while (my($n_proptype, $propparam) = each %$unitable) {			 
+			$table_prop->{$n_proptype}{$unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property}}{$prop->val_int} = undef if $unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property};
+		}		 
 	}
 
-	# Заполняем структуру $table_prop значениями из таблиц
-	for my $table_class (keys %$table_prop) {
-		# Временный массив для ид
-		my @id_temp;
-		push  @id_temp, $_  for keys %{$table_prop->{$table_class}};
+	while (my($n_proptype, $propparam) = each %$table_prop) {
+		for my $class (keys $propparam) {			 
+			# Временный массив для ид
+			my @id_temp;
+			push  @id_temp, $_  for keys %{$table_prop->{$n_proptype}{$class}};
 
-		# Подгружаем нужный модуль
-		my $module = $table_class;
-		$module =~ s!::!/!g;
-		$module .= '.pm';
-		require $module or return warn "OBJECT: Can'n load module $module";
+			# Подгружаем нужный модуль
+			my $module = $class;
+			$module =~ s!::!/!g;
+			$module .= '.pm';
+			require $module or return warn "OBJECT: Can'n load module $module";
 
-		# Заполняем структуру
-		$table_prop->{$table_class}{$_->id} = $_->name for ($table_class->All(id =>\@id_temp)->List);
+			# Заполняем структуру
+			$table_prop->{$n_proptype}{$class}{$_->id} = $_->name for ($class->All(id =>\@id_temp)->List);
+		};
 	}
 
 	my $prop_t = ALKO::Catalog::Property::Type->All->Hash('id');
