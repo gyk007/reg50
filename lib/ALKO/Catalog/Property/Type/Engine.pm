@@ -82,7 +82,7 @@ sub param {
 }
 
 =begin nd
-Method: want  
+Method: want ( )  
 	Виртуальный метод.
 
 Returns:
