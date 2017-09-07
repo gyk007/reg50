@@ -81,4 +81,11 @@ sub param {
 	my $src = $src_val->value;
 }
 
-1;
+=begin nd
+Method: want  
+	Виртуальные метод.
+
+Returns:
+	пустой массив
+=cut
+sub want {[]}
