@@ -178,7 +178,7 @@ sub complete_products {
 	# Получим структуру такого типа:  $table_prop->{номер типа свойтва}{название класса для свойсва}{ид в таблице этого свойства} = значение этого свойсва
 	#my $table_prop;
 
-	# Данне для свосва "Страна производитель"
+	# Данные для свойства "Страна производитель"
 	my $country_prop = ALKO::Catalog::Property->Get(name => 'Made in');
 	my $id_country;
 	for my $prop (ALKO::Catalog::Property::Value->All(id_product => [$self->products->List('id')])->List) {
