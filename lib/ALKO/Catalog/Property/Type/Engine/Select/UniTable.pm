@@ -26,7 +26,7 @@ Returns:
 =cut
 sub operate {
 	my ($self, $table_prop) = @_;
-
+	debug $table_prop;
 	my $src = $self->param('source');
 
 	my $module = $src;
@@ -36,7 +36,7 @@ sub operate {
 
 	my $value;
 	if($table_prop) {
-		$value = $table_prop->{$src}{$self->{store}};
+		$value = $table_prop->{1}{$src}{$self->{store}};
 	} else {
 		my $obj = $src->Get($self->{store}) or return warn "NOSUCH|WARNING: Can't get value for property";
 		$value  = $obj->name;
