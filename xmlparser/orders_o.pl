@@ -38,13 +38,22 @@ for my $order (@{$orders->{order}}) {
 	delete $products->{name};
 	$order->{products} = $products;
 
+	# Вот этот участок кода нужно протестировать
+	# Не выгружать документы со статусом uploaded
 	my $documents->{document} =  $order->{documents}{elements};
 	for (@{$documents->{document}}) {
-		 delete @{$_}{qw(
-			id_order
-			n
-		)};
+		 if ($_->{status} eq 'uploaded') {
+		 	delete $_;
+		} else {
+		 	delete @{$_}{qw(
+				id_order
+				n
+			)};
+	 	}		 
 	}
+
+
+
 	$order->{documents} = $documents;
 
 	delete @{$order}{qw(
