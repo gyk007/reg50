@@ -28,20 +28,20 @@ for ($propdata->List) {
 Method: operate ($data)
 	Вычислить name по хранимому id из указанной таблицы.
 Parameters:
-	$extra - ссылка на массив с данными
+	@extra - массив с данными
 
 Returns:
 	строку из name - в случае отсутствия ошибок
 	undef          - если при вычислении возникли ошибки
 =cut
 sub operate {
-	my ($self, $extra) = @_;
+	my ($self, @extra) = @_;
 
 	my $src = $self->param('source');
 
 	my $value;
 	if($extra) {
-		$value = $_->{$self->{store}}->name for @$extra;
+		$value = $_->{$self->{store}}->name for @extra;
 	} else {
 		my $module = $src;
 		$module =~ s!::!/!g;

@@ -261,7 +261,7 @@ sub complete_products {
 					my @arg;
 					push @arg, exists $extra{$_} ? $extra{$_} : undef for @{$engine->want};
 
-					$prop->value($engine->operate(\@arg));
+					$prop->value($engine->operate(@arg));
 
 					# вычисляем начальные значения фильтра
 					if ($prop->filters and $prop->id_filterui) {
