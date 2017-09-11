@@ -68,8 +68,8 @@ sub want {
 	my $property = $self->{property};
 
 	exists $prop_extra->{$property->id_propgroup} and exists $prop_extra->{$property->id_propgroup}{$property->n} ?
-        $prop_extra->{$property->id_propgroup}{$property->n}
-    		: [];
+          $prop_extra->{$property->id_propgroup}{$property->n}
+    	: [];
 }
 
 1;
