@@ -25,4 +25,3 @@ COMMENT ON COLUMN propdata.description   IS 'описание';
 
 
 COMMIT;
-
