@@ -21,8 +21,9 @@ my $propdata = ALKO::Catalog::Property::Data->All->Hash('id_propgroup');
 
 # Хэш: $prop_extra = {id_propgroup}{n} = ['made_in', ...];
 my $prop_extra;
-for (keys $propdata) {
-	push $prop_extra->{$_}{$propdata->{$_}{n_property}}, $propdata->{$_}{extra};
+for my $id_propgroup (keys $propdata) {
+	for my $value (%{$propdata->{$id_propgroup}})
+		push $prop_extra->{$id_propgroup}{$value->{n_property}}, $value->{extra};
 }
 
 =begin nd
