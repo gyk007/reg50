@@ -134,6 +134,8 @@ sub complete_products {
 		}
 	}
 
+
+
 	# эталонные свойства для копирования в каждый продукт
 	$self->groups_effective->Expand('properties');
 
@@ -191,7 +193,7 @@ sub complete_products {
 		# }
 	}
 
-	my $countries = ALKO::Country->All(id => [keys %$id_country]);
+	my $extra{made_in} = ALKO::Country->All(id => [keys %$id_country]);
 
 	# while (my($n_proptype, $propparam) = each %$table_prop) {
 	# 	for my $class (keys $propparam) {
@@ -251,7 +253,7 @@ sub complete_products {
 					}
 
 					$engine->store($value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}->$store_t);
-
+					debug $engine->want;
 					# движок вернул результаты своей работы
 					$prop->value($engine->operate($countries));
 
