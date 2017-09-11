@@ -28,6 +28,7 @@ use ALKO::Catalog::Filter::UI;
 use ALKO::Catalog::Filter::Arg;
 use ALKO::Catalog::Filter::Arg::PropLink;
 use ALKO::Country;
+use ALKO::Catalog::Property::Data;
 
 =begin nd
 Variable: %Attribute
@@ -162,9 +163,9 @@ sub complete_products {
 	}
 
 	# Получаем описание для типа свойства 'unitable'
-	my $unitable_t = ALKO::Catalog::Property::Type->Get(name => 'unitable');
+	#my $unitable_t = ALKO::Catalog::Property::Type->Get(name => 'unitable');
 	# Получаем название классов для свойств, значение которых находятся в отдельной таблице
-	my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $unitable_t->id)->Hash('n_proptype');
+	#my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $unitable_t->id)->Hash('n_proptype');
 
 	# Создаем структуру: $unitable_hash->{номер типа свойтва}{ид группы свойств}{номер свойства в группе} = имя класса
 	# my $unitable_hash;
@@ -190,6 +191,8 @@ sub complete_products {
 		# 	$table_prop->{$n_proptype}{$unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property}}{$prop->val_int} = undef if $unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property};
 		# }
 	}
+
+	my $extre_countri = ALKO::Catalog::Property::Data->Get(extra => 'made_in');
 
 	my $countries = ALKO::Country->All(id => [keys %$id_country]);
 
