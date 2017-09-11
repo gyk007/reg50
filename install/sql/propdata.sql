@@ -2,7 +2,6 @@
 -- step 0021
 -- class: ALKO::Catalog::Property::Propdata
 
-
 BEGIN;
 
 
