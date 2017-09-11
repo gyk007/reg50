@@ -17,12 +17,11 @@ use WooF::Debug;
 use ALKO::Catalog::Property::Data;
 
 # Получаем все идентификационные данные
-my $propdata = ALKO::Catalog::Property::Data->All->Hash('n');
-
+my $propdata = ALKO::Catalog::Property::Data->All(SORT => 'DEFAULT');
 # Хэш: $prop_extra = {id_propgroup}{n_prop} = ['made_in', ...];
 my $prop_extra;
-while (my($n, $value) = each %$propdata) {
-	push @{$prop_extra->{$_->id_propgroup}{$_->n_property}}, $_->extra for @$value;
+for ($propdata->List) {
+	push @{$prop_extra->{$_->id_propgroup}{$_->n_property}}, $_->extra;
 }
 
 =begin nd
