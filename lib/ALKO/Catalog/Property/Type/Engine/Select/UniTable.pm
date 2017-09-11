@@ -15,9 +15,13 @@ use warnings;
 use WooF::Error;
 use WooF::Debug;
 use ALKO::Catalog::Property::Data;
+use ALKO::Catalog::Property::Type;
+use ALKO::Catalog::Property::Param::Value;
 
-# Получаем идентификационное значение для свойсв
-my $extra_country = ALKO::Catalog::Property::Data->All;
+# Получаем описание для типа свойства 'unitable'
+my $unitable_t = ALKO::Catalog::Property::Type->Get(name => 'unitable');
+# Получаем все свойсва типа 'unitable'
+my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $unitable_t->id);
 
 =begin nd
 Method: operate ($data)
