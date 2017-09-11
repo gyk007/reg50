@@ -28,7 +28,6 @@ use ALKO::Catalog::Filter::UI;
 use ALKO::Catalog::Filter::Arg;
 use ALKO::Catalog::Filter::Arg::PropLink;
 use ALKO::Country;
-use ALKO::Catalog::Property::Data;
 
 =begin nd
 Variable: %Attribute
@@ -191,8 +190,6 @@ sub complete_products {
 		# 	$table_prop->{$n_proptype}{$unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property}}{$prop->val_int} = undef if $unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property};
 		# }
 	}
-
-	my $extra_country = ALKO::Catalog::Property::Data->Get(extra => 'made_in');
 
 	my $countries = ALKO::Country->All(id => [keys %$id_country]);
 

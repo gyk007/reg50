@@ -98,7 +98,7 @@ for my $name (@file_name){
         my $name_in_db;
         $name_in_db = 'Cчет-фактура' if $name_doc eq 'СчетФактура';
         $name_in_db = 'ТОРГ-12'      if $name_doc eq 'Торг-12';
-	$name_in_db = 'ТТН'          if $name_doc eq 'ТТН';
+	    $name_in_db = 'ТТН'          if $name_doc eq 'ТТН';
 
         debug encode('UTF-8', $name_in_db);
 
