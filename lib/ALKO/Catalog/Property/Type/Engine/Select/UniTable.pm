@@ -40,7 +40,7 @@ sub operate {
 
 	my $src = $self->param('source');
 
-
+	debug $data;
 
 	my $value;
 	if($data) {

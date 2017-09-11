@@ -258,7 +258,7 @@ sub complete_products {
 					$engine->store($value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}->$store_t);
 
 					my %arg;
-					for my $want (@{operate->want}) {
+					for my $want (@{$engine->want}) {
 						$arg{$want} = $extra->{$want} if $extra->{$want};
 					}
 
