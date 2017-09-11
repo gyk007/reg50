@@ -7,8 +7,8 @@ BEGIN;
 
 
 CREATE TABLE propdata (
-        id_propgroup INTEGER property(id_propgroup),
-        n_property   INTEGER property(n),
+        id_propgroup INTEGER REFERENCES property(id_propgroup),
+        n_property   INTEGER REFERENCES property(n),
         extra        VARCHAR(1024),
         description  VARCHAR(1024),
 
