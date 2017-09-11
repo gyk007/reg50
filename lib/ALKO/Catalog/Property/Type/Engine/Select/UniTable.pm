@@ -22,6 +22,8 @@ use ALKO::Catalog::Property::Param::Value;
 my $unitable_t = ALKO::Catalog::Property::Type->Get(name => 'unitable');
 # Получаем все свойсва типа 'unitable'
 my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $unitable_t->id);
+# Получаем все идентификационные данные для свойсв типа  'unitable'
+my $propdata = ALKO::Catalog::Property::Data->All;
 
 =begin nd
 Method: operate ($data)
