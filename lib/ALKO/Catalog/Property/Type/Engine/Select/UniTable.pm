@@ -37,12 +37,11 @@ Returns:
 sub operate {
 	my ($self, @extra) = @_;
 
-	my $src = $self->param('source');
-
 	my $value;
-	if($extra) {
+	if(defined @extra) {
 		$value = $_->{$self->{store}}->name for @extra;
 	} else {
+		my $src = $self->param('source');
 		my $module = $src;
 		$module =~ s!::!/!g;
 		$module .= '.pm';
