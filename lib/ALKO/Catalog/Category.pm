@@ -192,7 +192,7 @@ sub complete_products {
 		# }
 	}
 
-	my $extre_countri = ALKO::Catalog::Property::Data->Get(extra => 'made_in');
+	my $extra_country = ALKO::Catalog::Property::Data->Get(extra => 'made_in');
 
 	my $countries = ALKO::Country->All(id => [keys %$id_country]);
 
