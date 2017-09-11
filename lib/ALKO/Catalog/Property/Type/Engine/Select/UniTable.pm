@@ -18,7 +18,7 @@ use ALKO::Catalog::Property::Data;
 use ALKO::Catalog::Property::Type;
 use ALKO::Catalog::Property::Param::Value;
 
-# Получаем описание для типа свойства 'unitable'
+# Получаем тип свойства 'unitable'
 my $unitable_t = ALKO::Catalog::Property::Type->Get(name => 'unitable');
 # Получаем все свойсва типа 'unitable'
 my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $unitable_t->id);
