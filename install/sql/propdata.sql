@@ -16,7 +16,6 @@ CREATE TABLE propdata (
         PRIMARY KEY (id_propgroup, n_property, extra)
 );
 
-GRANT SELECT, UPDATE         ON SEQUENCE propdata TO @@DBUSER@@;
 GRANT SELECT, UPDATE, INSERT ON TABLE    propdata TO @@DBUSER@@;
 
 COMMENT ON TABLE  propdata               IS 'идентификационные данные для движка свойсв';
