@@ -7,22 +7,22 @@ BEGIN;
 
 
 CREATE TABLE propdata (
+        extra        VARCHAR(1024),
         id_propgroup INTEGER NOT NULL property(id_propgroup),
         n_property   INTEGER NOT NULL property(n),
-        n            INTEGER NOT NULL,
-        extra        VARCHAR(1024) NOT NULL,
+        description  VARCHAR(1024),
 
-        PRIMARY KEY (id_propgroup, n_property, n)
+        PRIMARY KEY (extra)
 );
 
 GRANT SELECT, UPDATE         ON SEQUENCE propdata TO @@DBUSER@@;
 GRANT SELECT, UPDATE, INSERT ON TABLE    propdata TO @@DBUSER@@;
 
 COMMENT ON TABLE  propdata               IS 'идентификационные данные для движка свойсв';
+COMMENT ON COLUMN propdata.extra         IS 'идентификационная строка';
 COMMENT ON COLUMN propdata.id_propgroup  IS 'группа свойств';
 COMMENT ON COLUMN propdata.n_property    IS 'номер свойсва в группе';
-COMMENT ON COLUMN propdata.n             IS 'номер по порядку';
-COMMENT ON COLUMN propdata.extra         IS 'идентификационная строка';
+COMMENT ON COLUMN propdata.description   IS 'описание';
 
 
 COMMIT;
