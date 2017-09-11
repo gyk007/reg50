@@ -259,7 +259,7 @@ sub complete_products {
 
 					my %arg;
 					for my $want (@{$engine->want}) {
-						$arg{$want} = $extra->{$want} if $extra->{$want};
+						$arg{$want} = $extra->{$want} if exists $extra->{$want};
 					}
 
 					$prop->value($engine->operate(%arg));
