@@ -65,11 +65,11 @@ Returns:
 sub want {
 	my $self = shift;
 
-	if (exists $prop_extra->{$self->{property}->id_propgroup} and $prop_extra->{$self->{property}->id_propgroup}{$self->{property}->n}) {
-		return $prop_extra->{$self->{property}->id_propgroup}{$self->{property}->n};
-	}
+	my $property = $self->{property};
 
-	[];
+	exists $prop_extra->{$property->id_propgroup} and exists $prop_extra->{$property->id_propgroup}{$property->n} ?
+        $prop_extra->{$property->id_propgroup}{$property->n}
+    		: [];
 }
 
 1;
