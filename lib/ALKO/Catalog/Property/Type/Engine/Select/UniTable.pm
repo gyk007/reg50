@@ -65,7 +65,7 @@ Returns:
 sub want {
 	my $self = shift;
 
-	return $prop_extra->{$self->{property}->->id_propgroup}{$self->{property}->n} if $prop_extra->{$self->{property}->->id_propgroup}{$self->{property}->n};
+	return $prop_extra->{$self->{property}->id_propgroup}{$self->{property}->n} if $prop_extra->{$self->{property}->->id_propgroup}{$self->{property}->n};
 }
 
 1;
