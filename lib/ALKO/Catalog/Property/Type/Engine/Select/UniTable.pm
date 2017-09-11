@@ -39,7 +39,7 @@ sub operate {
 	my ($self, $table_prop) = @_;
 
 	my $src = $self->param('source');
-
+	debug $table_prop;
 	my $module = $src;
 	$module =~ s!::!/!g;
 	$module .= '.pm';

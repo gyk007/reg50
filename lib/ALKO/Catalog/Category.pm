@@ -193,7 +193,9 @@ sub complete_products {
 		# }
 	}
 
-	my $extra{made_in} = ALKO::Country->All(id => [keys %$id_country])->Hash;
+	my $extra->{made_in} = ALKO::Country->All(id => [keys %$id_country])->Hash;
+
+
 
 	# while (my($n_proptype, $propparam) = each %$table_prop) {
 	# 	for my $class (keys $propparam) {
@@ -253,9 +255,9 @@ sub complete_products {
 					}
 
 					$engine->store($value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}->$store_t);
-					debug $engine->want;
+
 					# движок вернул результаты своей работы
-					$prop->value($engine->operate($extra));
+					$prop->value($engine->operate($extra->{$_})) for $engine->want;
 
 					# вычисляем начальные значения фильтра
 					if ($prop->filters and $prop->id_filterui) {
