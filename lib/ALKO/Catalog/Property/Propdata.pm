@@ -1,8 +1,8 @@
-package ALKO::Catalog::Property::Propdata;
+package ALKO::Catalog::Property::Data;
 use base qw/ WooF::Object /;
 
 =begin nd
-Class: ALKO::Catalog::Property::Propdata
+Class: ALKO::Catalog::Property::Data
 	идентификационные строки для свойсв.
 =cut
 
