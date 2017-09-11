@@ -12,7 +12,7 @@ CREATE TABLE propdata (
         extra        VARCHAR(1024),
         description  VARCHAR(1024),
 
-        FOREIGN KEY (id_propgroup, n_property) REFERENCES property (id_propgroup, n_property)
+        FOREIGN KEY (id_propgroup, n_property) REFERENCES property (id_propgroup, n_property),
         PRIMARY KEY (id_propgroup, n_property, extra)
 );
 
