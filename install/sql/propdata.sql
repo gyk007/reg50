@@ -7,11 +7,12 @@ BEGIN;
 
 
 CREATE TABLE propdata (
-        id_propgroup INTEGER REFERENCES property(id_propgroup),
-        n_property   INTEGER REFERENCES property(n),
+        id_propgroup INTEGER,
+        n_property   INTEGER,
         extra        VARCHAR(1024),
         description  VARCHAR(1024),
 
+        FOREIGN KEY (id_propgroup, n_property) REFERENCES property (id_propgroup, n_property)
         PRIMARY KEY (id_propgroup, n_property, extra)
 );
 
@@ -26,3 +27,4 @@ COMMENT ON COLUMN propdata.description   IS 'описание';
 
 
 COMMIT;
+
