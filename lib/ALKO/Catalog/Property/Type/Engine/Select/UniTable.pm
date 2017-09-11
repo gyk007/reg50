@@ -22,7 +22,7 @@ my $propdata = ALKO::Catalog::Property::Data->All->Hash('id_propgroup');
 # Хэш: $prop_extra = {id_propgroup}{n} = ['made_in', ...];
 my $prop_extra;
 while (my($id_propgroup, $value) = each %$propdata) {
-	push $prop_extra->{$id_propgroup}{$_->{n_property}}, $_->{extra} for @$value;
+	push @{$prop_extra->{$id_propgroup}{$_->{n_property}}}, $_->{extra} for @$value;
 }
 
 =begin nd
@@ -54,6 +54,18 @@ sub operate {
 	}
 
 	$value;
+}
+
+=begin nd
+Method: want ()
+	Метод возвращает список идентификационных данных для конретного свойства.
+Returns:
+	список идентификационных данных
+=cut
+sub want {
+	my $self = shift;
+
+	return $prop_extra->{$self->{property}->->id_propgroup}{$self->{property}->n} if $prop_extra->{$self->{property}->->id_propgroup}{$self->{property}->n};
 }
 
 1;
