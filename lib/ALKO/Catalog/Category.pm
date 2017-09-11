@@ -193,7 +193,8 @@ sub complete_products {
 		# }
 	}
 
-	my $extra->{made_in} = ALKO::Country->All(id => [keys %$id_country])->Hash;
+	my %extra;
+	my $extra{made_in} = ALKO::Country->All(id => [keys %$id_country])->Hash;
 
 
 
@@ -258,7 +259,7 @@ sub complete_products {
 					$engine->store($value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}->$store_t);
 
 					my @arg;
-					push @arg, exists $extra->{$_} ? $extra->{$_} : undef for @{$engine->want};
+					push @arg, exists $extra{$_} ? $extra{$_} : undef for @{$engine->want};
 
 					$prop->value($engine->operate(\@arg));
 
