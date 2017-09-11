@@ -29,26 +29,28 @@ while (my($id_propgroup, $value) = each %$propdata) {
 Method: operate ($data)
 	Вычислить name по хранимому id из указанной таблицы.
 Parameters:
-	$table_prop - ссылка на хэш ($table_prop->{название класса для свойсва}{ид свойсва в таблице} = значение из таблицы)
+	$data - данные свойсва типа unitable
 
 Returns:
 	строку из name - в случае отсутствия ошибок
 	undef          - если при вычислении возникли ошибки
 =cut
 sub operate {
-	my ($self, $table_prop) = @_;
+	my ($self, $data) = @_;
 
 	my $src = $self->param('source');
-	debug $table_prop;
-	my $module = $src;
-	$module =~ s!::!/!g;
-	$module .= '.pm';
-	require $module or return warn "OBJECT: Can'n load module $module";
+
+
 
 	my $value;
-	if($table_prop) {
-		$value = $table_prop->{1}{$src}{$self->{store}};
+	if($data) {
+		$value = $data->{$self->{store}}->name;
 	} else {
+		my $module = $src;
+		$module =~ s!::!/!g;
+		$module .= '.pm';
+		require $module or return warn "OBJECT: Can'n load module $module";
+
 		my $obj = $src->Get($self->{store}) or return warn "NOSUCH|WARNING: Can't get value for property";
 		$value  = $obj->name;
 	}

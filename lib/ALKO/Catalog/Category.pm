@@ -254,10 +254,15 @@ sub complete_products {
 						default {return warn "CATALOG: Stored value type not defined"}
 					}
 
+
 					$engine->store($value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}->$store_t);
 
-					# движок вернул результаты своей работы
-					$prop->value($engine->operate($extra->{$_})) for $engine->want;
+					my %arg;
+					for my $want (@{operate->want}) (
+						%arg{$want} = $extra->{$want} if $extra->{$want};
+					)
+
+					$prop->value($engine->operate(%arg));
 
 					# вычисляем начальные значения фильтра
 					if ($prop->filters and $prop->id_filterui) {
