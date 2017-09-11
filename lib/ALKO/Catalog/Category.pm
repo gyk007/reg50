@@ -193,7 +193,7 @@ sub complete_products {
 		# }
 	}
 
-	my $extra{made_in} = ALKO::Country->All(id => [keys %$id_country]);
+	my $extra{made_in} = ALKO::Country->All(id => [keys %$id_country])->Hash;
 
 	# while (my($n_proptype, $propparam) = each %$table_prop) {
 	# 	for my $class (keys $propparam) {
