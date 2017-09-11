@@ -4,7 +4,7 @@
 
 BEGIN;
 
-
+-- таблица идентификационных данных для движка свойств
 CREATE TABLE propdata (
         id_propgroup INTEGER,
         n_property   INTEGER,
@@ -23,5 +23,8 @@ COMMENT ON COLUMN propdata.n_property    IS 'номер свойства в гр
 COMMENT ON COLUMN propdata.extra         IS 'идентификационная строка';
 COMMENT ON COLUMN propdata.description   IS 'описание';
 
+
+-- добавляем идентификационную строку для свойства 'Made in'
+INSERT INTO propdata (id_propgroup, n_property, extra, description) VALUES (1, 7, 1, 'Made in', 'Identification string for the property "Made in"');
 
 COMMIT;
