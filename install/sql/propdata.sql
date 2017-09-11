@@ -25,6 +25,6 @@ COMMENT ON COLUMN propdata.description   IS 'описание';
 
 
 -- добавляем идентификационную строку для свойства 'Made in'
-INSERT INTO propdata (id_propgroup, n_property, extra, description) VALUES (1, 7, 1, 'Made in', 'Identification string for the property "Made in"');
+INSERT INTO propdata (id_propgroup, n_property, extra, description) VALUES (1, 7, 1, 'made_in', 'Identification string for the property "Made in"');
 
 COMMIT;
