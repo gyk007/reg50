@@ -17,9 +17,9 @@ CREATE TABLE propdata (
 
 GRANT SELECT, UPDATE, INSERT ON TABLE    propdata TO @@DBUSER@@;
 
-COMMENT ON TABLE  propdata               IS 'идентификационные данные для движка свойсв';
+COMMENT ON TABLE  propdata               IS 'идентификационные данные для движка свойств';
 COMMENT ON COLUMN propdata.id_propgroup  IS 'группа свойств';
-COMMENT ON COLUMN propdata.n_property    IS 'номер свойсва в группе';
+COMMENT ON COLUMN propdata.n_property    IS 'номер свойства в группе';
 COMMENT ON COLUMN propdata.extra         IS 'идентификационная строка';
 COMMENT ON COLUMN propdata.description   IS 'описание';
 
