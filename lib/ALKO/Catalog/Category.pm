@@ -258,11 +258,9 @@ sub complete_products {
 					$engine->store($value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}->$store_t);
 
 					my %arg;
-					for my $want (@{$engine->want}) {
-						$arg{$want} = $extra->{$want} if exists $extra->{$want};
-					}
+					exists $extra->{$_} and $arg{$_} = $extra->{$_}  for @{$engine->want};
 
-					$prop->value($engine->operate(%arg));
+					$prop->value($engine->operate($arg));
 
 					# вычисляем начальные значения фильтра
 					if ($prop->filters and $prop->id_filterui) {

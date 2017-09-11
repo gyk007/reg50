@@ -40,11 +40,11 @@ sub operate {
 
 	my $src = $self->param('source');
 
-	debug $data;
+	debug %$data;
 
 	my $value;
 	if($data) {
-		$value = $data->{$self->{store}}->name;
+		#$value = $data->{$self->{store}}->name;
 	} else {
 		my $module = $src;
 		$module =~ s!::!/!g;
