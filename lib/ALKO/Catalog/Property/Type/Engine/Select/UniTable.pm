@@ -16,8 +16,8 @@ use WooF::Error;
 use WooF::Debug;
 use ALKO::Catalog::Property::Data;
 
-# Получаем идентификационное значение для свойсва "Made In"
-my $extra_country = ALKO::Catalog::Property::Data->Get(extra => 'made_in');
+# Получаем идентификационное значение для свойсв
+my $extra_country = ALKO::Catalog::Property::Data->All;
 
 =begin nd
 Method: operate ($data)
