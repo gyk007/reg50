@@ -15,15 +15,9 @@ use warnings;
 use WooF::Error;
 use WooF::Debug;
 use ALKO::Catalog::Property::Data;
-use ALKO::Catalog::Property::Type;
-use ALKO::Catalog::Property::Param::Value;
 
-# Получаем тип свойства 'unitable'
-my $unitable_t = ALKO::Catalog::Property::Type->Get(name => 'unitable');
-# Получаем все свойсва типа 'unitable'
-my $unitable = ALKO::Catalog::Property::Param::Value->All(id_proptype => $unitable_t->id);
-# Получаем все идентификационные данные для свойсв типа  'unitable'
-my $propdata = ALKO::Catalog::Property::Data->All;
+# Получаем все идентификационные данные
+my $propdata = ALKO::Catalog::Property::Data->All->Hash('id_propgroup');
 
 =begin nd
 Method: operate ($data)
@@ -37,7 +31,7 @@ Returns:
 =cut
 sub operate {
 	my ($self, $table_prop) = @_;
-	debug $table_prop;
+
 	my $src = $self->param('source');
 
 	my $module = $src;

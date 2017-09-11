@@ -49,10 +49,8 @@ for my $order (@{$orders->{order}}) {
 				id_order
 				n
 			)};
-	 	}		 
+	 	}
 	}
-
-
 
 	$order->{documents} = $documents;
 
