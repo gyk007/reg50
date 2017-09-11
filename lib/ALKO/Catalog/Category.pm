@@ -257,8 +257,8 @@ sub complete_products {
 
 					$engine->store($value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}->$store_t);
 
-					my %arg;
-					exists $extra->{$_} and $arg{$_} = $extra->{$_} for @{$engine->want};
+					my $arg;
+					exists $extra->{$_} and push @$arg, $extra->{$_} for @{$engine->want};
 
 					$prop->value($engine->operate($arg));
 

@@ -17,34 +17,32 @@ use WooF::Debug;
 use ALKO::Catalog::Property::Data;
 
 # Получаем все идентификационные данные
-my $propdata = ALKO::Catalog::Property::Data->All->Hash('id_propgroup');
+my $propdata = ALKO::Catalog::Property::Data->All->Hash('n');
 
-# Хэш: $prop_extra = {id_propgroup}{n} = ['made_in', ...];
+# Хэш: $prop_extra = {id_propgroup}{n_prop} = ['made_in', ...];
 my $prop_extra;
-while (my($id_propgroup, $value) = each %$propdata) {
-	push @{$prop_extra->{$id_propgroup}{$_->{n_property}}}, $_->{extra} for @$value;
+while (my($n, $value) = each %$propdata) {
+	push @{$prop_extra->{$_->id_propgroup}{$_->n_property}}, $_->extra for @$value;
 }
 
 =begin nd
 Method: operate ($data)
 	Вычислить name по хранимому id из указанной таблицы.
 Parameters:
-	$data - данные свойсва типа unitable
+	$extra - ссылка на массив с данными
 
 Returns:
 	строку из name - в случае отсутствия ошибок
 	undef          - если при вычислении возникли ошибки
 =cut
 sub operate {
-	my ($self, $data) = @_;
+	my ($self, $extra) = @_;
 
 	my $src = $self->param('source');
 
-	debug %$data;
-
 	my $value;
-	if($data) {
-		#$value = $data->{$self->{store}}->name;
+	if($extra) {
+		$value = $_->{$self->{store}}->name for @$extra;
 	} else {
 		my $module = $src;
 		$module =~ s!::!/!g;

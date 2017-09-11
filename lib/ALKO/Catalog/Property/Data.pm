@@ -1,5 +1,5 @@
 package ALKO::Catalog::Property::Data;
-use base qw/ WooF::Object /;
+use base qw/ WooF::Object::Sequence /;
 
 =begin nd
 Class: ALKO::Catalog::Property::Data
@@ -20,9 +20,9 @@ Variable: %Attribute
 	description  - описание
 =cut
 my %Attribute = (
-	id_propgroup => {type => 'key'},
-	n_property   => {type => 'key'},
-	extra        => {type => 'key'},
+	id_propgroup => {mode => 'read', type => 'key'},
+	n_property   => {mode => 'read', type => 'key'},
+	extra        => {mode => 'read', type => 'key'},
 	description  => undef,
 );
 
@@ -31,11 +31,13 @@ Method: Attribute ( )
 	Доступ к хешу с описанием членов класса.
 
 	Может вызываться и как метод экземпляра, и как метод класса.
+	Наследует члены класса родителей.
 
 Returns:
 	ссылку на описание членов класса
 =cut
-sub Attribute { \%Attribute }
+sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
+
 =begin nd
 Method: Table ( )
 	Таблица хранения сущности в базе данных.
