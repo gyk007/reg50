@@ -206,7 +206,6 @@ sub complete_products {
 	$extra{manufacturer} = ALKO::Catalog::Manufacturer->All(id => [keys %$id_manufacturer])->Hash;
 
 
-
 	# while (my($n_proptype, $propparam) = each %$table_prop) {
 	# 	for my $class (keys $propparam) {
 	# 		# Временный массив для ид
@@ -223,6 +222,16 @@ sub complete_products {
 	# 		$table_prop->{$n_proptype}{$class}{$_->id} = $_->name for ($class->All(id =>\@id_temp)->List);
 	# 	};
 	# }
+
+	# Получаем описание для типа свойства 'Scalar'
+	my $scalar_t   = ALKO::Catalog::Property::Type->Get(name => 'Scalar');
+	my $scalar_val = ALKO::Catalog::Property::Param::Value->All(id_proptype => $scalar_t->id)->Hash('id_propgroup');
+
+	# Создаем структуру: $type_value->{id_propgroup}{n_propgroup} = значение типа (float, integer, decimal)
+	my $type_value;
+	while (my($id_propgroup, $propparam) = each %$scalar_val) {
+		$type_value->{$id_propgroup}{$_->{n_propgroup}} = $_->value for @$propparam;
+	}
 
 	my $prop_t = ALKO::Catalog::Property::Type->All->Hash('id');
 
@@ -257,13 +266,12 @@ sub complete_products {
 
 					# передаем движку хранимое значение
 					my $store_t;
-					given ($engine->store_t) {
+					given ($type_value->{$prop->id_propgroup}{$prop->n}) {
 						when ('integer') {$store_t = 'val_int'}
 						when ('float')   {$store_t = 'val_float'}
 						when ('decimal') {$store_t = 'val_dec'}
-						default {return warn "CATALOG: Stored value type not defined"}
+						default {$store_t = 'val_int'}
 					}
-
 
 					$engine->store($value{id_product}{$product->id}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n}->$store_t);
 
