@@ -4,9 +4,9 @@ use base qw / WooF::Object /;
 =begin nd
 Class: WooF::DB::Query
 	Конструктор запросов.
-	
+
 	Позволяет дополнять запросы.
-	
+
 	Бывает полезно, когда в зависимости от условий в коде нужно изменить условия выборки из базы данных.
 	Формат запроса имеет специальный вид. См. <WooF::DB::Query::new ()>
 =cut
@@ -54,18 +54,18 @@ sub Attribute { \%Attribute }
 =begin nd
 Constructor: new ($q)
 	Парсит запрос.
-	
-	Выделяет из запроса выражение, стоящее после 'WHERE' (обязательно большими буквами), и запоминает 
+
+	Выделяет из запроса выражение, стоящее после 'WHERE' (обязательно большими буквами), и запоминает
 	атрибуты body и where заполняются с помощью SQL, если он был передан конструктору.
 	Если в этом SQL присутствует ключевое слово WHERE, то заполняются оба атрибута. Иначе - только body.
 	Остальным атрибутам значения присваиваются в методе parse_clause.
 	Этот класс умеет парсить только простые запросы.
 
 	Лидирующая часть хранится как есть. Пока.
-	
+
 Parameters:
 	$q - строка запроса
-	
+
 Returns:
 	Экземпляр запроса, если в процессе парсинга не было ошибок.
 =cut
@@ -85,9 +85,9 @@ sub new {
 =begin nd
 Method: parse_clause ($clause)
 	На основании упакованного хеша условий (в WHERE) подготовить плейсхолдеры и бинды для SQL-запроса.
-	
+
 	Метод может вызываться как метод экземпляра, так и метод класса.
-	
+
 Parameters:
 	$clause - ссылка на массив в который упакован хэш с условиями выборки.
 
@@ -162,7 +162,7 @@ Returns:
 sub parse_clause {
 	my ($self, $clause) = @_;
 	my $in = expose_hashes $clause;
-	
+
 	#my (@ph, @val);          # плейсхолдеры и значения
 	while (my ($k, $v) = each %$in) {
 		if ($k ~~ ['ORDER', 'OFFSET', 'LIMIT']) {
@@ -200,7 +200,7 @@ sub parse_clause {
 			}
 		}
 	}
-	
+
 	$self->{where} .= join ' AND ', @{$self->{ph}} if @{$self->{ph}};
 
 	$self;
@@ -209,11 +209,11 @@ sub parse_clause {
 =begin nd
 Method: parse_expand ($parents, $prev, $expand, $node)
 	Получить строку джоинов под смежные экемпляры.
-	
+
 	Метод предназначен для вызова из слоя объектной модели, и не должен
 	использоваться пользовательским кодом напрямую. Метод довольно тяжелый,
 	в том числе, и за счет большого количества параметров.
-	
+
 	Метод использует рекурсию. В точке внешнего вызова код должен выглядеть следующим образом:
 (start code)
 my $ext_join = WooF::DB::Query->parse_expand(
@@ -232,20 +232,20 @@ my $ext_join = WooF::DB::Query->parse_expand(
 	Первый аргумент, стек, пуст, поскольку при первом вызове JOIN'ов еще нет. Но если надо
 	прицепиться к уже существующему джоину, то можно стек заполнить вручную. Пока таких примеров нет,
 	но принципиально они возможны, хотя представляют из себя нетривиальную задачу.
-	
+
 	Второй аргумент, представляющий структуру предыдущего элемента, должен содержать имя класса, соответствующее
 	той таблице, с которой начинается джоин.
-	
+
 	Имя таблицы может не соответствовать реальной таблицы в базе данных, а представлять из себя псевдоним,
 	используемый в запросе. Это та таблица, с которой начинается джоин.
-	
+
 	init должен быть установлен в true, чтобы именно эта первоначальная структура стала результатом выполнения метода.
-	
+
 	joined_tbls обычно должно быть пусто, если только в джоине не используется селф-джоин с уже используемыми ранее
 	в запросе таблицами.
-	
+
 	Третий аргумент, $expand, в точности соответствует структуре EXPAND.
-	
+
 	Четвертый, последний элемент, практически полностью соответствует второму.
 	В будущем, вероятно, можно будет их объединить.
 
@@ -255,7 +255,7 @@ Parameters:
 	$prev    - предыдушая структура дерева разбора.
 	$expand  - еще не разобранная часть дерева, представленная в EXPAND.
 	$node    - нода заполняемая на данном шаге.
-	
+
 Returns:
 	Структуру из второго аргумента, в члене rc которого содержится строка джоинов.
 =cut
@@ -263,43 +263,43 @@ sub parse_expand {
 	my ($class, $parents, $prev, $expand, $node) = @_;
 	$prev = \$_[2];
 	$node = \$_[4];
-	
+
 	if (ref $expand eq 'ARRAY') {
 		push @$parents, $$prev;
-		
+
 		my $curnode = {parent => $$node};
-		
+
 		$class->parse_expand($parents, $$prev, $_, $curnode) for @$expand;
-		
+
 		unless ($parents->[-1]{init}) {
 			my $stale = pop @$parents;
 			my $parent = $parents->[-1];
-			
+
 			$parent->{$_} = $stale->{$_} for qw/ rc joined_tbls /;
 		}
 	} else {
 		my $parent = $parents->[-1];
 		my $pclass = $parent->{class};
 		my $xclass = $pclass->Attribute->{$expand}{extern};
-		
+
 		my $parent_tbl = $parent->{table} || $pclass->Table;
 		my $module = $xclass;
 		$module =~ s!::!/!g;
 		$module .= '.pm';
 		require $module or warn "OBJECT: Can't load xclass";
 		my $joined_tbl = $xclass->Table;
-		
+
 		my $alias = '';
 		if ((my $n = ++$parent->{joined_tbls}{$joined_tbl}{n}) > 1) {
 			$alias = $joined_tbl . "_$n";
 		}
-		
+
 		my $joined_name = $alias || $joined_tbl;
 		$parent->{rc} .= "LEFT JOIN $joined_tbl $alias ON $parent_tbl.$expand = $joined_name.id ";
-		
+
 		$$prev = {class => $xclass, table => undef, rc => $parent->{rc}, init => 0, joined_tbls => $parent->{joined_tbls}};
 		$$prev->{joined_tbls}{$joined_tbl}{class} = $$prev->{class};
-		
+
 		if (defined $$node->{table}) {
 			my $curnode = {
 				parent => $$node->{parent},
@@ -317,26 +317,26 @@ sub parse_expand {
 			$$node->{class}  = $xclass;
 			$$node->{extend} = undef;
 			$$node->{name}   = $expand;
-			
+
 			$$node->{parent}{extend}{$expand} = $$node;
 		}
-		
+
 		return;
 	}
-	
+
 	$parents->[-1];
 }
 
 =begin nd
 Method: print ( )
 	Сформировать окончательный запрос.
-	
+
 Returns:
 	Строку запроса.
 =cut
 sub print {
 	my $self = shift;
-	
+
 	my $query = $self->{body};
 	$query .= ' WHERE ' . $self->{where}                  if $self->{where};
 	$query .= ' ORDER BY ' . join(',', @{$self->{order}}) if $self->{order};
@@ -361,15 +361,15 @@ sub val {
 =begin nd
 Method: where ($condition)
 	Приклеить условие в конец запроса, добавив перед ним пробел.
-	
+
 	Безопасно только в случаях, когда приклеенное where допустимо.
-	
+
 Parameters:
 	$condition - строка с условием в том виде, в каком должна попасть в запрос.
 =cut
 sub where {
 	my ($self, $condition) = @_;
-	
+
 	$self->{where} .= " $condition";
 }
 

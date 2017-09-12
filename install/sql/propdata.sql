@@ -26,7 +26,10 @@ COMMENT ON COLUMN propdata.n             IS 'порядковый номер';
 COMMENT ON COLUMN propdata.description   IS 'описание';
 
 
--- добавляем идентификационную строку для свойства 'Made in'
-INSERT INTO propdata (id_propgroup, n_property, extra, n, description) VALUES (1, 7, 'made_in', 1, 'Identification string for the property "Made in"');
+-- добавляем идентификационные строку для свойства  типа unitable
+INSERT INTO propdata (id_propgroup, n_property, extra, n, description) VALUES (1, 7, 'made_in',      1, 'Identification string for the property "Made in"');
+INSERT INTO propdata (id_propgroup, n_property, extra, n, description) VALUES (1, 2, 'brand',        1, 'Identification string for the property "Brand"');
+INSERT INTO propdata (id_propgroup, n_property, extra, n, description) VALUES (1, 3, 'manufacturer', 1, 'Identification string for the property "Manufacturer"');
+
 
 COMMIT;

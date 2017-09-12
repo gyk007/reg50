@@ -86,15 +86,15 @@ Returns:
 =cut
 sub exec {
 	my ($self, $q, @param) = @_;
-	
+
 	return warn "DBASE: No query specified" unless $q;
-	
+
 	if ($q->isa('WooF::DB::Query')) {
 		@param = $q->val unless @param;
 		$q = $q->print;
 	}
 	debug DL_SQL, 'DB::exec Query=', $q, ";\nDB::exec QParam=", \@param;
-	
+
 	return warn "DBASE: Odd number in param hash" if @param % 2;
 	my $paramN = @param / 2;   # Количество параметров, упакованных во входном массиве
 
@@ -114,7 +114,7 @@ sub exec {
 			next;
 		}
 		next unless ref $v eq 'ARRAY';
-		
+
 		return warn "DBASE: Empty param's array" unless @$v;
 
 		if ($execN) {
@@ -148,20 +148,20 @@ sub exec {
 =begin nd
 Method: fetch ($q, @param)
 	Выполнить запрос и получть результирующий набор.
-	
+
 Parameters:
 	$q     - строка запроса или объект запроса <WooF::DB::Query>
 	@param - то же самое, что и в <fetch_all ($Q, @param)>.
 
 Returns:
 	Ссылку на массив хешей в случае спиского контекста вызыва.
-	
+
 	Ссылку на хеш, представляющего первую (единственную в идеале) результирующую строку.
 =cut
 sub fetch {
 	my $rc = &fetch_all;
 	my $self = shift;
-	
+
 	if (wantarray) {
 		$rc
 	} else {
@@ -173,7 +173,7 @@ sub fetch {
 =begin nd
 Method: fetch_all ($Q, @param)
 	Выполнить запрос и получть результирующий набор.
-	
+
 Parameters:
 	$Q     - строка запроса
 	@param - почти то же самое, что и в <exec ($q, @param)>, но в выборке ссылка на объекты недопустимы.
@@ -184,7 +184,7 @@ Returns:
 =cut
 sub fetch_all {
 	my ($self, $Q, @param) = @_;
-	
+
 	$self->{sth} = $self->exec($Q, @param);
 
 	$self->{sth}->fetchall_arrayref({});
