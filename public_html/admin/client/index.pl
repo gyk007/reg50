@@ -58,7 +58,7 @@ $Server->add_handler(NET_MRCHANT => {
 #
 $Server->add_handler(LIST => {
 	input => {
-		allow => ['page'],
+		allow => ['page', 'search'],
 	},
 	call => sub {
 		my $S = shift;
@@ -69,12 +69,17 @@ $Server->add_handler(LIST => {
 
 		my $clients = ALKO::Client::Net->All(SLICEN => [COUNT_PAGE_ELEMET, $pos], SORT =>['id DESC']);
 
-		# Получаем массив с id товаров
-		my @id = keys %{$clients->Hash('id_official')};
+		# Получаем массив с id
+		my @id_official = keys %{$clients->Hash('id_official')};
+		my @id_merchant = keys %{$clients->Hash('id_merchant')};
 
-		my $official = ALKO::Client::Official->All(id => \@id)->Hash;
+		my $official = ALKO::Client::Official->All(id => \@id_official)->Hash;
+		my $merchant = ALKO::Client::Merchant->All(id => \@id_merchant)->Hash;
 
-		$_->official($official->{$_->{id_official}}) for $clients->List;
+		for ($clients->List) {
+			$_->official($official->{$_->{id_official}});
+			$_->merchant($merchant->{$_->{id_merchant}});
+		}
 
 		my $count_clients = ALKO::Client::Net->Count;
 
@@ -92,7 +97,6 @@ $Server->add_handler(LIST => {
 #
 # GET
 # URL: /client/?
-#   action  = search
 #   search  = string
 #
 $Server->add_handler(SEARCH => {
@@ -109,9 +113,9 @@ $Server->add_handler(SEARCH => {
 			FROM
 				official
 			WHERE
-				name
+				lower(name)
 			LIKE
-				?
+				lower(?)
 			OR
 				phone
 			LIKE
@@ -139,6 +143,13 @@ $Server->add_handler(SEARCH => {
 
 		for (@$search){
 			$temp->{$_->{id}}->[0]->official($_) if $temp->{$_->{id}}->[0];
+		}
+
+		my @id_merchant = keys %{$clients->Hash('id_merchant')};
+		my $merchant = ALKO::Client::Merchant->All(id => \@id_merchant)->Hash;
+
+		for ($clients->List) {
+			$_->merchant($merchant->{$_->{id_merchant}});
 		}
 
 		$O->{clients} = $clients->List;
@@ -274,9 +285,9 @@ $Server->dispatcher(sub {
 
 	return ['NET_MRCHANT']   if exists $I->{action} and $I->{action} eq 'netMerchant';
 	return ['SHOP_MERCHANT'] if exists $I->{action} and $I->{action} eq 'shopMerchant';
-	return ['SEARCH']        if exists $I->{action} and $I->{action} eq 'search';
 	return ['REGISTRATION']  if exists $I->{action} and $I->{action} eq 'registration';
 	return ['SHOPS']         if exists $I->{action} and $I->{action} eq 'shops';
+	return ['SEARCH']        if exists $I->{search} and $I->{search};
 
 	['LIST'];
 });

@@ -19,11 +19,13 @@ Variable: %Attribute
 	id_official - реквизиты
 	id_merchant - представитель
 	official    - реквизиты, экземпляр класса <ALKO::Client::Official>
+	merchant    - представитель сети экземпляр класса <ALKO::Client::Merchant>
 =cut
 my %Attribute = (
 	id_official => undef,
 	id_merchant => {mode => 'read'},
 	official    => {mode => 'read', type => 'cache'},
+	merchant    => {mode => 'read', type => 'cache'},
 );
 
 =begin nd
@@ -59,6 +61,29 @@ sub official {
 	}
 
 	$self->{official};
+}
+
+=begin nd
+Method: merchant
+	Получить данные о merchant.
+Parameters:
+	$merchant  - экземпляр класса <ALKO::Client::Merchant>
+
+Returns:
+	$self->{merchant}
+=cut
+sub merchant {
+	my ($self,  $merchant)  = @_;
+	# Если уже есть данные, то ничего не делаем
+	return $self->{merchant} if defined $self->{merchant};
+
+	if ($merchant) {
+		$self->{merchant} = $merchant;
+	} else {
+		$self->{merchant} = ALKO::Client::Merchant->Get(id => $self->{id_merchant});
+	}
+
+	$self->{merchant};
 }
 
 =begin nd
