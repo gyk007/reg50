@@ -23,6 +23,7 @@ Variable: %Attribute
 	Члены класса:
 	address          - адрес
 	alkoid           - ид в системе заказчика
+	alko_sync_status - статус синхронизации заказа с системой заказчика (true - синхронизирован, false (default) - не синхронизирован)
 	ctime            - дата заказа
 	deliver_date     - дата доставки
 	deliver_interval - интервал доставки
@@ -52,6 +53,7 @@ Variable: %Attribute
 my %Attribute = (
 	address          => undef,
 	alkoid           => undef,
+	alko_sync_status => {mode => 'read/write', default => 0},
 	ctime            => undef,
 	deliver_date     => undef,
 	deliver_interval => undef,
@@ -71,7 +73,7 @@ my %Attribute = (
 	receivables      => undef,
 	remark           => undef,
 	sales_name       => undef,
-	sales_phone	     => undef,
+	sales_phone      => undef,
 	shop             => {mode => 'read', type => 'cache'},
 	status           => {mode => 'read', type => 'cache'},
 	ttn_date         => undef,

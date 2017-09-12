@@ -184,6 +184,8 @@ $Server->add_handler(ADD_DOCUMENT => {
 			name     => $I->{document}{name},
 			status   => 'requested',
 		})->Save;
+		
+		$order->alko_sync_status(0);
 
 		$O->{documents} = ALKO::Order::Document->All(id_order => $order->id)->List;
 
@@ -215,6 +217,8 @@ $Server->add_handler(DELETE_DOCUMENT => {
 
 		my $documnt = ALKO::Order::Document->Get(id_order => $order->id, name => $I->{document}{name}) or return $S->fail("NOSUCH: Can\'t get Document: no such document(id_order => $order->id, name => $I->{document}{name})");
 		$documnt->Remove;
+		
+		$order->alko_sync_status(0);
 
 		$O->{documents} = ALKO::Order::Document->All(id_order => $order->id)->List;
 

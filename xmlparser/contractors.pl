@@ -7,7 +7,7 @@ use ALKO::Client::Merchant;
 use XML::Simple;
 
 my $clients = XML::Simple->new;
-my $clients = $clients->XMLin("$ENV{PWD}/../../../data/i/contractors.xml", KeyAttr => { contractor => 'id' });
+my $clients = $clients->XMLin("$ENV{HOME}/data/i/contractors.xml", KeyAttr => { contractor => 'id' });
 
 while( my( $key, $value ) = each %{$clients->{contractor}} ){
 	# Добавляем реквизиты сети если их не существует, если существуют обнавляем

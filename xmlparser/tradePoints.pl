@@ -16,7 +16,7 @@ use WooF::Debug;
 use WooF::Object::Collection;
 
 my $clients = XML::Simple->new;
-my $clients = $clients->XMLin("$ENV{PWD}/../../../data/i/trade_points.xml", KeyAttr => { trade_point => 'id' });
+my $clients = $clients->XMLin("$ENV{HOME}/data/i/trade_points.xml", KeyAttr => { trade_point => 'id' });
 
 # Удаляем все индивидуальные предложения
 my $q = qq{	DELETE FROM archive_offer};

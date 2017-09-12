@@ -14,7 +14,7 @@ use ALKO::Catalog::Manufacturer;
 use ALKO::Country;
 
 my $category = XML::Simple->new;
-my $category = $category->XMLin("$ENV{PWD}/../../../data/i/categories.xml", KeyAttr => { category => 'id' });
+my $category = $category->XMLin("$ENV{HOME}/data/i/categories.xml", KeyAttr => { category => 'id' });
 
 while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 	# Выводим id категории в консоль

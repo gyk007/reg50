@@ -10,7 +10,7 @@ my $orders_xml = XML::Simple->new;
 my $file_path = "$ENV{HOME}/data/o/orders.xml";
 my @xml_data;
 
-my $orders->{order} = ALKO::Order->All->List;
+my $orders->{order} = ALKO::Order->All(alko_sync_status => 0)->List;
 
 for my $order (@{$orders->{order}}) {
 	$order->products;
@@ -38,28 +38,20 @@ for my $order (@{$orders->{order}}) {
 	delete $products->{name};
 	$order->{products} = $products;
 
-	# Вот этот участок кода нужно протестировать
 	# Не выгружать документы со статусом uploaded
-	my $documents->{document} =  $order->{documents}{elements};
-	for (@{$documents->{document}}) {
-		 if ($_->{status} eq 'uploaded') {
-		 	delete $_;
-		} else {
-		 	delete @{$_}{qw(
-				id_order
-				n
-			)};
-	 	}
-	}
+	my @documents = grep {
+		delete @$_{qw/id_order n/} if $_->{status} ne 'uploaded';
+	} @{$order->{documents}{elements}};
 
-	$order->{documents} = $documents;
+	$order->{documents} = {document => \@documents};
 
-	delete @{$order}{qw(
+	delete @$order{qw(
 		id_status
 		id_shop
 		shop
 		id_merchant
 		alkoid
+		alko_sync_status
 		num
 	)};
 }

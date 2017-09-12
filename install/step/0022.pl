@@ -8,8 +8,8 @@ use WooF::Install;
 
 my $install = WooF::Install->new(__FILE__);
 
-$install->sql('order_sync.sql');
+$install->sql('propdata.sql');
 
 $install->complete(<<MSG);
-- Добавлено поле alko_sync_status в таблицу orders
+- Добавлена таблица идентификационных данных для движка свойств
 MSG

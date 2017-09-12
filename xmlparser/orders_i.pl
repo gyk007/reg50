@@ -44,6 +44,7 @@ while( my( $id, $data ) = each %{$orders->{order}} ){
     $order->{sales_name}       = $data->{sales_name}       if $data->{sales_name}       and ref $data->{sales_name}       ne 'HASH';
     $order->{sales_phone}      = $data->{sales_phone}      if $data->{sales_phone}      and ref $data->{sales_phone}      ne 'HASH';
     $order->{alkoid}           = $data->{order_id}         if $data->{order_id}         and ref $data->{order_id}         ne 'HASH';
+    $order->alko_sync_status(1);
 
     $order->Refresh;
     next unless all_right;
