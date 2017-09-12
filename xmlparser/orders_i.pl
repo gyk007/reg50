@@ -56,19 +56,24 @@ while( my( $id, $data ) = each %{$orders->{order}} ){
     }
 
     # Добавляем товары
-    for (@{$data->{products}{product}}) {
-       my $product = ALKO::Catalog::Product->Get(alkoid => $_->{id});
-
-       if ($product) {
-            ALKO::Order::Product->new({
-                id_order    => $order->id,
-                id_product  => $product->id,
-                price       => $_->{price},
-                qty         => $_->{qty},
-            });
-       } else {
-            debug "Товара с ID = $_->{id} не существует\n";
-       }
+    if ($data->{products}{product} and ref $data->{products}{product} eq 'HASH') {
+	$data->{products}{product} = [$data->{products}{product}];
+    } 
+    
+    if ($data->{products}{product}) {
+	for (@{$data->{products}{product}}) {
+	    my $product = ALKO::Catalog::Product->Get(alkoid => $_->{id});
+	    if ($product) {
+        	ALKO::Order::Product->new({
+            	    id_order    => $order->id,
+            	    id_product  => $product->id,
+            	    price       => $_->{price},
+            	    qty         => $_->{qty},
+        	});
+	    } else {
+    	        debug "Товара с ID = $_->{id} не существует\n";
+	    }
+	}
     }
 }
 
@@ -99,9 +104,7 @@ for my $name (@file_name){
         my $name_in_db;
         $name_in_db = 'Cчет-фактура' if $name_doc eq 'СчетФактура';
         $name_in_db = 'ТОРГ-12'      if $name_doc eq 'Торг-12';
-	    $name_in_db = 'ТТН'          if $name_doc eq 'ТТН';
-
-        debug encode('UTF-8', $name_in_db);
+	$name_in_db = 'ТТН'          if $name_doc eq 'ТТН';
 
         my $document = ALKO::Order::Document->Get(id_order => $order->id, name => $name_in_db);
 
