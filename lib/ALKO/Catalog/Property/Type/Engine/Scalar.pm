@@ -11,7 +11,7 @@ Class: ALKO::Catalog::Property::Type::Engine::Scalar
 
 use strict;
 use warnings;
-
+use WooF::Debug;
 =begin nd
 Method: operate (store_t)
 	Получить вычисленное значение.
@@ -21,7 +21,7 @@ Method: operate (store_t)
 sub operate {
 	my ($self, $store_t) = @_;
 
-	$self->{store_t} = $store_t ? $store_t : $self->param('store');
+	#$self->{store_t} = $store_t ? $store_t : $self->param('store');
 
 	$self->{store};
 }
