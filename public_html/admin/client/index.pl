@@ -270,11 +270,11 @@ $Server->add_handler(SEND_MAIL => {
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
-		# 'info@nixteam.ru'
+
 		send_mail({
 			template => 'new_client',
-			to       => 'gyk088@gmail.com',
-			subject  => 'REG50 Заявка на регистрацию',
+			to       => 'info@nixteam.ru',
+			subject  => 'REG50 Регистрация',
 			info     => $I
 		});
 
