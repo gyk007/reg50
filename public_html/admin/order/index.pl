@@ -36,8 +36,8 @@ $Server->add_handler(ALL_STATUS => {
 
 		my $status = ALKO::Order::Status->All;
 
-
 		$O->{status} = $status->List;
+
 		OK;
 	},
 });

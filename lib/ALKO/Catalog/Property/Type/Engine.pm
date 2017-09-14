@@ -74,7 +74,7 @@ sub param {
 
 	my $src_val = ALKO::Catalog::Property::Param::Value->Get(
 		id_propgroup => $self->{property}->id_propgroup,
-		n_propgroup  => $self->{property}->n,
+		n_propgroup  => $self->{property}->n ,
 		n_proptype   => $src_param->n,
 	) or return warn "OBJECT: Property Engine can't operate: parameter value failure";
 

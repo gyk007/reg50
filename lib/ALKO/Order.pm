@@ -122,6 +122,7 @@ sub products {
 
  	for (@{$products->List}) {
  		$_->product;
+ 		$_->product->price($self->{id_shop}) if $self->{id_shop};
  	}
 
 	$self->{products} = $products;

@@ -53,8 +53,8 @@ $Server->add_handler(ADD => {
 
 		# Цена заказа
 		my $order_price = 0;
-		for (@{$cart->products->List}) {
-			$order_price += $_->product->price($O->{SESSION}->id_shop) * $_->quantity;
+		for (@{$cart->products($O->{SESSION}->id_shop)->List}) {
+			$order_price += $_->product->price * $_->quantity;
 		};
 
 		$order_data->{id_status}   = ALKO::Order::Status->Get(name => 'new')->id;
@@ -66,7 +66,7 @@ $Server->add_handler(ADD => {
 
 		my $order = ALKO::Order->new($order_data)->Save or return $S->fail("NOSUCH: Can\'t create order");
 
-		for (@{$cart->products->List}) {
+		for (@{$cart->products($O->{SESSION}->id_shop)->List}) {
 			my $ordrer_prod = ALKO::Order::Product->new({
 				id_order   => $order->id,
 				id_product => $_->{product}{id},
@@ -184,7 +184,7 @@ $Server->add_handler(ADD_DOCUMENT => {
 			name     => $I->{document}{name},
 			status   => 'requested',
 		})->Save;
-		
+
 		$order->alko_sync_status(0);
 
 		$O->{documents} = ALKO::Order::Document->All(id_order => $order->id)->List;
@@ -217,7 +217,7 @@ $Server->add_handler(DELETE_DOCUMENT => {
 
 		my $documnt = ALKO::Order::Document->Get(id_order => $order->id, name => $I->{document}{name}) or return $S->fail("NOSUCH: Can\'t get Document: no such document(id_order => $order->id, name => $I->{document}{name})");
 		$documnt->Remove;
-		
+
 		$order->alko_sync_status(0);
 
 		$O->{documents} = ALKO::Order::Document->All(id_order => $order->id)->List;
@@ -242,7 +242,7 @@ $Server->add_handler(ORDER => {
 		my ($I, $O) = ($S->I, $S->O);
 		my $order = ALKO::Order->Get(id => $I->{order}{id}) or return $S->fail("NOSUCH: no such order(id => $I->{order}{id})");
 
-		$order->products;
+		$order->products($O->{SESSION}->id_shop);
 		$order->status;
 		$order->shop;
 

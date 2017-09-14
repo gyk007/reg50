@@ -254,6 +254,34 @@ $Server->add_handler(REGISTRATION => {
 	},
 });
 
+# Получить данные представителя магазина
+#
+# GET
+# URL: /client/?
+#   action = send_mail
+#   name   = string
+#   email  = string
+#   phone  = string
+#
+$Server->add_handler(SEND_MAIL => {
+	input => {
+		allow => ['action', 'name', 'email', 'phone'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		send_mail({
+			template => 'new_client',
+			to       => 'info@nixteam.ru',
+			subject  => 'REG50 Заявка на регистрацию',
+			info     => $I
+		});
+
+		OK;
+	},
+});
+
 # Получить список магазинов
 #
 # GET
@@ -287,6 +315,7 @@ $Server->dispatcher(sub {
 	return ['SHOP_MERCHANT'] if exists $I->{action} and $I->{action} eq 'shopMerchant';
 	return ['REGISTRATION']  if exists $I->{action} and $I->{action} eq 'registration';
 	return ['SHOPS']         if exists $I->{action} and $I->{action} eq 'shops';
+	return ['SEND_MAIL']     if exists $I->{action} and $I->{action} eq 'send_mail';
 	return ['SEARCH']        if exists $I->{search} and $I->{search};
 
 	['LIST'];

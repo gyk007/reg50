@@ -3,4 +3,5 @@
 <email_templates>
 	<reg>registration_email.tpl</reg>
 	<contact>client_question_mail.tpl</contact>
+	<new_client>new_client.tpl</new_client>
 </email_templates>
