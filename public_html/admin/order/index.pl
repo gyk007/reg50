@@ -73,20 +73,82 @@ $Server->add_handler(ORDER => {
 #
 # GET
 # URL: /order/
-#   status   =  (JSON) массив с id статусов
+#   filter =  (JSON) массив с id статусов
 #
 $Server->add_handler(LIST => {
 	input => {
-		allow => ['status'],
+		allow => ['filter'],
 	},
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
 		my $orders;
-		if($I->{status}) {
-			my $id_stauts = decode_json($I->{status});
-			$orders = ALKO::Order->All(id_status => $id_stauts);
+		if($I->{filter}) {
+			my $filter = decode_json($I->{filter});
+			# Фильтр по дате
+			my $where_date;
+			if ($filter->{dateTo} and $filter->{dateFrom}) {
+				my ($date_from, $time_from) = split('T', $filter->{dateFrom});
+				my ($date_to,     $time_to) = split('T', $filter->{dateTo});
+
+				my ($year_from, $month_from, $day_from)  = split('-', $date_from);
+				my ($year_to,   $month_to,   $day_to)    = split('-', $date_to);
+
+				$date_from = DateTime->new(
+					year   => $year_from,
+					month  => $month_from,
+					day    => $day_from,
+				) or return $S->fail("DATE: date error");
+
+				$date_to = DateTime->new(
+					year   => $year_to,
+					month  => $month_to,
+					day    => $day_to,
+				) or return $S->fail("DATE: date error");
+
+				$date_from = $date_from->strftime("%Y-%m-%d");
+				# Добавляем 1 день
+				$date_to = $date_to->subtract(days => -1)->strftime("%Y-%m-%d");
+
+				$where_date = "ctime >= '$date_from' AND ctime <= '$date_to'";
+			}
+
+			# Фильтр по поисковому запросу
+			my $where_search;
+			if ($filter->{search}) {
+				my $search_str = "lower('%$filter->{search}%')";
+				$where_search  = "lower(num) LIKE $search_str";
+			}
+
+			# Фильтр по статусу
+			my $where_status;
+			if ($filter->{status} and ref $filter->{status} eq 'ARRAY') {
+				my $status_str = join ',', @{$filter->{status}};
+				$status_str = "($status_str)";
+				$where_status = "id_status IN $status_str";
+			}
+
+			# Собираем массив where
+			my @where_arr;
+			push @where_arr, $where_date   if $where_date;
+			push @where_arr, $where_search if $where_search;
+			push @where_arr, $where_status if $where_status;
+
+			# Формируем строку WHERE
+			my $where_str = join ' AND ',  @where_arr;
+			$where_str = "WHERE $where_str" if $where_str;
+
+			# Запрос
+			my $q = "SELECT * FROM orders $where_str";
+			debug $q;
+			my $search_orders = $S->D->fetch_all($q);
+
+			# Получаем id orders
+			my @id;
+			push @id, $_->{id} for @$search_orders;
+
+			$orders = ALKO::Order->All(id => \@id);
 		} else {
 			$orders = ALKO::Order->All;
 		}
