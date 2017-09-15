@@ -73,7 +73,7 @@ $Server->add_handler(ORDER => {
 #
 # GET
 # URL: /order/
-#   filter =  (JSON) массив с id статусов
+#   filter =  JSON объект с данными фильра
 #
 $Server->add_handler(LIST => {
 	input => {
@@ -107,9 +107,9 @@ $Server->add_handler(LIST => {
 					day    => $day_to,
 				) or return $S->fail("DATE: date error");
 
-				$date_from = $date_from->strftime("%Y-%m-%d");
 				# Добавляем 1 день
 				$date_to = $date_to->subtract(days => -1)->strftime("%Y-%m-%d");
+				$date_from = $date_from->subtract(days => -1)->strftime("%Y-%m-%d");
 
 				$where_date = "ctime >= '$date_from' AND ctime <= '$date_to'";
 			}
@@ -141,7 +141,6 @@ $Server->add_handler(LIST => {
 
 			# Запрос
 			my $q = "SELECT * FROM orders $where_str";
-			debug $q;
 			my $search_orders = $S->D->fetch_all($q);
 
 			# Получаем id orders
