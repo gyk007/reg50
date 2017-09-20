@@ -43,7 +43,7 @@ my %Attribute = (
 	id_filterui  => {mode => 'read', extern => 'ALKO::Catalog::Filter::UI'},
 	id_propgroup => {mode => 'read'},
 	id_proptype  => {mode => 'read'},
-	name         => undef,
+	name         => {mode => 'read'},
 	value        => {mode => 'read/write', type => 'cache'},
 	visible      => undef,
 );
