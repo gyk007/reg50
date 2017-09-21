@@ -107,47 +107,83 @@ $Server->add_handler(SEARCH => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
+		# Поисковый запрос по организации
 		my $q = qq{
 			SELECT
 				*
 			FROM
-				official
+				official AS o
 			WHERE
-				lower(name)
+				lower(o.name)
 			LIKE
 				lower(?)
 			OR
-				phone
+				 o.phone
 			LIKE
 				?
 			OR
-				taxcode
+				 o.taxcode
 			LIKE
 				?
+			OR
+				lower(o.address)
+			LIKE
+				lower(?)
+			OR
+				lower(o.regaddress)
+			LIKE
+				lower(?)
+			OR
+				o.id
+			IN (SELECT
+					n.id_official
+				FROM
+					net AS n
+				WHERE
+					n.id_merchant
+				IN (SELECT
+						m.id
+					FROM
+						merchant as m
+					WHERE
+						lower(m.name)
+					LIKE
+						lower(?)
+					)
+				)
 		};
 
 		my @search_param = (
-			name    => "%$I->{search}%",
-			phone   => "%$I->{search}%",
-			taxcode => "%$I->{search}%",
+			'o.name'       => "%$I->{search}%",
+			'o.phone'      => "%$I->{search}%",
+			'o.taxcode'    => "%$I->{search}%",
+			'o.address'    => "%$I->{search}%",
+			'o.regaddress' => "%$I->{search}%",
+			'm.name'       => "%$I->{search}%",
 		);
 
 		my $search = $S->D->fetch_all($q, @search_param);
 
+		# Достаем id official
 		my @id;
 		push @id, $_->{id} for @$search;
 
+		# По id official получаем все организации
 		my $clients = ALKO::Client::Net->All(id_official => \@id);
 
+		# Временная переменная, ссылка на $clients
 		my $temp = $clients->Hash('id_official');
 
+		# Каждой организации добавляем данные из таблицы official
 		for (@$search){
 			$temp->{$_->{id}}->[0]->official($_) if $temp->{$_->{id}}->[0];
 		}
 
+		# Полкчаем представителей из организация
 		my @id_merchant = keys %{$clients->Hash('id_merchant')};
 		my $merchant = ALKO::Client::Merchant->All(id => \@id_merchant)->Hash;
 
+		# Добавляем представителя в организацию
 		for ($clients->List) {
 			$_->merchant($merchant->{$_->{id_merchant}});
 		}

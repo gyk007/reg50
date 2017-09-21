@@ -129,6 +129,8 @@ sub link  {
 	$self->{link}
 }
 
+
+
 =begin nd
 Method: Table ( )
 	Таблица хранения сущности в базе данных.
