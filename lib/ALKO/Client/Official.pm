@@ -45,7 +45,7 @@ my %Attribute = (
 	phone         => undef,
 	regaddress    => undef,
 	regcode       => undef,
-	taxcode       => undef,
+	taxcode       => {mode => 'read'},
 	taxreasoncode => undef,
 );
 

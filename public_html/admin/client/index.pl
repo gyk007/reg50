@@ -67,7 +67,7 @@ $Server->add_handler(LIST => {
 		# Позиция в выборке
 		my $pos = $I->{page} ? $I->{page} * COUNT_PAGE_ELEMET : 0;
 
-		my $clients = ALKO::Client::Net->All(SLICEN => [COUNT_PAGE_ELEMET, $pos], SORT =>['id DESC']);
+		my $clients = ALKO::Client::Net->All;
 
 		# Получаем массив с id
 		my @id_official = keys %{$clients->Hash('id_official')};
@@ -81,13 +81,7 @@ $Server->add_handler(LIST => {
 			$_->merchant($merchant->{$_->{id_merchant}});
 		}
 
-		my $count_clients = ALKO::Client::Net->Count;
-
-		# Получаем количесво страниц, округление в большую сторону
-		my $page_count = int(($count_clients / COUNT_PAGE_ELEMET) +0.5);
-
 		$O->{clients} = $clients->List;
-		$O->{pages}   = $page_count;
 
 		OK;
 	},

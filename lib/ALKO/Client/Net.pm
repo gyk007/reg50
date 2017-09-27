@@ -16,16 +16,24 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	id_official - реквизиты
-	id_merchant - представитель
-	official    - реквизиты, экземпляр класса <ALKO::Client::Official>
-	merchant    - представитель сети экземпляр класса <ALKO::Client::Merchant>
+	id_official    - реквизиты
+	id_merchant    - представитель
+	official       - реквизиты, экземпляр класса <ALKO::Client::Official>
+	merchant       - представитель сети экземпляр класса <ALKO::Client::Merchant>
+	merchant_name  - имя предсавителя (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
+	merchant_phone - телефон представителя (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
+	net_name       - название сети (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
+	net_taxcode    - ИНН сети (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
 =cut
 my %Attribute = (
-	id_official => undef,
-	id_merchant => {mode => 'read'},
-	official    => {mode => 'read', type => 'cache'},
-	merchant    => {mode => 'read', type => 'cache'},
+	id_official    => undef,
+	id_merchant    => {mode => 'read'},
+	official       => {mode => 'read', type => 'cache'},
+	merchant       => {mode => 'read', type => 'cache'},
+	merchant_name  => {type => 'cache'},
+	merchant_phone => {type => 'cache'},
+	net_name       => {type => 'cache'},
+	net_taxcode    => {type => 'cache'},
 );
 
 =begin nd
@@ -54,11 +62,12 @@ sub official {
 	# Если уже есть данные, то ничего не делаем
 	return $self->{official} if defined $self->{official};
 
-	if ($official) {
-		$self->{official} = $official;
-	} else {
-		$self->{official} = ALKO::Client::Official->Get(id => $self->{id_official});
-	}
+	$official = ALKO::Client::Official->Get(id => $self->{id_official}) unless $official;
+
+	$self->{official}    = $official;
+	# Это сделано из кривой работы Webix
+	$self->{net_name}    = $official->name    ? $official->name    : '-';
+	$self->{net_taxcode} = $official->taxcode ? $official->taxcode : '-';
 
 	$self->{official};
 }
@@ -77,11 +86,12 @@ sub merchant {
 	# Если уже есть данные, то ничего не делаем
 	return $self->{merchant} if defined $self->{merchant};
 
-	if ($merchant) {
-		$self->{merchant} = $merchant;
-	} else {
-		$self->{merchant} = ALKO::Client::Merchant->Get(id => $self->{id_merchant});
-	}
+	$merchant = ALKO::Client::Merchant->Get(id => $self->{id_merchant}) unless $merchant;
+
+	$self->{merchant}       = $merchant;
+	# Это сделано из кривой работы Webix
+	$self->{merchant_name}  = $merchant->name  ? $merchant->name  : '-';
+	$self->{merchant_phone} = $merchant->phone ? $merchant->phone : '-';
 
 	$self->{merchant};
 }
