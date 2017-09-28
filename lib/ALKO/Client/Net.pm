@@ -24,6 +24,7 @@ Variable: %Attribute
 	merchant_phone - телефон представителя (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
 	net_name       - название сети (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
 	net_taxcode    - ИНН сети (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
+	net_regaddress - адрес сети (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
 =cut
 my %Attribute = (
 	id_official    => undef,
@@ -34,6 +35,7 @@ my %Attribute = (
 	merchant_phone => {type => 'cache'},
 	net_name       => {type => 'cache'},
 	net_taxcode    => {type => 'cache'},
+	net_regaddress => {type => 'cache'},
 );
 
 =begin nd
@@ -66,8 +68,9 @@ sub official {
 
 	$self->{official}    = $official;
 	# Это сделано из кривой работы Webix
-	$self->{net_name}    = $official->name    ? $official->name    : '-';
-	$self->{net_taxcode} = $official->taxcode ? $official->taxcode : '-';
+	$self->{net_name}       = $official->name       ? $official->name       : '-';
+	$self->{net_taxcode}    = $official->taxcode    ? $official->taxcode    : '-';
+	$self->{net_regaddress} = $official->regaddress ? $official->regaddress : '-';
 
 	$self->{official};
 }

@@ -58,30 +58,27 @@ $Server->add_handler(NET_MRCHANT => {
 #
 $Server->add_handler(LIST => {
 	input => {
-		allow => ['page', 'search'],
+		allow => [],
 	},
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		# Позиция в выборке
-		my $pos = $I->{page} ? $I->{page} * COUNT_PAGE_ELEMET : 0;
-
-		my $clients = ALKO::Client::Net->All;
+		my $nets = ALKO::Client::Net->All;
 
 		# Получаем массив с id
-		my @id_official = keys %{$clients->Hash('id_official')};
-		my @id_merchant = keys %{$clients->Hash('id_merchant')};
+		my @id_official = keys %{$nets->Hash('id_official')};
+		my @id_merchant = keys %{$nets->Hash('id_merchant')};
 
 		my $official = ALKO::Client::Official->All(id => \@id_official)->Hash;
 		my $merchant = ALKO::Client::Merchant->All(id => \@id_merchant)->Hash;
 
-		for ($clients->List) {
+		for ($nets->List) {
 			$_->official($official->{$_->{id_official}});
 			$_->merchant($merchant->{$_->{id_merchant}});
 		}
 
-		$O->{clients} = $clients->List;
+		$O->{net_list} = $nets->List;
 
 		OK;
 	},

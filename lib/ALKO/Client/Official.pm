@@ -43,7 +43,7 @@ my %Attribute = (
 	name          => {mode => 'read'},
 	person        => undef,
 	phone         => undef,
-	regaddress    => undef,
+	regaddress    => {mode => 'read'},
 	regcode       => undef,
 	taxcode       => {mode => 'read'},
 	taxreasoncode => undef,
