@@ -83,7 +83,6 @@ $Server->add_handler(ADD_PRODUCT => {
 });
 
 # Получить все продукты для добавления в категорию.
-# Категория должна быть пуста.
 # URL: /catalog/category/?action = all_product
 #
 $Server->add_handler(ALL_PRODUCT => {
@@ -94,13 +93,17 @@ $Server->add_handler(ALL_PRODUCT => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		my $links = ALKO::Catalog::Product::Link->All->Hash('id_product');
+		my $links      = ALKO::Catalog::Product::Link->All;
+		my $categories = ALKO::Catalog::Category->All->Hash;
+
+		# Добавляем имя категории в ссылку
+		$_->name_category($categories->{$_->{id_category}}->name) for $links->List;
 
 		my $products = ALKO::Catalog::Product->All;
+		$links = $links->Hash('id_product');
 
-		for (@{$products->List}) {
-			$_->link($links->{$_->{id}});
-		}
+		# Добавляем ссылку в товар
+		$_->link($links->{$_->{id}}) for $products->List;
 
 		$O->{products} = $products->List;
 

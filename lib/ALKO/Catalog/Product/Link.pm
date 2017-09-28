@@ -17,14 +17,16 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	id_category - категория
-	id_product  - товар
-	face        - наименование товара, переопределяющее наименования для конкретной категории
+	id_category   - категория
+	id_product    - товар
+	face          - наименование товара, переопределяющее наименования для конкретной категории
+	name_category - название категории
 =cut
 my %Attribute = (
-	face        => undef,
-	id_category => {type => 'key'},
-	id_product  => {mode => 'read', type => 'key'},
+	face          => undef,
+	id_category   => {type => 'key'},
+	id_product    => {mode => 'read', type => 'key'},
+	name_category => {mode => 'write', type => 'cache'},
 );
 
 =begin nd

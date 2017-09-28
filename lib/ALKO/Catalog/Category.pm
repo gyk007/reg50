@@ -50,7 +50,7 @@ my %Attribute = (
 	description      => undef,
 	filter           => {type => 'cache'},
 	groups_effective => {mode => 'read/write', type => 'cache'},
-	name             => undef,
+	name             => {mode => 'read'},
 	parents          => {type => 'cache'},
 	products         => {
 	                        mode   => 'read',
