@@ -14,6 +14,10 @@ use warnings;
 
 use ALKO::Cart::Pickedup;
 use ALKO::Catalog::Product;
+use ALKO::Catalog::Property;
+use ALKO::Catalog::Property::Value;
+
+use WooF::Debug;
 
 =begin nd
 Variable: %Attribute
@@ -121,15 +125,34 @@ sub products  {
 	return $self->{products} if defined $self->{products};
 
 	# Получаем товары
-	my $picked = ALKO::Cart::Pickedup->All(id_shop => $self->{id_shop}, ncart => $self->{n});
+	my $picked = ALKO::Cart::Pickedup->All(id_shop => $self->{id_shop}, ncart => $self->{n}, SORT => ['n']);
 
 	# Получаем массив с id товаров
-	my @id       = keys %{$picked->Hash('id_product')};
-	my $products = ALKO::Catalog::Product->All(id => \@id, SORT =>['name ASC'])->Hash;
+	my @id        = keys %{$picked->Hash('id_product')};
+	my $products  = ALKO::Catalog::Product->All(id => \@id, SORT =>['name ASC'])->Hash;
 
-	for ($picked->List) {
-	    $products->{$_->{id_product}}->price($id_shop);
-		$_->product($products->{$_->{id_product}});
+	# Необходимые свойсва для корзины
+	my $props       = ALKO::Catalog::Property->All(name => ['Litr', 'Pack'])->Hash('name');
+	my $prop_values = ALKO::Catalog::Property::Value->All(id_product => \@id)->Hash('id_product');
+
+	for my $pick ($picked->List) {
+		# Получаем свойства и их значения для данного товара
+		my $litr;
+		my $pack;
+		for (@{$prop_values->{$pick->{id_product}}}) {
+			$litr = $_->val_float if $_->n_property == $props->{Litr}[0]->n;
+			$pack = $_->val_int   if $_->n_property == $props->{Pack}[0]->n;
+		}
+
+		my $prop = {
+			Litr => $litr,
+			Pack => $pack,
+		};
+
+	    $products->{$pick->{id_product}}->price($id_shop);
+	    $products->{$pick->{id_product}}->properties($prop);
+
+		$pick->product($products->{$pick->{id_product}});
 	}
 
 	$self->{products} = $picked;
