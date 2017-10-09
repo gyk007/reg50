@@ -38,6 +38,7 @@ $Server->add_handler(MERCHANT => {
 		if ($O->{SESSION}->id_shop) {
 			$shop = ALKO::Client::Shop->Get(id => $O->{SESSION}->id_shop);
 			$shop->official;
+			$shop->net;
 		}
 
 		$O->{USER} = $merchant;

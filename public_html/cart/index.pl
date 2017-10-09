@@ -23,6 +23,7 @@ Constant: MAX_QTY_IN_CART
 =cut
 use constant {
 	MAX_QTY_IN_CART => 9999,
+	MIN_QTY_IN_CART => 1,
 };
 
 # Добавить товар в корзину
@@ -43,6 +44,8 @@ $Server->add_handler(ADD => {
 
 		# Нельзя добавить больше чем MAX_QTY_IN_CART
 		$I->{product}{quantity} = MAX_QTY_IN_CART if $I->{product}{quantity} >= MAX_QTY_IN_CART;
+		# Нельзя добавить меньше чем MIN_QTY_IN_CART
+		$I->{product}{quantity} = MIN_QTY_IN_CART if $I->{product}{quantity} <= MIN_QTY_IN_CART;
 
 		my $cart = ALKO::Cart->Get(id_shop => $O->{SESSION}->id_shop, n => 1)  or return $S->fail('OBJECT: Can\'t add Product to Cart: no such cart(id_shop => $O->{SHOP}{id}, n => 1)');
 
@@ -74,6 +77,8 @@ $Server->add_handler(ADD_QTY => {
 
 		# Нельзя добавить больше чем MAX_QTY_IN_CART
 		$I->{product}{quantity} = MAX_QTY_IN_CART if $I->{product}{quantity} >= MAX_QTY_IN_CART;
+		# Нельзя добавить меньше чем MIN_QTY_IN_CART
+		$I->{product}{quantity} = MIN_QTY_IN_CART if $I->{product}{quantity} <= MIN_QTY_IN_CART;
 
 		my $cart = ALKO::Cart->Get(id_shop => $O->{SESSION}->id_shop, n => 1)  or return $S->fail('OBJECT: Can\'t add Product to Cart: no such cart(id_shop => $O->{SHOP}{id}, n => 1)');
 
