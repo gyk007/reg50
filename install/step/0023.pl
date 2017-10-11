@@ -11,5 +11,5 @@ my $install = WooF::Install->new(__FILE__);
 $install->sql('product_img.sql');
 
 $install->complete(<<MSG);
-- Добавлена поля для картинок товара
+- Добавлены поля для картинок товара
 MSG
