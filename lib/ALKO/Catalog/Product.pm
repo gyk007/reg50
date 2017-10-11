@@ -23,6 +23,9 @@ Variable: %Attribute
 	description    - полное описание
 	face           - наименование, выводимое в каталоге
 	face_effective - наименование в каталоге, переопределенное категорией
+	img_big        - название файла с большой картинкой
+	img_medium     - название файла с средней картинкой
+	img_small      - название файла с маленькой картинкой
 	link           - список категорий, экземпляр класса <ALKO::Catalog::Product::Link>
 	name           - наименование
 	properties     - значения свойств; разбиты по группам
@@ -36,8 +39,11 @@ my %Attribute = (
 	description    => undef,
 	face           => undef,
 	face_effective => {type => 'cache'},
+	img_big        => {mode => 'write'},
+	img_medium     => {mode => 'write'},
+	img_small      => {mode => 'write'},
 	link           => {type => 'cache'},
-	name           => {mode => 'read'},
+	name           => {mode => 'read/write'},
 	properties     => {mode => 'read/write', type => 'cache'},
 	price          => {type => 'cache'},
 	offer          => {type => 'cache'},
