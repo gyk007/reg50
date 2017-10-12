@@ -4,7 +4,7 @@ use strict;
 use XML::Simple;
 use WooF::Debug;
 use LWP::Simple;
-
+use utf8;
 use ALKO::Catalog;
 use ALKO::Catalog::Category;
 use ALKO::Catalog::Category::Graph;
@@ -20,11 +20,26 @@ my $category = $category->XMLin("$ENV{HOME}/data/i/categories.xml", KeyAttr => {
 
 my $all_product_category = ALKO::Catalog::Category->Get(id => 1);
 
-$all_product_category = ALKO::Catalog::Category->new({
-	id      => 1,
-	name    => 'Все товары',
-	visible => 1,
-})->Save unless $all_product_category;
+unless ($all_product_category) {
+	my $name_all_cat = 'Все товары';
+	utf8::decode($name_all_cat);
+
+	$all_product_category = ALKO::Catalog::Category->new({
+		id      => 1,
+		name    => $name_all_cat,
+		visible => 1,
+	})->Save;
+
+	my $catalog_root = ALKO::Catalog->new;
+	my $parent_root  = $catalog_root->curnode;
+
+	# Добавляем категорию в дерево
+	ALKO::Catalog::Category::Graph->new({
+		down  => $id_categ,
+		sortn => $parent_root->has_child + 1,
+		top   => $ALKO::Catalog::ROOT,
+	})->Save;
+}
 
 while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 	# Выводим id категории в консоль
