@@ -35,7 +35,7 @@ unless ($all_product_category) {
 
 	# Добавляем категорию в дерево
 	ALKO::Catalog::Category::Graph->new({
-		down  => $id_categ,
+		down  => $all_product_category->id,
 		sortn => $parent_root->has_child + 1,
 		top   => $ALKO::Catalog::ROOT,
 	})->Save;
