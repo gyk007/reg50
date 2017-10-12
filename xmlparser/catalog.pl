@@ -54,13 +54,15 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 
 	# Товары и свойства
 	while( my( $key_products, $products) = each %{$categ->{products}}) {
+		my $product;
+
 		if (ref $products eq 'ARRAY') {
 			for (@$products) {
 				# Выводим id товара
 				print "$_->{id} \n";
 
 				# Проверяем еслть ли товар
-				my $product = ALKO::Catalog::Product->Get(alkoid => $_->{id});
+				$product = ALKO::Catalog::Product->Get(alkoid => $_->{id});
 				# Елси есть товара - обновляем
 				if ($product) {
 					print "UPDATE $_->{id} \n";
@@ -342,7 +344,7 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 			print "$products->{id} \n";
 
 			# Проверяем еслть ли товар
-			my $product = ALKO::Catalog::Product->Get(alkoid => $products->{id});
+			$product = ALKO::Catalog::Product->Get(alkoid => $products->{id});
 			# Елси есть товара - обновляем
 			if ($product) {
 				print "UPDATE $products->{id} \n";
