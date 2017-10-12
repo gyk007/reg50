@@ -58,7 +58,7 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 					print "UPDATE $_->{id} \n";
 
 					if ($_->{thumbnailSrc}) {
-						my ($ext) = $_->{thumbnailSrc} =~ /\.([a-z0-9]+)$/;
+						my ($ext) = $_->{thumbnailSrc} =~ /\.([A-z0-9]+)$/;
 						unless ( -f "$ENV{HOME}/www/backend/files/product_img/small/$_->{id}.$ext") {
 							getstore($_->{thumbnailSrc}, "$ENV{HOME}/www/backend/files/product_img/small/$_->{id}.$ext");
 							$product->img_small("$_->{id}.$ext");
@@ -66,7 +66,7 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 					}
 
 					if ($_->{smallSrc}) {
-						my ($ext) = $_->{smallSrc} =~ /\.([a-z0-9]+)$/;
+						my ($ext) = $_->{smallSrc} =~ /\.([A-z0-9]+)$/;
 						unless ( -f "$ENV{HOME}/www/backend/files/product_img/medium/$_->{id}.$ext") {
 							getstore($_->{smallSrc}, "$ENV{HOME}/www/backend/files/product_img/medium/$_->{id}.$ext");
 							$product->img_medium("$_->{id}.$ext");
@@ -74,7 +74,7 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 					}
 
 					if ($_->{largeSrc}) {
-						my ($ext) = $_->{largeSrc} =~ /\.([a-z0-9]+)$/;
+						my ($ext) = $_->{largeSrc} =~ /\.([A-z0-9]+)$/;
 						unless ( -f "$ENV{HOME}/www/backend/files/product_img/big/$_->{id}.$ext") {
 							getstore($_->{largeSrc}, "$ENV{HOME}/www/backend/files/product_img/big/$_->{id}.$ext");
 							$product->img_big("$_->{id}.$ext");
@@ -223,19 +223,19 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 					});
 
 					if ($_->{thumbnailSrc}) {
-						my ($ext) = $_->{thumbnailSrc} =~ /\.([a-z0-9]+)$/;
+						my ($ext) = $_->{thumbnailSrc} =~ /\.([A-z0-9]+)$/;
 						getstore($_->{thumbnailSrc}, "$ENV{HOME}/www/backend/files/product_img/small/$_->{id}.$ext");
 						$product->img_small("$_->{id}.$ext");
 					}
 
 					if ($_->{smallSrc}) {
-						my ($ext) = $_->{smallSrc} =~ /\.([a-z0-9]+)$/;
+						my ($ext) = $_->{smallSrc} =~ /\.([A-z0-9]+)$/;
 						getstore($_->{smallSrc}, "$ENV{HOME}/www/backend/files/product_img/medium/$_->{id}.$ext");
 						$product->img_medium("$_->{id}.$ext");
 					}
 
 					if ($_->{largeSrc}) {
-						my ($ext) = $_->{largeSrc} =~ /\.([a-z0-9]+)$/;
+						my ($ext) = $_->{largeSrc} =~ /\.([A-z0-9]+)$/;
 						getstore($_->{largeSrc}, "$ENV{HOME}/www/backend/files/product_img/big/$_->{id}.$ext");
 						$product->img_big("$_->{id}.$ext");
 					}
@@ -340,7 +340,7 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 				print "UPDATE $products->{id} \n";
 
 				if ($products->{thumbnailSrc}) {
-					my ($ext) = $products->{thumbnailSrc} =~ /\.([a-z0-9]+)$/;
+					my ($ext) = $products->{thumbnailSrc} =~ /\.([A-z0-9]+)$/;
 					unless ( -f "$ENV{HOME}/www/backend/files/product_img/small/$products->{id}.$ext") {
 						getstore($products->{thumbnailSrc}, "$ENV{HOME}/www/backend/files/product_img/small/$products->{id}.$ext");
 						$product->img_small("$products->{id}.$ext");
@@ -348,7 +348,7 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 				}
 
 				if ($products->{smallSrc}) {
-					my ($ext) = $products->{smallSrc} =~ /\.([a-z0-9]+)$/;
+					my ($ext) = $products->{smallSrc} =~ /\.([A-z0-9]+)$/;
 					unless ( -f "$ENV{HOME}/www/backend/files/product_img/medium/$products->{id}.$ext") {
 						getstore($products->{smallSrc}, "$ENV{HOME}/www/backend/files/product_img/medium/$products->{id}.$ext");
 						$product->img_medium("$products->{id}.$ext");
@@ -356,7 +356,7 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 				}
 
 				if ($products->{largeSrc}) {
-					my ($ext) = $products->{largeSrc} =~ /\.([a-z0-9]+)$/;
+					my ($ext) = $products->{largeSrc} =~ /\.([A-z0-9]+)$/;
 					unless ( -f "$ENV{HOME}/www/backend/files/product_img/big/$products->{id}.$ext") {
 						getstore($products->{largeSrc}, "$ENV{HOME}/www/backend/files/product_img/big/$products->{id}.$ext");
 						$product->img_big("$products->{id}.$ext");
@@ -503,19 +503,19 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 				});
 
 				if ($products->{thumbnailSrc}) {
-					my ($ext) = $products->{thumbnailSrc} =~ /\.([a-z0-9]+)$/;
+					my ($ext) = $products->{thumbnailSrc} =~ /\.([A-z0-9]+)$/;
 					getstore($products->{thumbnailSrc}, "$ENV{HOME}/www/backend/files/product_img/small/$products->{id}.$ext");
 					$product->img_small("$products->{id}.$ext");
 				}
 
 				if ($products->{smallSrc}) {
-					my ($ext) = $products->{smallSrc} =~ /\.([a-z0-9]+)$/;
+					my ($ext) = $products->{smallSrc} =~ /\.([A-z0-9]+)$/;
 					getstore($products->{smallSrc}, "$ENV{HOME}/www/backend/files/product_img/medium/$products->{id}.$ext");
 					$product->img_medium("$products->{id}.$ext");
 				}
 
 				if ($products->{largeSrc}) {
-					my ($ext) = $products->{largeSrc} =~ /\.([a-z0-9]+)$/;
+					my ($ext) = $products->{largeSrc} =~ /\.([A-z0-9]+)$/;
 					getstore($products->{largeSrc}, "$ENV{HOME}/www/backend/files/product_img/big/$products->{id}.$ext");
 					$product->img_big("$products->{id}.$ext");
 				}
