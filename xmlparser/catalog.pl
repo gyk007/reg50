@@ -18,6 +18,14 @@ use ALKO::Country;
 my $category = XML::Simple->new;
 my $category = $category->XMLin("$ENV{HOME}/data/i/categories.xml", KeyAttr => { category => 'id' });
 
+my $all_product_category = ALKO::Catalog::Category->Get(id => 1);
+
+$all_product_category = ALKO::Catalog::Category->new({
+	id      => 1,
+	name    => 'Все товары',
+	visible => 1,
+})->Save unless $all_product_category;
+
 while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 	# Выводим id категории в консоль
 	print "$id_categ \n";
@@ -45,7 +53,7 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 	}
 
 	# Товары и свойства
-	while( my( $key_products, $products) = each %{$categ->{products}}){
+	while( my( $key_products, $products) = each %{$categ->{products}}) {
 		if (ref $products eq 'ARRAY') {
 			for (@$products) {
 				# Выводим id товара
@@ -609,6 +617,17 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 				})->Save;
 			}
 		}
+
+		# Добавляем товар в категорию Все товары
+		my $prod_in_all_cat = ALKO::Catalog::Product::Link->Get(
+			id_category => $all_product_category->id,
+			id_product  => $product->id,
+		);
+
+		ALKO::Catalog::Product::Link->new({
+			id_category => $all_product_category->id,
+			id_product  => $product->id,
+		})->Save unless $prod_in_all_cat;
 	}
 }
 
