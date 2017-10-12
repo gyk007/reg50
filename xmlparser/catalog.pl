@@ -235,6 +235,17 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 							}
 						}
 					}
+
+					# Добавляем товар в категорию Все товары
+					my $prod_in_all_cat = ALKO::Catalog::Product::Link->Get(
+						id_category => $all_product_category->id,
+						id_product  => $product->{id},
+					);
+
+					ALKO::Catalog::Product::Link->new({
+						id_category => $all_product_category->id,
+						id_product  => $product->{id},
+					})->Save unless $prod_in_all_cat;
 				}
 
 				# Елси нет товара - добавляем товар
@@ -352,6 +363,18 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 						id_category => $id_categ,
 						id_product  => $product->{id},
 					})->Save;
+
+
+					# Добавляем товар в категорию Все товары
+					my $prod_in_all_cat = ALKO::Catalog::Product::Link->Get(
+						id_category => $all_product_category->id,
+						id_product  => $product->{id},
+					);
+
+					ALKO::Catalog::Product::Link->new({
+						id_category => $all_product_category->id,
+						id_product  => $product->{id},
+					})->Save unless $prod_in_all_cat;
 				}
 			}
 		} elsif (ref $products eq 'HASH') {
@@ -516,6 +539,17 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 						}
 					}
 				}
+
+				# Добавляем товар в категорию Все товары
+				my $prod_in_all_cat = ALKO::Catalog::Product::Link->Get(
+					id_category => $all_product_category->id,
+					id_product  => $product->{id},
+				);
+
+				ALKO::Catalog::Product::Link->new({
+					id_category => $all_product_category->id,
+					id_product  => $product->{id},
+				})->Save unless $prod_in_all_cat;
 			}
 
 			unless ($product) {
@@ -632,19 +666,19 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 					id_category => $id_categ,
 					id_product  => $product->{id},
 				})->Save;
+
+				# Добавляем товар в категорию Все товары
+				my $prod_in_all_cat = ALKO::Catalog::Product::Link->Get(
+					id_category => $all_product_category->id,
+					id_product  => $product->{id},
+				);
+
+				ALKO::Catalog::Product::Link->new({
+					id_category => $all_product_category->id,
+					id_product  => $product->{id},
+				})->Save unless $prod_in_all_cat;
 			}
 		}
-
-		# Добавляем товар в категорию Все товары
-		my $prod_in_all_cat = ALKO::Catalog::Product::Link->Get(
-			id_category => $all_product_category->id,
-			id_product  => $product->id,
-		);
-
-		ALKO::Catalog::Product::Link->new({
-			id_category => $all_product_category->id,
-			id_product  => $product->id,
-		})->Save unless $prod_in_all_cat;
 	}
 }
 
