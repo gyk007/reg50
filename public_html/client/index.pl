@@ -12,6 +12,7 @@ use ALKO::Client::Net;
 use ALKO::Session;
 use ALKO::Client::Merchant;
 use ALKO::Client::Shop;
+use ALKO::Client::File;
 use ALKO::SendMail qw(send_mail);
 
 my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
@@ -70,6 +71,33 @@ $Server->add_handler(GET_REG_DATA => {
 	},
 });
 
+
+# Получить файлы организции
+#
+# GET
+# URL: /client/?
+#   action = files
+#
+$Server->add_handler(GET_FILES => {
+	input => {
+		allow => ['action'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $merchant = ALKO::Client::Merchant->Get(id => $O->{SESSION}->id_merchant) or return $S->fail("NOSUCH: Can\'t get Merchant: no such merchant(id => $O->{SESSION}->id_merchant)");
+		$merchant->net;
+		my $taxcode = $merchant->{net}{official}{taxcode};
+
+		my $files;
+		$files = ALKO::Client::File->All(taxcode => $taxcode)->List if $taxcode;
+
+		$O->{files} = $files;
+
+		OK;
+	},
+});
 
 # Получить данные клиента для регистрации
 #
@@ -174,6 +202,7 @@ $Server->dispatcher(sub {
 	return ['GET_REG_DATA'] if exists $I->{action} and $I->{action} eq 'get_reg_data';
 	return ['REGISTRATION'] if exists $I->{action} and $I->{action} eq 'registration';
 	return ['SEND_MAIL']    if exists $I->{action} and $I->{action} eq 'send_mail';
+	return ['GET_FILES']    if exists $I->{action} and $I->{action} eq 'files';
 
 	['MERCHANT'];
 
