@@ -25,6 +25,7 @@ Variable: %Attribute
 	alkoid           - ид в системе заказчика
 	alko_sync_status - статус синхронизации заказа с системой заказчика (true - синхронизирован, false (default) - не синхронизирован)
 	ctime            - дата заказа
+	debt             - дебиторская задолженность
 	deliver_date     - дата доставки
 	deliver_interval - интервал доставки
 	deliver_name     - имя водителя
@@ -40,7 +41,6 @@ Variable: %Attribute
 	phone            - телефон
 	price            - цена
 	products         - товары, коллекция экземпляров класса <ALKO::Order::Product>
-	receivables      - задолженность
 	remark           - замечание
 	sales_name       - имя торгового представителя Reg50
 	sales_phone      - телефон торгового представителя Reg50
@@ -55,6 +55,7 @@ my %Attribute = (
 	alkoid           => undef,
 	alko_sync_status => {mode => 'read/write', default => 0},
 	ctime            => undef,
+	debt             => {mode => 'write'},
 	deliver_date     => undef,
 	deliver_interval => undef,
 	deliver_name     => undef,
@@ -70,7 +71,6 @@ my %Attribute = (
 	phone            => undef,
 	price            => undef,
 	products         => {mode => 'read', type => 'cache'},
-	receivables      => undef,
 	remark           => undef,
 	sales_name       => undef,
 	sales_phone      => undef,
