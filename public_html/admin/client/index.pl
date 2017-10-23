@@ -300,7 +300,7 @@ $Server->add_handler(SEND_MAIL => {
 
 		send_mail({
 			template => 'new_client',
-			to       => 'info@nixteam.ru',
+			to       => 'grd77@bis100.ru',
 			subject  => 'REG50 Регистрация',
 			info     => $I
 		});

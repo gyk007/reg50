@@ -20,6 +20,8 @@ use Digest::MD5 qw(md5_hex);            # модуль для работы с х
 use utf8;
 use base qw(Exporter);
 our @EXPORT = qw(send_mail);
+use WooF::Config;
+
 
 =begin nd
 Function: send_mail($email)
@@ -36,12 +38,13 @@ Parameters:
 =cut
 sub send_mail{
 	my %email = %{shift()};
+	my $config = $WooF::Config::DATA;
 
 	$email{subject} = decode('UTF-8', $email{subject});
 	$email{subject} = encode('MIME-Header', $email{subject});
 
 	unless ($email{from}) {
-		$email{from} = '"REG50" <noreply@nixteam.ru>';
+		$email{from} = '"REG50" <noreply@bis100.ru>';
 	}
 
 	# Шаблон письма
@@ -87,15 +90,16 @@ sub send_mail{
 
 	# Настройка SMTP
 	my $transport = Email::Sender::Transport::SMTP->new({
-		host          => 'smtp.yandex.ru',
+		host          => 'mail.bis100.ru',
 		port          => '465',
-		sasl_username => 'noreply@nixteam.ru',
-		sasl_password => 'baikal',
+		sasl_username => 'noreply@bis100.ru',
+		sasl_password => 'Nrp7777',
 		ssl           => 1
 	});
 	# Отправка email с помощью SMTP протокола
 	sendmail($message, { transport => $transport });
 }
+
 
 
 1;
