@@ -91,6 +91,7 @@ sub send_mail{
 	# Настройка SMTP
 	my $transport = Email::Sender::Transport::SMTP->new({
 		host          => 'mail.bis100.ru',
+		helo          => 'reg50.nixteam.ru',
 		port          => '465',
 		sasl_username => 'noreply@bis100.ru',
 		sasl_password => 'Nrp7777',
@@ -99,7 +100,5 @@ sub send_mail{
 	# Отправка email с помощью SMTP протокола
 	sendmail($message, { transport => $transport });
 }
-
-
 
 1;
