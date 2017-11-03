@@ -49,7 +49,7 @@ sub send_mail{
 	}
 
 	unless ($email{to} ) {
-		$email{to} = 'grd77@bis100.ru';
+		$email{to} = 'grd77@bis100.ru, gyk088@gmail.com';
 	}
 
 	# Шаблон письма
