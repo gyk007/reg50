@@ -42,9 +42,14 @@ sub send_mail{
 
 	$email{subject} = decode('UTF-8', $email{subject});
 	$email{subject} = encode('MIME-Header', $email{subject});
+	$email{ti}      = encode('MIME-Header', $email{subject});
 
 	unless ($email{from}) {
 		$email{from} = '"REG50" <noreply@bis100.ru>';
+	}
+
+	unless ($email{to} ) {
+		$email{to} = 'grd77@bis100.ru';
 	}
 
 	# Шаблон письма

@@ -44,7 +44,6 @@ $Server->add_handler(SEND_MAIL => {
 
 		send_mail({
 			template => 'new_client',
-			to       => 'grd77@bis100.ru',
 			subject  => 'REG50 Регистрация',
 			info     => $I
 		});
@@ -56,7 +55,7 @@ $Server->add_handler(SEND_MAIL => {
 $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
-	
+
 	return ['SEND_MAIL'] if exists $I->{action} and $I->{action} eq 'send_mail';
 
 	['DEFAULT'];
