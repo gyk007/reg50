@@ -10,7 +10,7 @@ use WooF::Debug;
 use ALKO::Server;
 use ALKO::SendMail qw(send_mail);
 
-my $Server = ALKO::Server->new(output_t => 'JSON');
+my $Server = WooF::Server->new(output_t => 'JSON', auth => 0);
 
 # Простейший обработчик. Клиенту отдается статичный шаблон, в лог веб-сервера - версия постгрис.
 # URL: /
@@ -56,8 +56,8 @@ $Server->add_handler(SEND_MAIL => {
 $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
-
-	return ['SEND_MAIL']     if exists $I->{action} and $I->{action} eq 'send_mail';
+	
+	return ['SEND_MAIL'] if exists $I->{action} and $I->{action} eq 'send_mail';
 
 	['DEFAULT'];
 });
