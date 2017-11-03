@@ -100,7 +100,8 @@ sub send_mail{
 		port          => '465',
 		sasl_username => 'noreply@bis100.ru',
 		sasl_password => 'Nrp7777',
-		ssl           => 1
+		ssl           => 1,
+		debug         => 1
 	});
 	# Отправка email с помощью SMTP протокола
 	sendmail($message, { transport => $transport });
