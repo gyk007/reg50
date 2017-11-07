@@ -49,7 +49,7 @@ sub send_mail{
 	}
 
 	unless ($email{to} ) {
-		$email{to} = 'grd77@bis100.ru, gyk088@gmail.com';
+		$email{to} = 'grd77@bis100.ru, gyk088@gmail.com, spiridonov@nixteam.ru';
 	}
 
 	# Шаблон письма
@@ -101,7 +101,6 @@ sub send_mail{
 		sasl_username => 'noreply@bis100.ru',
 		sasl_password => 'Nrp7777',
 		ssl           => 1,
-		debug         => 1
 	});
 	# Отправка email с помощью SMTP протокола
 	sendmail($message, { transport => $transport });

@@ -22,6 +22,7 @@ Variable: %Attribute
 	merchant       - представитель сети экземпляр класса <ALKO::Client::Merchant>
 	merchant_name  - имя предсавителя (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
 	merchant_phone - телефон представителя (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
+	merchant_email - email представителя (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
 	net_name       - название сети (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
 	net_taxcode    - ИНН сети (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
 	net_regaddress - адрес сети (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
@@ -33,6 +34,7 @@ my %Attribute = (
 	merchant       => {mode => 'read', type => 'cache'},
 	merchant_name  => {type => 'cache'},
 	merchant_phone => {type => 'cache'},
+	merchant_email => {type => 'cache'},
 	net_name       => {type => 'cache'},
 	net_taxcode    => {type => 'cache'},
 	net_regaddress => {type => 'cache'},
@@ -95,6 +97,7 @@ sub merchant {
 	# Это сделано из кривой работы Webix
 	$self->{merchant_name}  = $merchant->name  ? $merchant->name  : '-';
 	$self->{merchant_phone} = $merchant->phone ? $merchant->phone : '-';
+	$self->{merchant_email} = $merchant->email ? $merchant->email : '-';
 
 	$self->{merchant};
 }

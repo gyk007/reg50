@@ -8,6 +8,7 @@ use warnings;
 use WooF::Debug;
 use DateTime;
 use WooF::Server;
+use ALKO::Session;
 use ALKO::Client::Net;
 use ALKO::Client::Official;
 use ALKO::Client::Shop;
@@ -45,6 +46,39 @@ $Server->add_handler(NET_MRCHANT => {
 		my $merchant = ALKO::Client::Merchant->Get(id => $net->id_merchant);
 
 		$O->{merchant} = $merchant;
+
+		OK;
+	},
+});
+
+
+# Удалить представителя
+#
+# GET
+# URL: /client/?
+#   action = delete_merchant
+#   id_merchant  = 1
+#
+$Server->add_handler(DELETE_MRCHANT => {
+	input => {
+		allow => ['action', 'id_merchant'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $merchant = ALKO::Client::Merchant->Get(id => $I->{id_merchant}) or return $S->fail("NOSUCH: no such merchant (id => $I->{id_net})");
+
+		# Чистим представителя
+		$merchant->email('');
+		$merchant->name('');
+		$merchant->password('');
+		$merchant->phone('');
+		$merchant->Save;
+
+		my $session = ALKO::Session->All(id_merchant => $merchant->id)->List;
+
+		$_->Remove for @$session;
 
 		OK;
 	},
@@ -338,12 +372,13 @@ $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
 
-	return ['NET_MRCHANT']   if exists $I->{action} and $I->{action} eq 'netMerchant';
-	return ['SHOP_MERCHANT'] if exists $I->{action} and $I->{action} eq 'shopMerchant';
-	return ['REGISTRATION']  if exists $I->{action} and $I->{action} eq 'registration';
-	return ['SHOPS']         if exists $I->{action} and $I->{action} eq 'shops';
-	return ['SEND_MAIL']     if exists $I->{action} and $I->{action} eq 'send_mail';
-	return ['SEARCH']        if exists $I->{search} and $I->{search};
+	return ['NET_MRCHANT']    if exists $I->{action} and $I->{action} eq 'netMerchant';
+	return ['SHOP_MERCHANT']  if exists $I->{action} and $I->{action} eq 'shopMerchant';
+	return ['REGISTRATION']   if exists $I->{action} and $I->{action} eq 'registration';
+	return ['DELETE_MRCHANT'] if exists $I->{action} and $I->{action} eq 'delete_merchant';
+	return ['SHOPS']          if exists $I->{action} and $I->{action} eq 'shops';
+	return ['SEND_MAIL']      if exists $I->{action} and $I->{action} eq 'send_mail';
+	return ['SEARCH']         if exists $I->{search} and $I->{search};
 
 	['LIST'];
 });
