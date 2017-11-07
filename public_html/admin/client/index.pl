@@ -70,10 +70,10 @@ $Server->add_handler(DELETE_MRCHANT => {
 		my $merchant = ALKO::Client::Merchant->Get(id => $I->{id_merchant}) or return $S->fail("NOSUCH: no such merchant (id => $I->{id_net})");
 
 		# Чистим представителя
-		$merchant->email('');
-		$merchant->name('');
-		$merchant->password('');
-		$merchant->phone('');
+		$merchant->email(undef);
+		$merchant->name(undef);
+		$merchant->password(undef);
+		$merchant->phone(undef);
 		$merchant->Save;
 
 		my $session = ALKO::Session->All(id_merchant => $merchant->id)->List;
