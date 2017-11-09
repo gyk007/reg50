@@ -26,33 +26,33 @@ Class: WooF::Object
 	То есть, ни чтение, ни запись не разрешены.
 
 	Значениемя поля 'type' может быть 'cache' или 'key'.
-	
+
 	type => 'cache' позволяет задать поля, которые не будут сохраняться в базе данных. Это поля хранения временных вычисленных данных.
-	
+
 	type => 'key' определяет ключевое поле в том случае, когда оно не является внешним ключом другой сущности.
-	
+
 	Поле 'extern' содержит строку с именем класса, экземплярами которого представлены "расширенные" значения данного поля.
 	Расширенные значения хранятся в специальном поле-хеше 'extend' экземпляра.
-	
+
 	Есть два случая обработки и представления расширенных экземпляров.
-	
+
 	Случай 'один-к-многим' со стороны многих и внешним ключом из главной таблицы.
 	extern определен, но type не установлен в 'cache'.
 	В самом члене класса хранится фактическое значение из базы, а в extend->{имя_атрибута} находится связанный экземпляр.
 	Такая схема сейчас реализована тольо для метода <All_Fresh>.
-	
+
 	Случай 'многие-ко-многим'. 'extern' установлен и type=>'cache'. Сам атрибут имеет значение undef, а extend->{имя_атрибута}
 	содержит коллекцию класса, указанного в extern.
 	Такая схема на данный момент работает для метода <Get> и допускает единственный параметр-строку для 'expand', а основной класс
 	должен быть потомком <WooF::Object::Simple>, то есть имеять первичным ключом атрибут 'id'.
-	
+
 	maps в случае многие-ко-многим определяет механизм формирования расширенного атрибута.
-	
+
 	В поле class указывается имя класса-связки, содержащего первичные ключи основного класса и связанного класса.
-	
+
 	В поле master должно быть указано имя атрибута внешнего ключа в классе-связки для основного класса, а в поле slave
 	имя атрибута в классе-связки для связываемого класса.
-	
+
 	В поле set может задаваться хеш преобразования. Ключом хеша является поле-источник, атрибут класса-связки, из которого берется
 	текущее значение. А значение хеша должно содержать имя атрибута назначения в связываемом классе, куда будет скопировано значение источника.
 	Таким образом таблица-связка может содержать данные для заполнения отдельных полей экземпляров привязываемой коллекции.
@@ -115,7 +115,7 @@ use WooF::Util;
 use WooF::DB::Query;
 use WooF::Object::Collection;
 use WooF::Object::Key;
-
+use WooF::Debug;
 =begin nd
 Variable: $AUTOLOAD
 	Имя всплывшего метода
@@ -156,7 +156,7 @@ Constructor: new (NO_SYNC, @attrs)
 =cut
 sub new {
 	my $class = shift;
-	
+
 	my $nosync = shift if @_ and defined $_[0] and $_[0] eq NO_SYNC;
 
 	my $in = expose_hashes [map ref $_ && ref $_ eq $class ? (%$_) : $_, @_];
@@ -173,7 +173,7 @@ sub new {
 			$self->{$k} = undef;
 		}
 	}
-	
+
 	$self->{STATE}  = OBJINIT;
 	$self->{STATE} |= NOSYNC if $nosync;
 
@@ -183,7 +183,7 @@ sub new {
 =begin nd
 Method: _accessible ($attr, $mode)
 	Преверка доступности члена класса на чтение/запись.
-	
+
 	Потомки должны определить в методе класса  'Attribute'.
 
 Parameters:
@@ -257,20 +257,21 @@ sub _access_rw {
 	my $attr = $self->_get_method_name($autoload);
 
 	sub {
-		my ($self, $value) = @_;
+		my $self = shift;
 		my $Attribute = $self->Attribute->{$attr};
-		
-		if (defined $value) {
+
+		if (@_) {
+			my $value = shift;
 			if (exists $Attribute->{extern} and exists $Attribute->{type} and $Attribute->{type} eq 'cache') {
 				$self->{extend}{$attr} = $value;
 			} else {
 				$self->{$attr} = $value;
-				
+
 				if ($self->{STATE} & DWHLINK) {
 					$self->{STATE} |= MODIFIED unless exists $Attribute->{type} and $Attribute->{type} eq 'cache';
 				}
 			}
-			
+
 			return $self;
 		} else {
 			if (exists $Attribute->{extern} and exists $Attribute->{type} and $Attribute->{type} eq 'cache') {
@@ -324,7 +325,7 @@ sub _access_w {
 		my $self = shift;
 
 		return warn "OBJECT|ERR: Read access for $autoload denied by rules" unless @_;
-		
+
 		my $value = shift;
 
 		my $Attribute = $self->Attribute->{$attr};
@@ -337,7 +338,7 @@ sub _access_w {
 
 			$self->{$attr} = $value;
 		}
-		
+
 		$self;
 	};
 }
@@ -387,31 +388,31 @@ sub All {
 	}
 
 	my $Q = WooF::DB::Query->new("SELECT * FROM $table ")->parse_clause([%$in]);
-	
+
 	WooF::Object::Collection->new($class, $class->S->D->fetch_all($Q))->Set_State(DWHLINK);
 }
 
 =begin nd
 Method: All_Fresh (%filter, @freshing, EXPAND => $expand)
 	Получить Коллекцию самых свежих экземпляров.
-	
+
 	Свежесть определяется по полю 'ctime'.
-	
+
 	Группировка указывается явно. Но в будущем надо сделать так, чтобы при отсутствии явной группировки
 	она происходила по первичному ключу.
-	
+
 	Аргументы метода делятся на три группы:
 	- фильтр
 	- наборы группировки
 	- смежные члены класса
-	
+
 	В вызове группы могут следовать в произвольном порядке.
-	
+
 Parameters:
 	%filter   - упакованный или распакованный (всё как обычно) хеш с условиями выборки для основного экземпляра
 	@freshing - массив ссылок на массивы, каждый из которых состоит из списка полей группировки; аналог UNION
 	$expand   - ссылка на массив, описывающий раскрываемые смежные классы
-	
+
 Returns:
 	Коллекцию свежих экземпляров.
 =cut
@@ -425,7 +426,7 @@ sub All_Fresh {
 	my ($filter, $expand, $freshing) = _parse_args(@_);
 
 	my %filter = @$filter;
-	
+
 	# имя базовой таблицы
 	my $table = $class->Table;
 
@@ -443,16 +444,16 @@ sub All_Fresh {
 
 	# условие в HAVING, выбирающее все записи, где есть нужные данные
 	my $grouping_clause = join ' OR ', map "$_ IS NOT NULL", @grouping_sets_fields;
-	
+
 	# поля с квалификатором для вставки в PARTITION BY отсева дубликатов с одинаковым ctime
 	my @qualified_maxctime_fields = map "ct.$_", @grouping_sets_fields;
-	
+
 	# строка условия для селф-джоин max_ctime с основной таблицей
 	my $selfjoin_clause = join ' OR ', map "$table.$_ = ct.$_", @grouping_sets_fields;
 	$selfjoin_clause = "($selfjoin_clause)" if @grouping_sets_fields > 1;
 
 	my $Q = WooF::DB::Query->new->parse_clause($filter);
-	
+
 	# дополнительные связанные экземлляры в виде строки джоинов
 	my $tree = {table => 'lasts', alias => undef, class => $class, extend => undef, parent => undef};  # дальнейший код изменит данный хеш
 	my $ext_join = WooF::DB::Query->parse_expand(
@@ -475,7 +476,7 @@ sub All_Fresh {
 	# в случае селф-джоинов, одинаковых таблиц может быть несколько, и им нужны алиасы
 	while (my ($t, $desc) = each %{$ext_join->{joined_tbls}}) {
 		my $class = $desc->{class};
-		
+
 		my @fields;
 		for my $i (1 .. $desc->{n}) {
 			my $table = $i > 1 ? $t . "_$i" : $t;
@@ -483,12 +484,12 @@ sub All_Fresh {
 			@selected_fields = (@selected_fields, @fields);
 		}
 	}
-	
+
 	my $ph = $Q->ph;
 	my $q;
 	{
 		local $" = ', ';
-	
+
 		$q = qq{
 			WITH
 				max_ctime AS (
@@ -524,7 +525,7 @@ sub All_Fresh {
 	}
 
 	my $rc = $class->S->D->fetch_all($q, $Q->val, $Q->val);
-	
+
 	WooF::Object::Collection->new($class)->Set_State(DWHLINK)->expand($tree, $rc);
 }
 
@@ -539,7 +540,7 @@ Returns:
 sub Attribute {
 	my $self = shift;
 	my $class = ref $self;
-	
+
 	return warn "OBJECT: 'Attribute()' method must be redefined in subclass $class AND not get up to WooF::Object class";
 }
 
@@ -556,7 +557,7 @@ sub AUTOLOAD {
 	return if $method eq 'DESTROY';
 	return warn "OBJECT|ERR: Method AUTOLOAD: $AUTOLOAD in loop" if $Done{$AUTOLOAD};
 
-	my $accessor = 
+	my $accessor =
 			  $self->_accessible($method, READ) && $self->_accessible($method, WRITE) ? '_access_rw'
 			: $self->_accessible($method, READ)                                       ? '_access_r'
 			: $self->_accessible($method, WRITE)                                      ? '_access_w'
@@ -591,7 +592,7 @@ sub Count {
 
 	my $table = $either->Table;
 	my $Q = WooF::DB::Query->new("SELECT count(*) FROM $table ")->parse_clause([%$in]);
-	
+
 	$either->S->D->fetch($Q)->{count};
 }
 
@@ -618,7 +619,7 @@ sub Create {
 			($_ => $self->{$_});
 		}
 	} keys %{$self->Attribute};
-	
+
 	my @ph = split //, '?' x @attrs;
 
 	my $q;
@@ -633,7 +634,7 @@ sub Create {
 =begin nd
 Method: DESTROY ()
 	При утилизации экземпляра запишем его состояние в базу если надо.
-	
+
 	Если у экземпляра нет таблицы, значит он не является сущностью базы данных.
 	Если экземпляр был удален, то сохранять его так же не нужно.
 	Не нужно сохранять, если пользователь об этом явно попросил.
@@ -641,7 +642,7 @@ Method: DESTROY ()
 =cut
 sub DESTROY {
 	my $self = shift;
-	
+
 	return unless $self->Table;
 	return if     $self->{STATE} & REMOVED;
 	return if     $self->{STATE} & NOSYNC;
@@ -653,9 +654,9 @@ sub DESTROY {
 =begin nd
 Method: Expand ($expand)
 	Расширить экземпляр экземплярами связанных классов.
-	
+
 	Описание связанных классов должно находиться в описаниях соответствующих атрибутов данного класса.
-	
+
 	Допускается расширение классов, связанных с данным классом связью многие-ко-многим. В этом случае описание
 	атрибута выглядит так:
 >	products    => {
@@ -671,7 +672,7 @@ Method: Expand ($expand)
 
 Parameters:
 	$expand - строка с именем члена класса, подлежащего расширению или ссылка на массив таких строк.
-	
+
 Returns:
 	$self - если ошибок не было
 	undef - в случае ошибки
@@ -679,9 +680,9 @@ Returns:
 sub Expand {
 	my ($self, $expand) = @_;
 	my $class = ref $self;
-	
+
 	my @expand = ref $expand ? @$expand : $expand;  # связанные атрибуты, подлежащие расширению
-	
+
 	for my $expand (@expand) {
 		my $attr = $class->Attribute;
 		my $expand_attr = $attr->{$expand};
@@ -698,7 +699,7 @@ sub Expand {
 					exists $expand_attr->{extern}
 				and
 					exists $expand_attr->{maps};
-		
+
 		# собираем поля из дополнительной таблицы связанных экземпляров
 		my $slave_class = $expand_attr->{extern};
 		my $slave_table = $slave_class->Table;
@@ -706,10 +707,10 @@ sub Expand {
 		my @selected_fields;
 		while (my ($at, $des) = each %$slave_attr) {
 			next if defined $des and ref $des eq 'HASH' and exists $des->{type} and $des->{type} eq 'cache';
-			
+
 			push @selected_fields, "$slave_table.$at $slave_table\$$at";
 		}
-		
+
 		# собираем поля из таблицы-связки
 		my $maps = $expand_attr->{maps};
 		my $link_class = $maps->{class};
@@ -717,10 +718,10 @@ sub Expand {
 		my $link_attr = $link_class->Attribute;
 		while (my ($at, $des) = each %$link_attr) {
 			next if defined $des and exists $des->{type} and $des->{type} eq 'cache';
-			
+
 			push @selected_fields, "$link_table.$at $link_table\$$at";
 		}
-		
+
 		my $q;
 		{
 			local $" = ', ';
@@ -731,28 +732,28 @@ sub Expand {
 			};
 		}
 		my $rows = $class->S->D->fetch_all($q);
-		
+
 		# заполняем хеши экземпляров
 		my @slave_src;
 		for my $row (@$rows) {
 			my (%slave_item, %link_item);
 			while (my ($attr, $v) = each %$row) {
 				my ($table, $field) = $attr =~ /^(.+)\$(.*)$/;
-				
+
 				if ($table eq $slave_table) {
 					$slave_item{$field} = $v;
 				} else {
 					$link_item{$field} = $v;
 				}
 			}
-			
+
 			# если указан set, заполняем экземпляры коллекции соответствующим значением из таблицы связки
 			if (defined $maps->{set}) {
 				while (my ($src, $dst) = each %{$maps->{set}}) {
 					$slave_item{$dst} = $link_item{$src} if defined $link_item{$src};
 				}
 			}
-			
+
 			push @slave_src, \%slave_item;
 		}
 		$self->{extend}{$expand} = WooF::Object::Collection->new($slave_class, \@slave_src)->Set_State(DWHLINK);
@@ -764,36 +765,36 @@ sub Expand {
 =begin nd
 Method: Generate_Key ( )
 	Сгенерировать экземпляру первичный ключ.
-	
+
 	Чисто виртальный метод, должен быть перегружен потомком.
-	
+
 	В общем случае, метод вызывается только тогда, когда экземпляр не привязан к базе
 	и у него не определен первичиный ключ, при этом первичный ключ нуждается в генерировании.
 	Такой сценарий маловероятен. Например, с ключом, состоящим из единственного атрибута,
 	такой атрибут, как правило, имеет дефолтное значение в базе.
-	
+
 Returns:
 	undef
 	Возбуждает ошибку, так как не был перегружен потомком.
-	
+
 	В потомках необходимо возвращать true в случае удачного генерирования,
 	и undef, если не получилось.
 =cut
 sub Generate_key {
 	my $self = shift;
 	my $class = ref $self;
-	
+
 	return warn "OBJECT|ERR: Generate_Key method must be redefined in subclass $class";
 }
 
 =begin nd
 Method: Get (@filter, EXPAND => $expand)
 	Получить экземпляр класса, удовлетворяющего условиям.
-	
+
 	Данный метод может вызываться и как метод класса, и как метод экземпляра.
-	
+
 	Хотя бы одно условие выборки должно присутствовать, иначе метод потерпит неудачу.
-	
+
 	Если в аргументах присутствует $expand, он должен содержать ссылку на массив имен (или одно имя_атрибута
 	в виде строки) члена класса, подлежащего "расширению".
 	Описание такого члена класса содержит данные для получения коллекции экземпляров другого класса,
@@ -812,9 +813,9 @@ Returns:
 sub Get {
 	my $either = shift;
 	my $class = ref $either || $either;
-	
+
 	my ($filter, $expand) = _parse_args(@_);
-	
+
 	return warn 'OBJECT|ERR: filter not defined' unless @$filter;
 
 	# получаем основной экземпляр
@@ -828,10 +829,10 @@ sub Get {
 
 	my $self = $class->new($row);
 	$self->{STATE} |= DWHLINK;
-	
+
 	# получить связанные коллекции многие-ко-многим
 	$self->Expand($expand) if defined $expand;
-	
+
 	$self;
 }
 
@@ -855,17 +856,17 @@ sub _get_method_name {
 =begin nd
 Method: Has ($extended)
 	Расширен ли у экземпляра указанный атрибут.
-	
+
 Parameters:
 	$extended - имя атрибута
-	
+
 Returns:
 	Экземпляр или коллекцию, привязанную к атрибуту - если таковые имеются
 	undef - в противном случае
 =cut
 sub Has {
 	my ($self, $attr) = @_;
-	
+
 	exists $self->{extend} and exists $self->{extend}{$attr} ? $self->{extend}{$attr} : undef;
 }
 
@@ -874,7 +875,7 @@ Method: Is_key_defined ( )
 	Определен ли ключ у экземпляра.
 	Генерируется одноименный метод в вызывающем классе,
 	после чего он же и вызывается повторно.
-	
+
 Returns:
 	true  - если ключ полностью определен
 	false - в противном случае
@@ -884,14 +885,14 @@ sub Is_key_defined {
 	my $class = ref $self;
 
 	my $keys = $self->Key_attrs or return warn "OBJECT|ERR: Can't call Is_key_defined() since no keys exist for $class";
-	
+
 	my $method = sub {
 		my $self = shift;
-		
+
 		for (keys %$keys) {
 			return unless defined $self->{$_};
 		}
-		
+
 		1;
 	};
 	{
@@ -905,21 +906,21 @@ sub Is_key_defined {
 =begin nd
 Method: Key_attrs ( )
 	Получить ключи класса.
-	
+
 	В вызывающем классе генерируется метод доступа к методу экземпляра класса Key, который хранится в пакетной переменной.
-	Если экземпляра нет, то он создается, и в своем конструкторе сразу вычисляет все нужные ему данные и запоминает результаты в своих членах класса. 
+	Если экземпляра нет, то он создается, и в своем конструкторе сразу вычисляет все нужные ему данные и запоминает результаты в своих членах класса.
 	Так что вся тяжелая работа происходит только один раз, а в дальнейшем данный метод через пакетную переменную-экземпляр отдает уже готовые данные.
 
 Returns:
 	Ссылку на хеш - ключами служат имена атрибутов-ключей класса,
 	а значениями описания этих ключей, которые могут быть просто undef.
 
-	undef - в случае ошибки. 
+	undef - в случае ошибки.
 =cut
 sub Key_attrs {
 	my $self = shift;
 	my $class = ref $self;
-	
+
 	{
 		no strict 'refs';
 
@@ -928,20 +929,20 @@ sub Key_attrs {
 
 		*{$class . '::Key_attrs'} = sub { $$keys->attr_desc };
 	}
-	
+
 	$self->Key_attrs;
 }
 
 =begin nd
 Method: Modified ($remove)
 	Поменять экземпляру флаг 'модифицированный'.
-	
+
 	Если флага нет, или он не равен нулю, то флаг устанавливается.
 	В противном случае (если ноль), сбрасывается.
-	
+
 Parameters:
 	$remove - если 0, то флаг сбрасывается
-	
+
 Returns:
 	$self
 =cut
@@ -953,32 +954,32 @@ sub Modified {
 	} else {
 		$self->Set_State(MODIFIED);
 	}
-	
+
 	$self;
 }
 
 =begin nd
 Method: Nosync ()
 	Отменить синхронизацю экземпляра при его утилизации.
-	
+
 Returns:
 	Сам экземпляр $self. Так что, можно писать:
 > $Obj = My::Class->new()->Nosync;
 =cut
 sub Nosync {
 	my $self = shift;
-	
+
 	$self->{STATE} |= NOSYNC;
-	
+
 	$self;
 }
 
 =begin nd
 Function: _parse_args (%filter, $expand, @sets)
 	Распарсить аргументы достающих экземпляры методов на основные входные группы.
-	
+
 	Функция, не метод.
-	
+
 	Ссылка на массив после 'EXPAND' это $expand,
 	остальные ссылки на массив это @sets,
 	все оставшееся это %filter.
@@ -1004,7 +1005,7 @@ sub _parse_args {
 			undef $expand_wait;
 			next;
 		}
-	
+
 		my $ref = ref $el;
 
 		if ($ref and $ref eq 'ARRAY') {
@@ -1022,7 +1023,7 @@ sub _parse_args {
 			push @filter, $el;
 		}
 	}
-	
+
 	(\@filter, $expand, \@sets);
 }
 
@@ -1031,14 +1032,14 @@ Method: Prepare_key ( )
 	 Готовит ключ для вставки.
 
 	 Чисто виртуальный метод, должен быть перегружен потомком.
-	 
+
 Returns:
 	true
 =cut
 sub Prepare_key {
 	my $self = shift;
 	my $class = ref $self;
-	
+
 	return warn "OBJECT: Prepare_key method must be redefined in subclass $class";
 }
 
@@ -1048,9 +1049,9 @@ Method: Refresh ( )
 =cut
 sub Refresh {
 	my $self = shift;
-	
+
 	my $table = $self->Table;
-	
+
 	my (@fields, @keys, @key_param);
 	my @param = map {
 		if (exists $self->Key_attrs->{$_}) {
@@ -1064,11 +1065,11 @@ sub Refresh {
 			($_ => $self->{$_});
 		}
 	} keys %{$self->Attribute};
-	
+
 	my @ph = split '', '?' x @fields;
 	@param = (@param, @key_param);
 	@keys = map "$_ = ?", @keys;
-	
+
 	my $Q;
 	{
 		local $" = ', ';
@@ -1085,9 +1086,9 @@ sub Refresh {
 =begin nd
 Method: Remove ()
 	Удаление экземпляра.
-	
+
 	Кортеж сразу удаляется из базы, экземпляру в коде выставляется флаг 'REMOVED'.
-	
+
 Returns:
 	undef
 =cut
@@ -1103,19 +1104,19 @@ sub Remove {
 		push @ph, "$_ = ?";
 		($_ => $self->{$_});
 	} keys %{$self->Key_attrs};
-	
+
 	my $Q = WooF::DB::Query->new("DELETE FROM $table");
 	$Q->where(join ' AND ', @ph);
 
 	$self->S->D->exec($Q, @param);
-	
+
 	$self->{STATE} |= REMOVED;
 }
 
 =begin nd
 Method: Remove_State ($flags)
 	Сбросить у специального члена класса STATE флаги $flags.
-	
+
 Parameters:
 	$flags - набор флагов в виде битовой маски, подлежащие снятию.
 Returns:
@@ -1123,9 +1124,9 @@ Returns:
 =cut
 sub Remove_State {
 	my ($self, $flags) = @_;
-	
+
 	$self->{STATE} &= ~$flags;
-	
+
 	$self;
 }
 
@@ -1145,9 +1146,9 @@ Returns:
 sub Save {
 	my $self = shift;
 	my $class = ref $self;
-	
+
 	return warn "OBJECT|ERR: Can't Save object with no TABLE specified for class $class" unless $self->Table;
-	
+
 	if ($self->{STATE} & DWHLINK) {        # экземпляр присутствует в базе данных
 		return $self unless $self->{STATE} & MODIFIED;      # экземпляр не нуждается в апдейте, т.к. соответствует состояню в базе
 		$self->Refresh;
@@ -1155,7 +1156,7 @@ sub Save {
 		$self->Is_key_defined or $self->Prepare_key or return warn "OBJECT|ERR: Can't Generate Primary key for class $class";
 		$self->Create;
 	}
-	
+
 	$self->{STATE} |= DWHLINK;
 	$self->{STATE} &= ~MODIFIED;
 
@@ -1171,7 +1172,7 @@ Method: Set_State ($flags)
 
 Parameters:
 	$flags - набор флагов в виде битовой маски, подлежащие установке.
-	
+
 Returns:
 	$self
 =cut
@@ -1185,9 +1186,9 @@ sub Set_State {
 =begin nd
 Method: Sorted_keys
 	Получить ссылку на массив имен ключевых полей упорядоченных в соответствии с тем, как они индексируются в БД.
-	
+
 	В вызывающем классе генерируется метод доступа к методу экземпляра класса Key, который хранится в пакетной переменной.
-	Если экземпляра нет, то он создается, и в своем конструкторе сразу вычисляет все нужные ему данные и запоминает результаты в своих членах класса. 
+	Если экземпляра нет, то он создается, и в своем конструкторе сразу вычисляет все нужные ему данные и запоминает результаты в своих членах класса.
 	Так что вся тяжелая работа происходит только один раз, а в дальнейшем данный метод через пакетную переменную-экземпляр отдает уже готовые данные.
 
 Returns:
@@ -1204,7 +1205,7 @@ sub Sorted_keys {
 
 		*{$class . '::Sorted_keys'} = sub { $$keys->sorted_list };
 	}
-	
+
 	$either->Sorted_keys;
 }
 
@@ -1212,16 +1213,16 @@ sub Sorted_keys {
 Method: Sync ()
 	Запросить синхронизацю экземпляра при его утилизации.
 	Сбрасывается флаг NOSYNC.
-	
+
 Returns:
 	Сам экземпляр $self. Так что, можно писать:
 > $Obj = My::Class->new()->Sync;
 =cut
 sub Sync {
 	my $self = shift;
-	
+
 	$self->{STATE} &= DOSYNC;
-	
+
 	$self;
 }
 
@@ -1235,16 +1236,16 @@ sub Table { undef }
 =begin nd
 Method: TO_JSON ($data)
 	Декодировать блесснутые данные для JSON.
-	
+
 	Поскольку у нас все экземпляры реализованы хешами, то и отдаем просто разблеснутый хеш.
-	
+
 	Из полученного хеша удаляется контейнер флагов 'STATE'.
-	
+
 	Метод вызывается автоматически модулем JSON для каждой блесснутой ссылки.
-	
+
 Parameters:
 	$data - блеснутый хеш
-	
+
 Returns:
 	разблеснутый хеш
 =cut
@@ -1253,7 +1254,7 @@ sub TO_JSON {
 
 	my $json =  {%$data};
 	delete $json->{STATE};
-	
+
 	$json;
 }
 

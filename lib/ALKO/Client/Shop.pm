@@ -24,7 +24,7 @@ Variable: %Attribute
 	net         - организация, экземпляр класса <ALKO::Client::Net>
 =cut
 my %Attribute = (
-	id_merchant => {mode => 'read'},
+	id_merchant => {mode => 'read/write'},
 	id_net      => {mode => 'read'},
 	id_official => undef,
 	official    => {mode => 'read', type => 'cache'},

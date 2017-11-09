@@ -29,7 +29,7 @@ Variable: %Attribute
 =cut
 my %Attribute = (
 	id_official    => undef,
-	id_merchant    => {mode => 'read'},
+	id_merchant    => {mode => 'read/write'},
 	official       => {mode => 'read', type => 'cache'},
 	merchant       => {mode => 'read', type => 'cache'},
 	merchant_name  => {type => 'cache'},

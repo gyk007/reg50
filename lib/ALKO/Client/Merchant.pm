@@ -22,8 +22,8 @@ Variable: %Attribute
 	name     - имя
 	password - пароль
 	phone    - телефон
-	net      - организация, экземпляр класса <ALKO::Client::Net>
-	net      - список торговых точек, экземпляры класса <ALKO::Client::Shop>
+	net      - список организаций, экземпляры класса <ALKO::Client::Net>
+	shops    - список торговых точек, экземпляры класса <ALKO::Client::Shop>
 =cut
 my %Attribute = (
 	alkoid   => {mode => 'read/write'},
@@ -59,16 +59,10 @@ sub net {
 	# Если уже есть данные, то ничего не делаем
 	return $self->{net} if defined $self->{net};
 
-	my $net =  ALKO::Client::Net->Get(id_merchant => $self->{id});
+	my $net =  ALKO::Client::Net->All(id_merchant => $self->{id})->List;
+	$_->official for @$net;
 
-	unless ($net) {
-		my $shop = ALKO::Client::Shop->Get(id_merchant => $self->{id});
-		$net     = ALKO::Client::Net->Get(id => $shop->{id_net});
-	}
-
-	$net->official;
-
-	$self->{net} = $net;
+	$self->{net} = scalar $net ? $net : undef;
 }
 
 =begin nd
@@ -82,23 +76,22 @@ sub shops {
 	my $self = shift;
 	# Если уже есть данные, то ничего не делаем
 	return $self->{shops} if defined $self->{shops};
-	
-	# Всегда нужно проверить является ли представитель представителем сети
-	# так делать нельзя $net = $self->{net}  
-	my $net = ALKO::Client::Net->Get(id_merchant => $self->{id});
-	
-	my $shops;
-	if ($net) {
-		$shops = ALKO::Client::Shop->All(id_net => $net->id)->List;
-	} else  {
-		$shops = ALKO::Client::Shop->All(id_merchant => $self->{id})->List;
-	}
 
-	for(@$shops) {
+
+	my $nets = ALKO::Client::Net->All(id_merchant => $self->{id});
+	my @id_net = keys %{$nets->Hash};
+
+	my @shops;
+	# Получаем магазины по id сетей
+	@shops = @{ALKO::Client::Shop->All(id_net => \@id_net)->List} if scalar @id_net;
+	# Добаляем в конец массива с магазинами магазины в которых указан текущие менеджер
+	push (@shops, @{ALKO::Client::Shop->All(id_merchant => $self->{id})->List});
+	# Получаем реквизиты для всех магазинов
+	for(@shops) {
 		$_->official;
 	}
 
-	$self->{shops} = $shops;
+	$self->{shops} = \@shops;
 }
 
 =begin nd

@@ -26,6 +26,84 @@ use constant {
 	COUNT_PAGE_ELEMET => 8,
 };
 
+# Добавляем существуещего представителя в сеть
+#
+# GET
+# URL: /client/?
+#   action = add_merchant_to_net
+#   id_net     = 1
+#   id_merchant = 1
+#
+$Server->add_handler(ADD_MERCHANT_TO_NET => {
+	input => {
+		allow => ['action', 'id_merchant', 'id_net'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $net      = ALKO::Client::Net->Get(id => $I->{id_net})           or return $S->fail("NOSUCH: no such net(id => $I->{id_net})");
+		my $merchant = ALKO::Client::Merchant->Get(id => $I->{id_merchant}) or return $S->fail("NOSUCH: no such merchant(id => $I->{id_merchant})");
+
+		# Если представитель уже есть в магазинах сети то удаляем его из этих магазинов
+		my $shops = ALKO::Client::Shop->All(id_net => $net->id)->List;
+		$merchant->shops;
+		for my $merch_shop (@{$merchant->{shops}}) {
+			for my $shop (@$shops) {
+				if ($merch_shop->id == $shop->id) {
+					$shop->official;
+					# Получаем alkoid чтобы получить дефолтного менеджера
+					my $alkoid = $shop->{official}{alkoid};
+					# Получаем дефолтного менеджера
+					my $default_merchant = ALKO::Client::Merchant->Get(alkoid => $alkoid);
+					# Сохраняем дефолтного менеджера
+					$shop->id_merchant($default_merchant->id);
+					$shop->Save;
+				}
+			}
+		}
+
+		# Привязываем менеджера к сети
+		$net->id_merchant($merchant->id);
+		$net->Save;
+
+		OK;
+	},
+});
+
+# Добавляем существуещего представителя в торговую точку
+#
+# GET
+# URL: /client/?
+#   action      = add_merchant_to_shop
+#   id_shop     = 1
+#   id_merchant = 1
+#
+$Server->add_handler(ADD_MERCHANT_TO_SHOP => {
+	input => {
+		allow => ['action', 'id_merchant', 'id_shop'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+		my $shop     = ALKO::Client::Shop->Get(id => $I->{id_shop})         or return $S->fail("NOSUCH: no such shop(id => $I->{id_shop})");
+		my $merchant = ALKO::Client::Merchant->Get(id => $I->{id_merchant}) or return $S->fail("NOSUCH: no such merchant(id => $I->{id_merchant})");
+		$merchant->shops;
+
+		# Проверяем есть ли доступ к магазину у менеджера
+		my $is_access_to_this_shop = 0;
+		for(@{$merchant->{shops}}) {
+			$is_access_to_this_shop = 1 if $_->id == $shop->id;
+		}
+
+		# Привязываем менеджера к магазину
+		$shop->id_merchant($merchant->id) unless $is_access_to_this_shop;
+
+		OK;
+	},
+});
+
 # Получить данные представителя сети
 #
 # GET
@@ -41,7 +119,6 @@ $Server->add_handler(NET_MRCHANT => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-
 		my $net      = ALKO::Client::Net->Get(id => $I->{id_net})  or return $S->fail("NOSUCH: no such net(id => $I->{id_net})");
 		my $merchant = ALKO::Client::Merchant->Get(id => $net->id_merchant);
 
@@ -51,7 +128,6 @@ $Server->add_handler(NET_MRCHANT => {
 	},
 });
 
-
 # Удалить представителя
 #
 # GET
@@ -59,9 +135,9 @@ $Server->add_handler(NET_MRCHANT => {
 #   action = delete_merchant
 #   id_merchant  = 1
 #
-$Server->add_handler(DELETE_MRCHANT => {
+$Server->add_handler(DELETE_MERCHANT => {
 	input => {
-		allow => ['action', 'id_merchant'],
+		allow => ['action', 'id_merchant', 'id_net', 'id_shop'],
 	},
 	call => sub {
 		my $S = shift;
@@ -69,16 +145,40 @@ $Server->add_handler(DELETE_MRCHANT => {
 
 		my $merchant = ALKO::Client::Merchant->Get(id => $I->{id_merchant}) or return $S->fail("NOSUCH: no such merchant (id => $I->{id_net})");
 
-		# Чистим представителя
-		$merchant->email(undef);
-		$merchant->name(undef);
-		$merchant->password(undef);
-		$merchant->phone(undef);
-		$merchant->Save;
+		# В зависимости откуда удаляем либо из сети либо из магазина
+		my $shop_or_net;
+		$shop_or_net = ALKO::Client::Shop->Get(id => $I->{id_shop}) or return $S->fail("NOSUCH: no such shop(id => $I->{id_shop})") if     $I->{id_shop};
+		$shop_or_net = ALKO::Client::Net->Get(id => $I->{id_net})   or return $S->fail("NOSUCH: no such net(id => $I->{id_net})")   unless $I->{id_shop};
+		return $S->fail("NOSUCH: no such net or shop")  unless $shop_or_net;
 
-		my $session = ALKO::Session->All(id_merchant => $merchant->id)->List;
+		# Получаем реквизиты, в этих реквизитах хранится alkoid
+		# По этому параметру можно получить дефолтного представителя
+		$shop_or_net->official;
+		my $alkoid = $shop_or_net->{official}{alkoid};
 
-		$_->Remove for @$session;
+		# Получаем дефолтного менеджера
+		my $default_merchant = ALKO::Client::Merchant->Get(alkoid => $alkoid) or return $S->fail("NOSUCH: no such merchant (alkoid => $alkoid)");
+
+		# Отвязываем от сети или магазина текущего менеджера, и привязываем дефолтного
+	 	$shop_or_net->id_merchant($default_merchant->id);
+		$shop_or_net->Save;
+
+		# Проверяем есть ли у этого менеджера магазины или сети
+		# Если нет, то удалим этого менеджера
+		my $net_list  = ALKO::Client::Net->All(id_merchant => $merchant->id)->List;
+		my $shop_list = ALKO::Client::Net->All(id_merchant => $merchant->id)->List;
+
+		unless (scalar @$net_list and scalar @$shop_list) {
+			# Удаляем все сессии
+			my $session = ALKO::Session->All(id_merchant => $merchant->id)->List;
+			$_->Remove for @$session;
+
+			my $reg_session = ALKO::RegistrationSession->All(id_merchant => $merchant->id)->List;
+			$_->Remove for @$reg_session;
+
+			# Удаляем представителя
+			$merchant->Remove;
+		}
 
 		OK;
 	},
@@ -245,18 +345,19 @@ $Server->add_handler(SHOP_MERCHANT => {
 	},
 });
 
-
-# Поиск
+# Регистрация
 #
 # GET
 # URL: /client/?
 #   action      = registration
 #   email       = string
 #   id_merchant = 1
+#   id_net      = 1
+#   id_shop     = 1
 #
 $Server->add_handler(REGISTRATION => {
 	input => {
-		allow => ['action', 'email', 'id_merchant'],
+		allow => ['action', 'email', 'id_merchant', 'id_net', 'id_shop'],
 	},
 	call => sub {
 		my $S = shift;
@@ -267,24 +368,43 @@ $Server->add_handler(REGISTRATION => {
 
 		my $merchant = ALKO::Client::Merchant->Get(id => $I->{id_merchant}) or return $S->fail("NOSUCH: no such merchant(id => $I->{id_merchant})");
 
+		# торнговая точка или сеть, в зависимости к чему привязываем представителя
+		my $shop_or_net;
+		$shop_or_net = ALKO::Client::Shop->Get(id => $I->{id_shop}) or return $S->fail("NOSUCH: no such shop(id => $I->{id_shop})") if     $I->{id_shop};
+		$shop_or_net = ALKO::Client::Net->Get(id => $I->{id_net})   or return $S->fail("NOSUCH: no such net(id => $I->{id_net})")   unless $I->{id_shop};
+		return $S->fail("NOSUCH: no such net or shop")  unless $shop_or_net;
+
 		# Проверяем сущесвует ли такой емайл
 		my $is_merchant = ALKO::Client::Merchant->Get(email => $I->{email});
+		# Если существует такой клиент, и его id не равен id текущего представителя - возвращаем этого представителя
 		if ($is_merchant and ($is_merchant->id != $merchant->id)) {
 			$is_merchant->shops;
 			$is_merchant->net;
 			$O->{merchant} = $is_merchant;
 		} else {
-			# Удаляем данные представителя
-			$merchant->email($I->{email});
-			$merchant->name('');
-			$merchant->password('');
-			$merchant->phone('');
+			# Проверяем дефолтный ли это представитель
+			# Это тот у кторого есть alkoid, который совпадает с alkoid организации или магазина
+			unless ($merchant->alkoid) {
+				# Удаляем данные представителя
+				$merchant->email($I->{email});
+				$merchant->name(undef);
+				$merchant->password(undef);
+				$merchant->phone(undef);
 
-			$merchant->Save;
+				# Удаляем сессию для регистрации  если она существует
+				my $old_session = ALKO::RegistrationSession->Get(id_merchant => $merchant->id);
+				$old_session->Remove if $old_session;
+			} else {
+				# Создаем нового менеджера
+				$merchant = ALKO::Client::Merchant->new({
+					email => $I->{email}
+				});
+				$merchant->Save;
 
-			# Удаляем сессию для регистрации  если она существует
-			my $old_session = ALKO::RegistrationSession->Get(id_merchant => $merchant->id);
-			$old_session->Remove if $old_session;
+				# Добавляем ногвого менеджера в сеть или магазин
+				$shop_or_net->id_merchant($merchant->id);
+				$shop_or_net->Save;
+			}
 
 			# Создаем токен
 			my $token;
@@ -372,13 +492,15 @@ $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
 
-	return ['NET_MRCHANT']    if exists $I->{action} and $I->{action} eq 'netMerchant';
-	return ['SHOP_MERCHANT']  if exists $I->{action} and $I->{action} eq 'shopMerchant';
-	return ['REGISTRATION']   if exists $I->{action} and $I->{action} eq 'registration';
-	return ['DELETE_MRCHANT'] if exists $I->{action} and $I->{action} eq 'delete_merchant';
-	return ['SHOPS']          if exists $I->{action} and $I->{action} eq 'shops';
-	return ['SEND_MAIL']      if exists $I->{action} and $I->{action} eq 'send_mail';
-	return ['SEARCH']         if exists $I->{search} and $I->{search};
+	return ['NET_MRCHANT']          if exists $I->{action} and $I->{action} eq 'netMerchant';
+	return ['SHOP_MERCHANT']        if exists $I->{action} and $I->{action} eq 'shopMerchant';
+	return ['REGISTRATION']         if exists $I->{action} and $I->{action} eq 'registration';
+	return ['DELETE_MERCHANT']      if exists $I->{action} and $I->{action} eq 'delete_merchant';
+	return ['SHOPS']                if exists $I->{action} and $I->{action} eq 'shops';
+	return ['SEND_MAIL']            if exists $I->{action} and $I->{action} eq 'send_mail';
+	return ['ADD_MERCHANT_TO_NET']  if exists $I->{action} and $I->{action} eq 'add_merchant_to_net';
+	return ['ADD_MERCHANT_TO_SHOP']	if exists $I->{action} and $I->{action} eq 'add_merchant_to_shop';
+	return ['SEARCH']               if exists $I->{search} and $I->{search};
 
 	['LIST'];
 });

@@ -20,6 +20,7 @@ COMMENT ON COLUMN official.person IS 'имя директора';
 
 -- удаляем ограничение UNIQUE
 ALTER TABLE official DROP CONSTRAINT official_taxcode_key;
+ALTER TABLE net      DROP CONSTRAINT net_id_merchant_key;
 
 -- удаляем ограничение NOT NULL
 ALTER TABLE merchant ALTER password    DROP NOT NULL;
