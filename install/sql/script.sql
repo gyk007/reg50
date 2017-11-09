@@ -1,2 +1,5 @@
-ALTER TABLE net      DROP CONSTRAINT net_id_merchant_key;
-ALTER TABLE shop     DROP CONSTRAINT shop_id_merchant_key;
+BEGIN;
+DELETE FROM session;
+DELETE FROM reg_session;
+UPDATE merchant SET password = null, email = null, name = null, phone = null WHERE alkoid is NOT NULL;
+COMMIT;
