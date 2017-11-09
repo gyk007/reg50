@@ -11,6 +11,7 @@ use warnings;
 
 use ALKO::Client::Official;
 use ALKO::Client::Net;
+use ALKO::Client::Merchant;
 
 =begin nd
 Variable: %Attribute
@@ -22,6 +23,7 @@ Variable: %Attribute
 	id_official - реквизиты
 	official    - реквизиты, экземпляр класса <ALKO::Client::Official>
 	net         - организация, экземпляр класса <ALKO::Client::Net>
+	merchant    - представитель, экземпляр класса <ALKO::Client::Merchant>
 =cut
 my %Attribute = (
 	id_merchant => {mode => 'read/write'},
@@ -29,6 +31,7 @@ my %Attribute = (
 	id_official => undef,
 	official    => {mode => 'read', type => 'cache'},
 	net         => {mode => 'read', type => 'cache'},
+	merchant    => {mode => 'read', type => 'cache'},
 );
 
 =begin nd
@@ -58,6 +61,23 @@ sub net {
 	my $net =  ALKO::Client::Net->Get(id => $self->{id_net});
 	$net->official;
 	$self->{net} = $net;
+}
+
+=begin nd
+Method: merchant
+	Получить данные о представителе.
+
+Returns:
+	$self->{merchant}
+=cut
+sub merchant {
+	my $self = shift;
+	# Если уже есть данные, то ничего не делаем
+	return $self->{merchant} if defined $self->{merchant};
+
+	my $merchant = ALKO::Client::Merchant->Get(id => $self->{id_merchant});
+
+	$self->{merchant} = $merchant;
 }
 
 =begin nd

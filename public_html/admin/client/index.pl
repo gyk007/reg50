@@ -176,8 +176,8 @@ $Server->add_handler(DELETE_MERCHANT => {
 			my $reg_session = ALKO::RegistrationSession->All(id_merchant => $merchant->id)->List;
 			$_->Remove for @$reg_session;
 
-			# Удаляем представителя
-			$merchant->Remove;
+			# Удаляем представителя если это не дефолтный представитель
+			$merchant->Remove unless $merchant->alkoid;
 		}
 
 		OK;
@@ -480,7 +480,10 @@ $Server->add_handler(SHOPS => {
 
 		my $shops = ALKO::Client::Shop->All(id_net => $I->{id_net});
 
-		$_->official for $shops->List;
+		for (@{$shops->List}) {
+			$_->merchant;
+			$_->official;
+		};
 
 		$O->{shops} = $shops->List;
 
