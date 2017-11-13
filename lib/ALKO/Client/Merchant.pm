@@ -89,6 +89,7 @@ sub shops {
 	# Получаем реквизиты для всех магазинов
 	for(@shops) {
 		$_->official;
+		$_->net;
 	}
 
 	$self->{shops} = \@shops;
