@@ -76,6 +76,8 @@ sub send_mail{
 				From    => $email{from},
 				To      => $email{to},
 				Subject => $email{subject},
+				'Content-Type'  => 'text/html',
+				'charset'       => 'Utf-8',
 			],
 			body    => $email{message},
 			objects => $email{file}
@@ -84,12 +86,13 @@ sub send_mail{
 		# Создаем email
 		$message = Email::Simple->create(
 			header =>[
-				To             => $email{to},
-				From           => $email{from},
-				subject        => $email{subject},
-				'Content-Type' => 'text/html',
+				To              => $email{to},
+				From            => $email{from},
+				subject         => $email{subject},
+				'Content-Type'  => 'text/html',
+				'charset'       => 'Utf-8',
 			],
-			body => $email{message}
+			body => $email{message},
 		);
 	}
 

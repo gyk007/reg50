@@ -166,7 +166,7 @@ $Server->add_handler(DELETE_MERCHANT => {
 		# Проверяем есть ли у этого менеджера магазины или сети
 		# Если нет, то удалим этого менеджера
 		my $net_list  = ALKO::Client::Net->All(id_merchant => $merchant->id)->List;
-		my $shop_list = ALKO::Client::Net->All(id_merchant => $merchant->id)->List;
+		my $shop_list = ALKO::Client::Shop->All(id_merchant => $merchant->id)->List;
 
 		unless (scalar @$net_list and scalar @$shop_list) {
 			# Удаляем все сессии

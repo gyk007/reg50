@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 <body style="font-size: 1em; font: 14px/18px 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
 	<div>
