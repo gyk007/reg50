@@ -9,6 +9,9 @@ ALTER TABLE merchant ADD COLUMN alkoid VARCHAR(64) UNIQUE;
 ALTER TABLE official ADD COLUMN alkoid VARCHAR(64) UNIQUE;
 ALTER TABLE product  ADD COLUMN alkoid VARCHAR(64) UNIQUE;
 
+-- удаялем ид представителя из таблице заказов, так как заказ привязан к магазину
+ALTER TABLE orders DROP COLUMN id_merchant;
+
 COMMENT ON COLUMN merchant.alkoid  IS 'ид в системе заказчика';
 COMMENT ON COLUMN official.alkoid  IS 'ид в системе заказчика';
 COMMENT ON COLUMN product.alkoid   IS 'ид в системе заказчика';
