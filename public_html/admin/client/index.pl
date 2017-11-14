@@ -380,7 +380,7 @@ $Server->add_handler(REGISTRATION => {
 		if ($is_merchant and ($is_merchant->id != $merchant->id)) {
 			$is_merchant->shops;
 			$is_merchant->net;
-			$O->{merchant} = $is_merchant;
+			$O->{is_merchant} = $is_merchant;
 		} else {
 			# Проверяем дефолтный ли это представитель
 			# Это тот у кторого есть alkoid, который совпадает с alkoid организации или магазина
@@ -429,6 +429,8 @@ $Server->add_handler(REGISTRATION => {
 				subject  => 'REG50 Регистрация Клиента',
 				info     => $email_data
 			});
+
+			$O->{merchant} = $merchant;
 		}
 
 		OK;
