@@ -58,7 +58,6 @@ $Server->add_handler(ITEM => {
 
 		$O->{category} = $category;
 
-
 		OK;
 	},
 });
