@@ -67,6 +67,7 @@ use WooF::HTTPRequest::FastCGI;
 use WooF::Server::PSGI;
 use WooF::Server::Constants;
 use WooF::Server::Handler;
+use POSIX qw(strftime);
 
 =begin nd
 Variable: our @EXPORT
@@ -193,7 +194,7 @@ Method: add_handler ($name, \%handler)
 	Обработчики сохраняются в специальном хеше, откуда позже они будут извлечены по имени.
 
 	Если указана страница, то в случае вывода через XML+XSLT, отпарсенный xslt будет сохранен под именем страницы в хеше $self->{xslt}{имя_страницы}.
-	
+
 	Имя обработчика должно быть уникально в пределах одного скрипта (сервера).
 
 Parameters:
@@ -210,11 +211,11 @@ Returns:
 =cut
 sub add_handler {
 	my ($self, $name, $handler) = @_;
-	
+
 	return warn "HANDLER|CRIT: Redefining of handler $name is prohibited" if exists $self->{handler}{$name};
-	
+
 	my $Handler = WooF::Server::Handler->new($handler, name => $name) or return warn "HANDLER|CRIT: Can't initiate handler $name";
-	
+
 	$self->{handler}{$name} = $Handler;
 	my $page = $Handler->page || DEFAULT_TEMPLATE;
 
@@ -294,7 +295,7 @@ sub _cleanup {
 	while (my ($attr, $v) = each %$attribute) {
 		undef $self->{$attr} unless exists $v->{stable} and $v->{stable};
 	}
-	
+
 # 	debug 'WOOF_SERVER_CLEANUP=', $self;
 	$self->{request}->Save;
 # 	debug 'WOOF_SERVER_CLEANUP2=', $self;
@@ -328,8 +329,9 @@ Method: _flush ( )
 =cut
 sub _flush {
 	my $self = shift;
-	
+
 	print $self->{cgi}->header(@{$self->{header}}), Encode::encode_utf8($self->{content});
+	debug strftime "%H:%M:%S\n", localtime;
 }
 
 =begin nd
@@ -377,7 +379,7 @@ sub init {
 
 	# Очищаем стек ошибок
 	WooF::Error::init();
-	
+
 	# Заводим экземпляр клиентского запроса
 	# это надо сделать до аутентификации, иначе не будет работать tok, так как не будет создан экземпляр запроса, которому он принадлежит
 	$self->{request} = $self->init_httprequest($start);
@@ -454,14 +456,14 @@ sub listen {
 
 				# Структура обработчика, полученная из скрипта запускает контроллер ввода
 				my $handler = $self->{worker} = $self->{handler}{$name};
-				
+
 				unless ($handler->in) {
 					warn 'INPUT: Input iflow does\'t satisfy rules in handler ', $handler->name;
 					$self->{workqueue} = [];
 					$handler->cleanup;
 					last;
 				}
-				
+
 				# Каждый обработчик должен вернуть Код Возврата
 				my $rc = $handler->call->($self);
 
@@ -482,7 +484,7 @@ sub listen {
 					warn "|ERR: Unknown return code: $rc in Handler $name";
 					last HANDLER;
 				}
-				
+
 				$handler->cleanup;
 			}
 		} else {
@@ -555,7 +557,7 @@ Method: _parse_cgi ()
 =cut
 sub _parse_cgi {
 	my $self = shift;
-	
+
 	for my $name ($self->{cgi}->param) {
 		# Разбиваем имя параметра на отельные ключи будущих вложенных хешей
 		my @keys = split '\.', $name;

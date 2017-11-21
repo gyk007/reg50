@@ -65,6 +65,10 @@ $Server->add_handler(CATEGORY => {
 
 		$category->complete_products;
 
+		# Чистим структуру для вывода
+		$category->{products} = $category->{extend}{products}{elements};
+		delete $category->{groups_effective};
+		delete $category->{extend};
 
 		$S->O->{category} = $category;
 

@@ -22,7 +22,7 @@ use ALKO::Catalog::Property::Value;
 use ALKO::Country;
 use ALKO::Catalog::Brand;
 use ALKO::Catalog::Manufacturer;
-
+use POSIX qw(strftime);
 my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 
 # Определенная категория с товарами, свойствами, значениями.
@@ -32,6 +32,9 @@ $Server->add_handler(ITEM => {
 		allow => ['id'],
 	},
 	call => sub {
+
+		debug strftime "%Y-%m-%d %H:%M:%S\n", localtime;
+
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 		my $id = $I->{id};
@@ -44,16 +47,24 @@ $Server->add_handler(ITEM => {
 
 		for ($category->products->List) {
 			# Цена для данного товара, чтобы не делать лишний запрос к базе в методе price
-			my $price = $_->{properties}{elements}[0]{extend}{properties}{elements}[0]{value};
+			my $price = $_->{Price};
 			# Если это уберем то при $offer->{$_->{id} = undef метод price сделает ненужный запрос в базу,
 			$offer->{$_->{id}} = 1 unless $offer->{$_->{id}};
 			# Расчимтываем скидку для продукта, передаем id магазина, массив скидок и цену.
 			$_->price($O->{SESSION}->id_shop, $offer->{$_->{id}}, $price);
 		};
 
+		# Чистим структуру для вывода
+		$category->{products} = $category->{extend}{products}{elements};
+		delete $category->{groups_effective};
+		delete $category->{extend};
+
 		$O->{category} = $category;
 
+		debug strftime "%Y-%m-%d %H:%M:%S\n", localtime;
+
 		OK;
+
 	},
 });
 

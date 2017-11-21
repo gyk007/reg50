@@ -247,10 +247,16 @@ $Server->add_handler(ITEM => {
 		my $id = $I->{id};
 
 		my $category = ALKO::Catalog::Category->Get(id => $id, EXPAND => [qw/ products propgroups /]) or return $S->fail("Can't get Category($id)");
+		$category->complete_products;
 
-		$O->{category} = $category->complete_products;
+		# Чистим структуру для вывода
+		$category->{products} = $category->{extend}{products}{elements};
+		delete $category->{groups_effective};
+		delete $category->{extend};
 
+		$O->{category} =  $category;
 		OK;
+
 	},
 });
 

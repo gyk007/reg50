@@ -30,6 +30,7 @@ use ALKO::Catalog::Filter::Arg::PropLink;
 use ALKO::Country;
 use ALKO::Catalog::Brand;
 use ALKO::Catalog::Manufacturer;
+use POSIX qw(strftime);
 
 =begin nd
 Variable: %Attribute
@@ -45,6 +46,9 @@ Variable: %Attribute
 	propgroups       - группы свойств привязанные непосредственно к данной категрии; наследованные не включены
 	visible          - показывается ли при выводе данная категория со всеми своими потомками
 	                   если любой из родителей категории скрыт, то переопределить видимость данным флагом невозможно
+
+	products_temp  	 - временная структура с товарами,  для упрощения и ускорения вывода
+	filetr_temp      - временная структура с фильтрами, для упрощения и ускорения вывода
 =cut
 my %Attribute = (
 	description      => undef,
@@ -80,6 +84,7 @@ my %Attribute = (
 	                        },
 	},
 	visible         => undef,
+	products_temp  	=> undef,
 );
 
 =begin nd
@@ -233,8 +238,8 @@ sub complete_products {
 		$type_value->{$id_propgroup}{$_->{n_propgroup}} = $_->value for @$propparam;
 	}
 
-	my $prop_t = ALKO::Catalog::Property::Type->All->Hash('id');
-
+	my $prop_t = ALKO::Catalog::Property::Type->All->Hash;
+	my $last_time_start = strftime "%H:%M:%S\n", localtime;
 	# копируем в каждый товар все свойства и заполняем значениями
 	for my $product ($self->products->List) {
 		# копируем группы
@@ -247,6 +252,7 @@ sub complete_products {
 
 			# устанавливаем каждому свойству значение
 			for my $prop ($dst_group->properties->List) {
+
 				if (
 						exists $value{id_product}{$product->id}
 					and
@@ -257,9 +263,9 @@ sub complete_products {
 					# заводим движок
 					my $proptype = $prop_t->{$prop->id_proptype};
 
-					my $engine_class = 'ALKO::Catalog::Property::Type::Engine::' . $proptype->[0]->class;
+					my $engine_class = 'ALKO::Catalog::Property::Type::Engine::' . $proptype->class;
 					my $module = $engine_class;
-					$module =~ s!::!/!g;
+					$module =~ s!::!/!go;
 					$module .= '.pm';
 					require $module or return warn "OBJECT: Can'n load module $module";
 					my $engine = $engine_class->new(property => $prop);
@@ -304,12 +310,29 @@ sub complete_products {
 							}
 						}
 					}
+
 				}
+				# Упрощаем структуру для свойсва товара
+				$product->{$prop->{name}} = $prop->{value};
 			}
+			# Удаляем, так как сложная структура
+			delete $product->{properties};
 		}
+
 	}
 
-	$self->{filter} = $filter;
+	# Упрощаем структуру для фильтров
+ 	for (@{$filter->{elements}}) {
+ 		if (scalar @{$_->{filterarg}{elements}}) {;
+	 		push @{$self->{filter}},{
+	 			name => $_->{name},
+	 			type => $_->{filterui}{name},
+				min  => $_->{filterarg}{elements}[0]{filterarg}{value},
+				max  => $_->{filterarg}{elements}[1]{filterarg}{value},
+	 		};
+ 		}
+ 	}
+
 
 	$self;
 }
