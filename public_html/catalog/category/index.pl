@@ -32,9 +32,6 @@ $Server->add_handler(ITEM => {
 		allow => ['id'],
 	},
 	call => sub {
-
-		debug strftime "%Y-%m-%d %H:%M:%S\n", localtime;
-
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 		my $id = $I->{id};
@@ -61,10 +58,8 @@ $Server->add_handler(ITEM => {
 
 		$O->{category} = $category;
 
-		debug strftime "%Y-%m-%d %H:%M:%S\n", localtime;
 
 		OK;
-
 	},
 });
 
