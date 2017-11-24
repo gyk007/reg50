@@ -88,10 +88,12 @@ $Server->add_handler(GET_FILES => {
 
 		my $merchant = ALKO::Client::Merchant->Get(id => $O->{SESSION}->id_merchant) or return $S->fail("NOSUCH: Can\'t get Merchant: no such merchant(id => $O->{SESSION}->id_merchant)");
 		$merchant->net;
-		my $taxcode = $merchant->{net}{official}{taxcode};
+
+		my @taxcodes;
+		push @taxcodes, $_->{official}{taxcode} for @{$merchant->{net}};
 
 		my $files;
-		$files = ALKO::Client::File->All(taxcode => $taxcode)->List if $taxcode;
+		$files = ALKO::Client::File->All(taxcode => \@taxcodes)->List if @taxcodes;
 
 		$O->{files} = $files;
 
