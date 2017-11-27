@@ -32,7 +32,6 @@ Variable: %Attribute
 	deliver_phone    - телефон водителя
 	documents        - документы, коллекция экземпляров класса <ALKO::Order::Document>
 	email            - адрес электронной почты
-	id_merchant      - представитель
 	id_shop          - магазин
 	id_status        - статус
 	latch_number     - номер фиксации в ЕГАИС
@@ -62,7 +61,6 @@ my %Attribute = (
 	deliver_phone    => undef,
 	documents        => {mode => 'read', type => 'cache'},
 	email            => undef,
-	id_merchant      => undef,
 	id_shop          => undef,
 	id_status        => undef,
 	latch_number     => undef,
