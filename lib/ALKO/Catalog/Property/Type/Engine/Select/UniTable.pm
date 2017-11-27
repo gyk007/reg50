@@ -38,9 +38,7 @@ sub operate {
 	my ($self, $extra) = @_;
 
 	my $value;
-	if(defined $extra) {
-		debug $extra;
-		debug $self->{store};
+	if(defined $extra and $self->{store}) {
         $value = $extra->{$self->{store}}->name;
     } else {
 		my $src = $self->param('source');
