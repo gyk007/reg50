@@ -5,6 +5,7 @@ use ALKO::Client::Official;
 use ALKO::Client::Net;
 use ALKO::Client::Merchant;
 use XML::Simple;
+use WooF::Debug;
 
 debug "START \n";
 

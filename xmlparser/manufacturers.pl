@@ -3,6 +3,7 @@ use strict;
 
 use ALKO::Catalog::Manufacturer;
 use XML::Simple;
+use WooF::Debug;
 
 debug "START \n";
 
