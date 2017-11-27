@@ -14,6 +14,7 @@ use WooF::Error;
 use WooF::Debug;
 use FindBin;
 
+debug "START \n";
 
 my $orders = XML::Simple->new;
 $orders = $orders->XMLin("$ENV{HOME}/data/i/orders.xml", KeyAttr => { order => 'id' });
@@ -58,8 +59,8 @@ while( my( $id, $data ) = each %{$orders->{order}} ){
     # Добавляем товары
     if ($data->{products}{product} and ref $data->{products}{product} eq 'HASH') {
 	$data->{products}{product} = [$data->{products}{product}];
-    } 
-    
+    }
+
     if ($data->{products}{product}) {
 	for (@{$data->{products}{product}}) {
 	    my $product = ALKO::Catalog::Product->Get(alkoid => $_->{id});

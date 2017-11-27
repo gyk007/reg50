@@ -5,6 +5,8 @@ use ALKO::Catalog::Manufacturer;
 use ALKO::Catalog::Brand;
 use XML::Simple;
 
+debug "START \n";
+
 my $brends = XML::Simple->new;
 $brends = $brends->XMLin("$ENV{HOME}/data/i/brands.xml", KeyAttr => { brand => 'id' });
 
@@ -18,19 +20,19 @@ while( my( $alkoid, $brand ) = each %{$brends->{brand}} ){
     	$br->{name}            = $brand->{name};
     	$br->{id_manufacturer} = $manufacturer_id;
 
-    	print "Обновили бренд: $alkoid \n";
+    	# print "Обновили бренд: $alkoid \n";
     } else {
     	$br = ALKO::Catalog::Brand->new({
 	   		id_manufacturer => $manufacturer_id,
 			name            => $brand->{name},
 			alkoid          => $alkoid,
     	});
-    	print "Добавили бренд: $alkoid \n";
+    	# print "Добавили бренд: $alkoid \n";
     }
 
     $br->Save;
 }
 
-print "END \n";
+debug "END \n";
 
 1;

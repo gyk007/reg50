@@ -13,6 +13,8 @@ use FindBin;
 use File::Copy;
 use IO::File;
 
+debug "START \n";
+
 # Получаем массив ИНН
 my $taxcode = ALKO::Client::Official->All(taxcode => {});
 my @arr_taxcode = keys %{$taxcode->Hash('taxcode')};
@@ -68,7 +70,7 @@ opendir DIR, "$ENV{HOME}/data/i/declaration" or die $!;
 
 	       												copy $path_from, "$path_to/$id.$ext";
 
-	       												print "copy to /declaration/$tax/$id.$ext \n"
+	       												# print "copy to /declaration/$tax/$id.$ext \n"
 													}
 											}
 
@@ -86,5 +88,7 @@ opendir DIR, "$ENV{HOME}/data/i/declaration" or die $!;
 		}
 	}
 closedir DIR;
+
+debug "END \n";
 
 1;

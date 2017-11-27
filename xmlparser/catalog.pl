@@ -15,6 +15,8 @@ use ALKO::Catalog::Brand;
 use ALKO::Catalog::Manufacturer;
 use ALKO::Country;
 
+debug "START \n";
+
 my $category = XML::Simple->new;
 my $category = $category->XMLin("$ENV{HOME}/data/i/categories.xml", KeyAttr => { category => 'id' });
 
@@ -43,7 +45,7 @@ unless ($all_product_category) {
 
 while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 	# Выводим id категории в консоль
-	print "$id_categ \n";
+	# print "$id_categ \n";
 
 	# Проверяем на существование категории
 	my $is_exist_category = ALKO::Catalog::Category->Get(id => $id_categ);
@@ -74,13 +76,13 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 		if (ref $products eq 'ARRAY') {
 			for (@$products) {
 				# Выводим id товара
-				print "$_->{id} \n";
+				# print "$_->{id} \n";
 
 				# Проверяем еслть ли товар
 				$product = ALKO::Catalog::Product->Get(alkoid => $_->{id});
 				# Елси есть товара - обновляем
 				if ($product) {
-					print "UPDATE $_->{id} \n";
+					# print "UPDATE $_->{id} \n";
 
 					if ($_->{thumbnailSrc}) {
 						my ($ext) = $_->{thumbnailSrc} =~ /\.([A-z0-9]+)$/;
@@ -250,7 +252,7 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 
 				# Елси нет товара - добавляем товар
 				unless ($product) {
-					print "NEW $_->{id} \n";
+					# print "NEW $_->{id} \n";
 
 					$product = ALKO::Catalog::Product->new({
 						name    => $_->{name},
@@ -379,13 +381,13 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 			}
 		} elsif (ref $products eq 'HASH') {
 			# Выводим id товара
-			print "$products->{id} \n";
+			# print "$products->{id} \n";
 
 			# Проверяем еслть ли товар
 			$product = ALKO::Catalog::Product->Get(alkoid => $products->{id});
 			# Елси есть товара - обновляем
 			if ($product) {
-				print "UPDATE $products->{id} \n";
+				# print "UPDATE $products->{id} \n";
 
 				if ($products->{thumbnailSrc}) {
 					my ($ext) = $products->{thumbnailSrc} =~ /\.([A-z0-9]+)$/;
@@ -553,7 +555,7 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 			}
 
 			unless ($product) {
-				print "NEW $products->{id} \n";
+				#print "NEW $products->{id} \n";
 				# Добавляем товар
 				$product = ALKO::Catalog::Product->new({
 					name    => $products->{name},
@@ -682,4 +684,6 @@ while( my( $id_categ, $categ ) = each %{$category->{category}} ){
 	}
 }
 
-print "END \n";
+debug "END \n";
+
+1;

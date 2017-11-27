@@ -6,6 +6,8 @@ use ALKO::Client::Net;
 use ALKO::Client::Merchant;
 use XML::Simple;
 
+debug "START \n";
+
 my $clients = XML::Simple->new;
 my $clients = $clients->XMLin("$ENV{HOME}/data/i/contractors.xml", KeyAttr => { contractor => 'id' });
 
@@ -44,7 +46,7 @@ while( my( $key, $value ) = each %{$clients->{contractor}} ){
 		$official->{taxreasoncode} = undef if ref $value->{kpp}                    eq 'HASH';
 		$official->{regcode}       = undef if ref $value->{ogrn}                   eq 'HASH';
 
-		print "Добавлена организация: $key \n";
+		# print "Добавлена организация: $key \n";
 	} else {
 		$official->{name}          = $value->{name}                  if ref $value->{name}                   ne 'HASH';
 		$official->{address}       = $value->{delivery_address}      if ref $value->{delivery_address}       ne 'HASH';
@@ -60,7 +62,7 @@ while( my( $key, $value ) = each %{$clients->{contractor}} ){
 		$official->{taxreasoncode} = $value->{kpp}                   if ref $value->{kpp}                    ne 'HASH';
 		$official->{regcode}       = $value->{ogrn}                  if ref $value->{ogrn}                   ne 'HASH';
 
-		print "Обновлена организация: $key \n";
+		# print "Обновлена организация: $key \n";
 	}
 
 	$official->Save;
@@ -80,6 +82,6 @@ while( my( $key, $value ) = each %{$clients->{contractor}} ){
 	})->Save unless $net;
 }
 
-print "END \n";
+debug "END \n";
 
 1;

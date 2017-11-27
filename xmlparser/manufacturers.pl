@@ -4,6 +4,8 @@ use strict;
 use ALKO::Catalog::Manufacturer;
 use XML::Simple;
 
+debug "START \n";
+
 my $manufacturers = XML::Simple->new;
 my $manufacturers = $manufacturers->XMLin("$ENV{HOME}/data/i/manufacturers.xml", KeyAttr => { manufacturer => 'id' });
 
@@ -12,18 +14,16 @@ while( my( $alkoid, $manufacturer ) = each %{$manufacturers->{manufacturer}} ){
     my $manufact = ALKO::Catalog::Manufacturer->Get(alkoid => $alkoid);
     if($manufact) {
     	$manufact->{name} = $manufacturer->{name};
-    	print "Обновлен производитель: $alkoid \n";
    	} else {
    		$manufact = ALKO::Catalog::Manufacturer->new({
-			name   => $manufacturer->{name},
-			alkoid => $alkoid
+  			name   => $manufacturer->{name},
+  			alkoid => $alkoid
     	});
-    	print "Добавлен производитель: $alkoid \n";
    	}
 
    	$manufact->Save;
 }
 
-print "END \n";
+debug "END \n";
 
 1;

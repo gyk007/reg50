@@ -6,6 +6,8 @@ use XML::Simple;
 use WooF::Debug;
 use Data::Structure::Util qw( unbless );
 
+debug "START \n";
+
 my $orders_xml = XML::Simple->new;
 my $file_path = "$ENV{HOME}/data/o/orders.xml";
 my @xml_data;
@@ -78,5 +80,7 @@ print $fh "<?xml version='1.0' encoding='UTF-8'?>\n";
 $orders_xml->XMLout($orders, OutputFile => $fh, NoAttr => 1, RootName => 'orders' );
 
 close $fh;
+
+debug "END \n";
 
 1;

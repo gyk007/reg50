@@ -15,6 +15,8 @@ use XML::Simple;
 use WooF::Debug;
 use WooF::Object::Collection;
 
+debug "START \n";
+
 my $clients = XML::Simple->new;
 my $clients = $clients->XMLin("$ENV{HOME}/data/i/trade_points.xml", KeyAttr => { trade_point => 'id' });
 
@@ -43,13 +45,13 @@ while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 		$official->{address}       = undef if ref $value->{delivery_address} eq 'HASH';
 		$official->{taxreasoncode} = undef if ref $value->{kpp}              eq 'HASH';
 
-		print "Добавлена торговая точка: $key \n";
+		# print "Добавлена торговая точка: $key \n";
 	} else {
 		$official->{name}          = $value->{name}             if ref $value->{name}             ne 'HASH';
 		$official->{address}       = $value->{delivery_address} if ref $value->{delivery_address} ne 'HASH';
 		$official->{taxreasoncode} = $value->{kpp}              if ref $value->{kpp}              ne 'HASH';
 
-		print "Обновлена торговая точка: $key \n";
+		# print "Обновлена торговая точка: $key \n";
 	}
 	$official->Save;
 
@@ -131,9 +133,9 @@ while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 					})->Save;
 
 				} elsif(!$prod) {
-					print "Такого товара не существует\n";
+					# print "Такого товара не существует\n";
 				} else {
-					print "Нулевая скидка\n";
+					# print "Нулевая скидка\n";
 				}
 			}
 		}
@@ -187,15 +189,15 @@ while( my( $key, $value ) = each %{$clients->{trade_point}} ){
 				})->Save;
 
 			} elsif (!$prod) {
-				print "Такого товара не существует\n";
+				# print "Такого товара не существует\n";
 			} else {
-				print "Нулевая скидка\n";
+				# print "Нулевая скидка\n";
 			}
 		}
 	}
 }
 
 
-print "END \n";
+debug "END \n";
 
 1;
