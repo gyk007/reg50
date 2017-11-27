@@ -41,14 +41,14 @@ sub operate {
 	if(defined $extra and $self->{store}) {
         $value = $extra->{$self->{store}}->name;
     } else {
-		my $src = $self->param('source');
-		my $module = $src;
-		$module =~ s!::!/!g;
-		$module .= '.pm';
-		require $module or return warn "OBJECT: Can'n load module $module";
+		# my $src = $self->param('source');
+		# my $module = $src;
+		# $module =~ s!::!/!g;
+		# $module .= '.pm';
+		# require $module or return warn "OBJECT: Can'n load module $module";
 
-		my $obj = $src->Get($self->{store}) or return warn "NOSUCH|WARNING: Can't get value for property";
-		$value  = $obj->name;
+		# my $obj = $src->Get($self->{store}) or return warn "NOSUCH|WARNING: Can't get value for property";
+		$value  = 0;
 	}
 
 	$value;
