@@ -204,7 +204,7 @@ sub complete_products {
 		# 	$table_prop->{$n_proptype}{$unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property}}{$prop->val_int} = undef if $unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property};
 		# }
 	}
-
+	debug $id_manufacturer;
 	my %extra;
 	$extra{made_in}      = ALKO::Country->All(id => [keys %$id_country])->Hash;
 	$extra{brand}        = ALKO::Catalog::Brand->All(id => [keys %$id_brend])->Hash;
