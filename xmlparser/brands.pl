@@ -4,6 +4,7 @@ use strict;
 use ALKO::Catalog::Manufacturer;
 use ALKO::Catalog::Brand;
 use XML::Simple;
+use WooF::Debug;
 
 debug "START \n";
 
