@@ -8,6 +8,8 @@ use XML::Simple;
 use WooF::Debug;
 use ALKO::Order;
 
+debug "START \n";
+
 my $debt = XML::Simple->new;
 my $debt = $debt->XMLin("$ENV{HOME}/data/i/debt.xml");
 
@@ -32,6 +34,6 @@ for my $debt (@{$debt->{debts}{debt}}) {
 	}
 }
 
-print "END \n";
+debug "END \n";
 
 1;
