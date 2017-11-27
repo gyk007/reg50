@@ -196,9 +196,9 @@ sub complete_products {
 	my $id_manufacturer;
 	for my $prop (ALKO::Catalog::Property::Value->All(id_product => [$self->products->List('id')])->List) {
 		$value{id_product}{$prop->id_product}{id_propgroup}{$prop->id_propgroup}{n_property}{$prop->n_property} = $prop;
-		$id_country->{$prop->val_int}      = undef if $country_prop->id_propgroup      == $prop->id_propgroup and $country_prop->n      == $prop->n_property;
-		$id_brend->{$prop->val_int}        = undef if $brand_prop->id_propgroup        == $prop->id_propgroup and $brand_prop->n        == $prop->n_property;
-		$id_manufacturer->{$prop->val_int} = undef if $manufacturer_prop->id_propgroup == $prop->id_propgroup and $manufacturer_prop->n == $prop->n_property;
+		$id_country->{$prop->val_int}      = undef if $country_prop->id_propgroup      == $prop->id_propgroup and $country_prop->n      == $prop->n_property and int $prop->val_int;
+		$id_brend->{$prop->val_int}        = undef if $brand_prop->id_propgroup        == $prop->id_propgroup and $brand_prop->n        == $prop->n_property and int $prop->val_int;
+		$id_manufacturer->{$prop->val_int} = undef if $manufacturer_prop->id_propgroup == $prop->id_propgroup and $manufacturer_prop->n == $prop->n_property and int $prop->val_int;
 		# Создаем структуру $table_prop->{название класса для свойсва}{ид в таблице этого свойства} = undef
 		# while (my($n_proptype, $propparam) = each %$unitable) {
 		# 	$table_prop->{$n_proptype}{$unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property}}{$prop->val_int} = undef if $unitable_hash->{$n_proptype}{$prop->id_propgroup}{$prop->n_property};
