@@ -136,22 +136,28 @@ $Server->add_handler(SEARCH => {
 					}
 					when ('Brand') {
 						if ($val->id_propgroup == $prop->id_propgroup and  $val->n_property == $prop->n) {
-							my $brand = $brands->{$val->val_int}->name;
-							push @{$prod_prop{$val->id_product}}, {name => $prop->name, value => $brand};
+							if ( $brands->{$val->val_int} ) {
+								my $brand = $brands->{$val->val_int}->name;
+								push @{$prod_prop{$val->id_product}}, {name => $prop->name, value => $brand};
+							}
 							last;
 						};
 					}
 					when ('Made in') {
 						if ($val->id_propgroup == $prop->id_propgroup and  $val->n_property == $prop->n) {
-							my $country = $countries->{$val->val_int}->name;
-							push @{$prod_prop{$val->id_product}}, {name => $prop->name, value => $country};
+							if ( $countries->{$val->val_int} ) {
+								my $country = $countries->{$val->val_int}->name;
+								push @{$prod_prop{$val->id_product}}, {name => $prop->name, value => $country};
+							}
 							last;
 						};
 					}
 					when ('Manufacturer') {
 						if ($val->id_propgroup == $prop->id_propgroup and  $val->n_property == $prop->n) {
-							my $manufacturer = $manufacturers->{$val->val_int}->name;
-							push @{$prod_prop{$val->id_product}}, {name => $prop->name, value => $manufacturer};
+							if ( $manufacturers->{$val->val_int} ) {
+								my $manufacturer = $manufacturers->{$val->val_int}->name;
+								push @{$prod_prop{$val->id_product}}, {name => $prop->name, value => $manufacturer};
+							}
 							last;
 						};
 					}
@@ -167,7 +173,6 @@ $Server->add_handler(SEARCH => {
 
 		# Добаляем свойсвта в товар
 		for my $prod (@{$products->List}) {
-			debug $prod;
 			if ( ref $prod_prop{$prod->{id}} eq 'ARRAY') {
 				for (@{ $prod_prop{ $prod->{id} } }) {
 					$prod->{ $_->{name} } = $_->{value} if $_->{name} and $_->{value};
