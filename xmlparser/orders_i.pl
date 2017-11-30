@@ -95,9 +95,11 @@ closedir DIR;
 for my $name (@file_name){
     utf8::decode($name);
 
-    my ($name_doc, $number_and_ext)  = split('_', $name);
-    my ($number, $ext)               = split(/\./, $number_and_ext);
+    $name =~ s/_/:/;
 
+    my ($name_doc, $number_and_ext)  = split(':', $name);
+    my ($number, $ext)               = split(/\./, $number_and_ext);
+    $number =~ s/_/\//g;
     my $order = ALKO::Order->Get(num => $number);
 
    # НАЗВАНИЕ ДОКУМЕНТОВ В БАЗЕ:
