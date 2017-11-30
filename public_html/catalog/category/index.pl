@@ -97,7 +97,7 @@ $Server->add_handler(SEARCH => {
 		my @filter_price;
 		my @filter_alko;
 
-		# Создаем стуктуру %prod_prop{ид товара}[{name => "Price", n}]= значение
+		# Создаем стуктуру %prod_prop{ид товара}[{name => "Price"}]= значение
  		my %prod_prop;
 		for my $val ($prop_val->List) {
 		    for my $prop ($property->List) {
@@ -166,7 +166,14 @@ $Server->add_handler(SEARCH => {
 		}
 
 		# Добаляем свойсвта в товар
-		$_->properties($prod_prop{$_->{id}}) for $products->List;
+		for my $prod (@{$products->List}) {
+			debug $prod;
+			if ( ref $prod_prop{$prod->{id}} eq 'ARRAY') {
+				for (@{ $prod_prop{ $prod->{id} } }) {
+					$prod->{ $_->{name} } = $_->{value} if $_->{name} and $_->{value};
+				};
+			}
+		};
 
 		# Получаем скидки для торговой точки
 		my $offer = ALKO::Client::Offer->All(id_shop => $O->{SESSION}->id_shop)->Hash('id_product');
@@ -174,10 +181,7 @@ $Server->add_handler(SEARCH => {
 		# Расчитываем скидку
 		for ($products->List) {
 			# Цена для данного товара, чтобы не делать лишний запрос к базе в методе price
-			my $price;
-			for (@{$_->properties}) {
-				$price = $_->{value} if $_->{name} eq 'Price';
-			}
+			my $price  = $_->{Price};
 			# Если это уберем то при $offer->{$_->{id} = undef метод price сделает ненужный запрос в базу,
 			$offer->{$_->{id}} = 1 unless $offer->{$_->{id}};
 			# Расчимтываем скидку для продукта, передаем id магазина, массив скидок и цену.
@@ -196,7 +200,7 @@ $Server->add_handler(SEARCH => {
 			}
 		};
 
-		$O->{filter}   =  $filter;
+		$O->{filter}   = $filter;
 		$O->{products} = $products->List;
 
 		OK;
