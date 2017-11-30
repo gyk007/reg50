@@ -28,13 +28,13 @@ Class: WooF::Object::Sequence
 	...
 
 	Потомки должны наследовать атрибуты.
-	Для этого у них должен быть метод 
+	Для этого у них должен быть метод
 	sub Attribute { +{ %{+shift->SUPER::Attribute}, %Attribute} }
 =cut
 
 use strict;
 use warnings;
-
+use WooF::Debug;
 =begin nd
 Variable: my %Attribute
 	Члены класса:
@@ -68,7 +68,7 @@ sub Prepare_key {
 
 	my ($q, @where, @val);
 	while (my ($k, $desc) = each %{$self->Key_attrs}) {
-		next if $desc eq 'ordinal';
+		next if $desc and $desc eq 'ordinal';
 		return warn "OBJECT|ERR: The $k attribute should be defined." unless defined $self->{$k};
 		push @where, "$k = ?";
 		push @val, ($k => $self->{$k});

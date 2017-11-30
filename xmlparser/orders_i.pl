@@ -20,6 +20,10 @@ my $orders = XML::Simple->new;
 $orders = $orders->XMLin("$ENV{HOME}/data/i/orders.xml", KeyAttr => { order => 'id' });
 
 while( my( $id, $data ) = each %{$orders->{order}} ){
+    unless ($id =~ /^\d+$/) {
+        debug "ORDER ID: $id IS NOT INT";
+        next;
+    }
 
     my $order  = ALKO::Order->Get(id => $id)                       or die "NOSUCH: no such order(id => $id)";
     my $status = ALKO::Order::Status->Get(name => $data->{status}) or die "NOSUCH: no such status(name =>  $data->{status})";
@@ -48,6 +52,7 @@ while( my( $id, $data ) = each %{$orders->{order}} ){
     $order->alko_sync_status(1);
 
     $order->Refresh;
+
     next unless all_right;
 
     my $order_product = ALKO::Order::Product->All(id_order => $order->id);
@@ -58,24 +63,25 @@ while( my( $id, $data ) = each %{$orders->{order}} ){
 
     # Добавляем товары
     if ($data->{products}{product} and ref $data->{products}{product} eq 'HASH') {
-	$data->{products}{product} = [$data->{products}{product}];
+	   $data->{products}{product} = [$data->{products}{product}];
     }
 
     if ($data->{products}{product}) {
 	for (@{$data->{products}{product}}) {
 	    my $product = ALKO::Catalog::Product->Get(alkoid => $_->{id});
 	    if ($product) {
-        	ALKO::Order::Product->new({
-            	    id_order    => $order->id,
-            	    id_product  => $product->id,
-            	    price       => $_->{price},
-            	    qty         => $_->{qty},
-        	});
+        	my $prd = ALKO::Order::Product->new({
+            	id_order    => $order->id,
+            	id_product  => $product->id,
+            	price       => $_->{price},
+            	qty         => $_->{qty},
+        	})->Save;
 	    } else {
-    	        debug "Товара с ID = $_->{id} не существует\n";
+    	    debug "PRODUCT ID = $_->{id} NOT EXIST\n";
 	    }
 	}
     }
+
 }
 
 my @file_name;
@@ -105,7 +111,7 @@ for my $name (@file_name){
         my $name_in_db;
         $name_in_db = 'Cчет-фактура' if $name_doc eq 'СчетФактура';
         $name_in_db = 'ТОРГ-12'      if $name_doc eq 'Торг-12';
-	$name_in_db = 'ТТН'          if $name_doc eq 'ТТН';
+	    $name_in_db = 'ТТН'          if $name_doc eq 'ТТН';
 
         my $document = ALKO::Order::Document->Get(id_order => $order->id, name => $name_in_db);
 
@@ -125,7 +131,7 @@ for my $name (@file_name){
         copy "$ENV{HOME}/data/i/documents/$name", $FindBin::Bin . "/../files/documents/$name";
 
    } else {
-        debug "Закза № $number не существует \n";
+        debug "ORDER NOT EXIST \n";
    }
 
 };
