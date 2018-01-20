@@ -33,14 +33,21 @@ $Server->add_handler(DEFAULT => {
 #
 # GET
 # URL: /?
-#   action = send_mail
-#   name   = string
-#   email  = string
-#   phone  = string
+#   action       = send_mail
+#   name         = string
+#   email        = string
+#   phone        = string
+#   name_yr      = string  
+#   inn          = string
+#   kpp          = string
+#   yr_adr       = string
+#   adr_podr     = string
+#   reg_num      = string
+#   date_end_reg = string
 #
 $Server->add_handler(SEND_MAIL => {
 	input => {
-		allow => ['action', 'name', 'email', 'phone'],
+		allow => ['action', 'name', 'email', 'phone', 'name_yr', 'inn', 'kpp', 'yr_adr', 'adr_podr', 'reg_num', 'date_end_reg'],
 	},
 	call => sub {
 		my $S = shift;
