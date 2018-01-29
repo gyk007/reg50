@@ -12,7 +12,7 @@ COMMENT ON TYPE  offer_type IS 'тип скидки; percent - скидка в �
 CREATE TABLE offer (
 	id_product INTEGER REFERENCES product(id),
     id_shop    INTEGER REFERENCES shop(id),
-    type       offers_type,
+    type       offer_type,
     value      DECIMAL(10, 2),
     ctime      TIMESTAMP(6) WITH TIME ZONE,
 
@@ -34,7 +34,7 @@ CREATE TABLE archive_offer (
     id         SERIAL,
     id_shop    INTEGER REFERENCES shop(id),
     id_product INTEGER REFERENCES product(id),
-    type       offers_type,
+    type       offer_type,
     value      DECIMAL(10, 2),
     ctime      TIMESTAMP(6) WITH TIME ZONE,
 
