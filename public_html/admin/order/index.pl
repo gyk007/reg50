@@ -69,6 +69,28 @@ $Server->add_handler(ORDER => {
 	},
 });
 
+# Удалить заказ
+#
+# GET
+# URL: /order/?
+#   action   = delete_order
+#   order.id = 1
+#
+$Server->add_handler(DELETE_ORDER => {
+	input => {
+		allow => ['action', order =>[qw/ id /]],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+		my $order = ALKO::Order->Get(id => $I->{order}{id}) or return $S->fail("NOSUCH: no such order(id => $I->{order}{id})");
+
+		$order->Remove();
+
+		OK;
+	},
+});
+
 # Список заказов
 #
 # GET
@@ -192,6 +214,7 @@ $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
 	return ['ORDER']      if exists $I->{action} and $I->{action} eq 'order';
+	return ['DELETE_ORDER'] if exists $I->{action} and $I->{action} eq 'delete_order';
 	return ['STATISTIC']  if exists $I->{action} and $I->{action} eq 'statistic';
 	return ['ALL_STATUS'] if exists $I->{action} and $I->{action} eq 'status';
 
