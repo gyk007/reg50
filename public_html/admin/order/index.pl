@@ -85,7 +85,7 @@ $Server->add_handler(DELETE_ORDER => {
 		my ($I, $O) = ($S->I, $S->O);
 		my $order = ALKO::Order->Get(id => $I->{order}{id}) or return $S->fail("NOSUCH: no such order(id => $I->{order}{id})");
 
-		$order->Remove();
+		$order->Remove;
 
 		OK;
 	},
