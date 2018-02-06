@@ -1,6 +1,5 @@
 BEGIN;
-ALTER TABLE orders DROP COLUMN id_merchant;
-DELETE FROM session;
-DELETE FROM reg_session;
-UPDATE merchant SET password = null, email = null, name = null, phone = null WHERE alkoid is NOT NULL;
+
+INSERT INTO order_status (id, name, description) VALUES (default, 'deleted', 'Удален');
+
 COMMIT;
