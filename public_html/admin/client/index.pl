@@ -447,6 +447,8 @@ $Server->add_handler(REGISTRATION => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
+		$I->{email} = lc $I->{email} if $I->{email};
+
 		my $ctime = DateTime->now;
 		my $dtime = DateTime->now->add(days => 2);
 

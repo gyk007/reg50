@@ -124,6 +124,8 @@ sub _auth_by_password {
 	# Получаем хэш пароля (Пока это не работает)
 	#$I->{password} = md5_hex($I->{password});
 
+	$I->{login} = lc $I->{login} if $I->{login};
+
 	my $merchant = ALKO::Client::Merchant->Get(password => $I->{password}, email => $I->{login});
 
 	# Проверяем существование пользователя
