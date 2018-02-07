@@ -30,7 +30,7 @@ Class: WooF::Object::Collection
 
 use strict;
 use warnings;
-no warnings 'experimental';
+no if $] >= 5.018, warnings => 'experimental';
 
 use 5.014;
 

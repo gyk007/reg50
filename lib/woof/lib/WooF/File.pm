@@ -10,7 +10,7 @@ use v5.12.0;
 
 use strict;
 use warnings;
-no warnings 'experimental::smartmatch';
+no if $] >= 5.018, warnings => 'experimental::smartmatch';
 
 use File::Basename;
 use File::Copy qw(copy);

@@ -7,7 +7,7 @@ use strict;
 use warnings;
 
 use 5.014;
-no warnings 'experimental::smartmatch';
+no if $] >= 5.018, warnings => 'experimental::smartmatch';
 
 use List::Util qw( min max );
 use WooF::Debug;
