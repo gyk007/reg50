@@ -512,7 +512,7 @@ $Server->add_handler(REGISTRATION => {
 			send_mail({
 				template => 'reg',
 				to       => $I->{email},
-				subject  => 'REG50 Регистрация Клиента',
+				subject  => 'JT Logistic Регистрация Клиента',
 				info     => $email_data
 			});
 
@@ -543,7 +543,7 @@ $Server->add_handler(SEND_MAIL => {
 		send_mail({
 			template => 'new_client',
 			to       => 'grd77@bis100.ru',
-			subject  => 'REG50 Регистрация',
+			subject  => 'JT Logistic Регистрация',
 			info     => $I
 		});
 

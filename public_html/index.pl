@@ -37,7 +37,7 @@ $Server->add_handler(DEFAULT => {
 #   name         = string
 #   email        = string
 #   phone        = string
-#   name_yr      = string  
+#   name_yr      = string
 #   inn          = string
 #   kpp          = string
 #   yr_adr       = string
@@ -55,7 +55,7 @@ $Server->add_handler(SEND_MAIL => {
 
 		send_mail({
 			template => 'new_client',
-			subject  => 'REG50 Регистрация',
+			subject  => 'JT Logistic Регистрация',
 			info     => $I
 		});
 
@@ -111,7 +111,7 @@ $Server->add_handler(FORGET_PASSWORD => {
 		send_mail({
 			template => 'forget_passsword',
 			to       => $merchant->email,
-			subject  => 'REG50 Сброс пароля',
+			subject  => 'JT Logistic Сброс пароля',
 			info     => $email_data
 		});
 

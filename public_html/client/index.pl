@@ -187,7 +187,7 @@ $Server->add_handler(SEND_MAIL => {
 
 		send_mail({
 			template => 'contact',
-			subject  => 'REG50 Вопрос от клиента',
+			subject  => 'JT Logistic Вопрос от клиента',
 			info     => $email_data
 		});
 

@@ -45,7 +45,7 @@ sub send_mail{
 	$email{ti}      = encode('MIME-Header', $email{subject});
 
 	unless ($email{from}) {
-		$email{from} = '"REG50" <noreply@bis100.ru>';
+		$email{from} = '"JT Logistic" <noreply@bis100.ru>';
 	}
 
 	unless ($email{to} ) {
