@@ -23,7 +23,7 @@
 		</p>
 	</div>
 	<p>
-		ДЖЕЙ ТИ ЛОГИСТИК<sup>&reg;</sup>
+		JT Logistic<sup>&reg;</sup>
 	</p>
 </body>
 </html>
