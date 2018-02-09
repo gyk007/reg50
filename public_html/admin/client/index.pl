@@ -150,6 +150,7 @@ $Server->add_handler(MERHATN_LIST => {
 			$_->net;
 			$_->{password} = 1 if     $_->{password};
 			$_->{password} = 0 unless $_->{password};
+			# $_->{password} = !!$_->{password};
 		}
 
 		$O->{merchant_list} = $merchant_list;
@@ -554,7 +555,7 @@ $Server->add_handler(SEND_MAIL => {
 # GET
 # URL: /client/?
 #   action = shops
-#   id_net  = 1
+#   [id_net  = 1] - если id_net не задан, то выводим все магазины
 #
 $Server->add_handler(SHOPS => {
 	input => {
@@ -564,11 +565,12 @@ $Server->add_handler(SHOPS => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		my $shops = ALKO::Client::Shop->All(id_net => $I->{id_net});
+		my $shops = ALKO::Client::Shop->All($I->{id_net} ? (id_net => $I->{id_net}) : ());
 
 		for (@{$shops->List}) {
 			$_->merchant;
 			$_->official;
+      $_->net;
 		};
 
 		$O->{shops} = $shops->List;
