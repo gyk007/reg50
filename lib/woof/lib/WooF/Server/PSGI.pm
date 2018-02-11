@@ -164,7 +164,7 @@ sub listen {
 					$self->{responder} = shift;
 					if (all_right) {
 						HANDLER:
-						while (my $name = shift $self->{workqueue}) {
+						while (my $name = shift @{$self->{workqueue}}) {
 							die "No such Handler: $name" unless exists $self->{handler}{$name};
 							# Структура обработчика, полученная из скрипта
 							my $handler = $self->{worker} = $self->{handler}{$name};

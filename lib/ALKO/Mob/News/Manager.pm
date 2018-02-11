@@ -1,9 +1,9 @@
-package ALKO::News::Merchant;
+package ALKO::Mod::News::Manager;
 use base qw/ WooF::Object /;
 
 =begin nd
-Class: ALKO::News::Merchant
-	Связь пердставитель - новость.
+Class: ALKO::Mod::Manager
+	Менеджер (торговый представитель).
 =cut
 
 use strict;
@@ -14,20 +14,18 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	id_news     - новость
-	id_merchant - представитель
+	id_mob_news    - id новости
+	id_mob_manager - id менеджера 
 =cut
 my %Attribute = (
-	id_news     => {type => 'key'},
-	id_merchant => {type => 'key'},
+	id_mob_news    => {mode => 'read/write', type => 'key'}
+    id_mob_manager => {mode => 'read/write', type => 'key'}	 
 );
 
 =begin nd
-Method: Attribute ( )
+Method: Attribute ()
 	Доступ к хешу с описанием членов класса.
-
 	Может вызываться и как метод экземпляра, и как метод класса.
-	Наследует члены класса родителей.
 
 Returns:
 	ссылку на описание членов класса
@@ -39,8 +37,8 @@ Method: Table ( )
 	Таблица хранения сущности в базе данных.
 
 Returns:
-	Строку 'news_merchant'.
+	Строку 'mob_news_manager'.
 =cut
-sub Table { 'news_merchant' }
+sub Table { 'mob_news_manager' }
 
 1;

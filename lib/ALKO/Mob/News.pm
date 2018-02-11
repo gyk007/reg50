@@ -1,9 +1,9 @@
-package ALKO::Session;
+package ALKO::Mob::News;
 use base qw/ WooF::Object::Simple /;
 
 =begin nd
-Class: ALKO::Session
-	Cессия.
+Class: ALKO::Mob::News
+	Новость.
 =cut
 
 use strict;
@@ -14,20 +14,16 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-    token           - куки
-    id_merchant     - представитель,
-    id_shop         - торговая точка,
-    ctime           - время создагия сессии,
-    ltime           - время последнего визита представителя,
-    id_mob_managers - менеджер для мобильного приложения
+	title       - загаловок
+	text        - тело новости
+	ctime       - дата создания
+	description - описание
 =cut
 my %Attribute = (
-	token           => undef,
-	id_merchant     => {mode => 'read'},
-	id_shop         => {mode => 'read/write'},
-	ctime           => undef,
-	ltime           => {mode => 'read/write'},
-	id_mob_manager  => {mode => 'read/write'},
+	title       => {mode => 'read/write'},
+	text        => {mode => 'read/write'},
+	description => {mode => 'read/write'},
+	ctime       => {mode => 'read/write'},
 );
 
 =begin nd
@@ -47,6 +43,6 @@ Method: Table ( )
 	Таблица хранения сущности в базе данных.
 
 Returns:
-	Строку 'session'.
+	Строку 'mob_news'.
 =cut
-sub Table { 'session' }
+sub Table { 'mob_news' }

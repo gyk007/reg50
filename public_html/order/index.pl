@@ -33,7 +33,7 @@ my $Server = ALKO::Server->new(output_t => 'JSON', auth => 1);
 #	order.name       = String
 #   order.remark     = String
 #   order.email      = String
-#   rder.email       = 1
+#   order.email      = 1
 #
 $Server->add_handler(ADD => {
 	input => {

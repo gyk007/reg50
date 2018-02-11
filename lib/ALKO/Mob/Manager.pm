@@ -1,34 +1,31 @@
-package ALKO::Order;
+package ALKO::Mob::Manager;
 use base qw/ WooF::Object::Simple /;
 
 =begin nd
-Class: ALKO::Order
-	Заказ.
+Class: ALKO::Mod::Manager
+	Менеджер (торговый представитель).
 =cut
 
 use strict;
 use warnings;
-
-use ALKO::Client::Net;
-use ALKO::Client::Shop;
-use ALKO::Order::Document;
-use ALKO::Order::Product;
-use ALKO::Order::Status;
-
 
 =begin nd
 Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	title - загаловок
-	text  - тело новости
-	ctime - дата создания
+	password - пароль
+	email    - почтовй адрес
+	name     - имя
+	phone    - телефон
+	firebase - токен firebase
 =cut
 my %Attribute = (
-	title => {mode => 'read/write'},
-	text  => {mode => 'read/write'},
-	ctime => {mode => 'read/write'},
+	password => {mode => 'read/write'},
+	email    => {mode => 'read/write'},
+	name     => {mode => 'read/write'},
+	phone    => {mode => 'read/write'},
+	firebase => {mode => 'read/write'} 
 );
 
 =begin nd
@@ -48,6 +45,6 @@ Method: Table ( )
 	Таблица хранения сущности в базе данных.
 
 Returns:
-	Строку 'news'.
+	Строку 'mob_manager'.
 =cut
-sub Table { 'news' }
+sub Table { 'mob_manager' }

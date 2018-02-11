@@ -50,4 +50,19 @@
 		<workers>1</workers>
 		<port>9011</port>
 	</location>
+	<location>
+		<path>/mobile/admin/manager</path>
+		<workers>1</workers>
+		<port>9012</port>
+	</location>
+	<location>
+		<path>/mobile/admin/news</path>
+		<workers>1</workers>
+		<port>9013</port>
+	</location>
+	<location>
+		<path>/mobile/news</path>
+		<workers>1</workers>
+		<port>9014</port>
+	</location> 
 </server>
