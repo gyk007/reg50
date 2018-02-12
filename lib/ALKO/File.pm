@@ -49,6 +49,8 @@ sub upload_file {
 	# Перемещаем файл
 	move $self->{upload}{tempname}, $path;
 
+	`chmod 666 $path`;
+
 	return $file_name;
 }
 
