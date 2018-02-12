@@ -24,6 +24,7 @@ my %Attribute = (
 	text        => {mode => 'read/write'},
 	description => {mode => 'read/write'},
 	ctime       => {mode => 'read/write'},
+	img         => {mode => 'read/write'},
 );
 
 =begin nd
@@ -46,3 +47,5 @@ Returns:
 	Строку 'mob_news'.
 =cut
 sub Table { 'mob_news' }
+
+1;

@@ -12,6 +12,7 @@ CREATE TABLE mob_news  (
     text             TEXT,
     description      TEXT,
     ctime            TIMESTAMP(6) WITH TIME ZONE,
+    img              VARCHAR(128),
     PRIMARY KEY (id)
 );
 
@@ -34,7 +35,7 @@ CREATE TABLE mob_manager (
     phone    VARCHAR(128),
     firebase VARCHAR(512),
     PRIMARY KEY (id)
-); 
+);
 
 GRANT SELECT, UPDATE, INSERT ON TABLE mob_manager TO @@DBUSER@@;
 
@@ -59,6 +60,21 @@ GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE mob_news_manager TO @@DBUSER@@;
 COMMENT ON TABLE  mob_news_manager                IS 'связь новость представитель';
 COMMENT ON COLUMN mob_news_manager.id_mob_news    IS 'новость';
 COMMENT ON COLUMN mob_news_manager.id_mob_manager IS 'представитель';
+
+
+-- таблица связь новости и представителя для избранных новостей
+CREATE TABLE mob_news_manager_favorite (
+    id_mob_news     INTEGER NOT NULL REFERENCES mob_news(id),
+    id_mob_manager  INTEGER NOT NULL REFERENCES mob_manager(id),
+    PRIMARY KEY (id_mob_news, id_mob_manager)
+);
+
+GRANT SELECT, UPDATE, DELETE, INSERT ON TABLE mob_news_manager_favorite TO @@DBUSER@@;
+
+COMMENT ON TABLE  mob_news_manager_favorite                IS 'связь новость представитель для избранных';
+COMMENT ON COLUMN mob_news_manager_favorite.id_mob_news    IS 'новость';
+COMMENT ON COLUMN mob_news_manager_favorite.id_mob_manager IS 'представитель';
+
 
 
 COMMIT;

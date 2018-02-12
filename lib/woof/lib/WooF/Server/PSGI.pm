@@ -3,7 +3,7 @@ use base qw/ WooF::Server Exporter /;
 
 =begin nd
 Class: WooF::Server
-	Реализация PSGI-интерфейса для приложения. 
+	Реализация PSGI-интерфейса для приложения.
 =cut
 
 use strict;
@@ -83,13 +83,13 @@ sub _cleanup {
 =begin nd
 Method: _flush ( )
 	Отдать ответ клиенту.
-	
+
 	Переопределяет метод в <WooF::Server> устанавливая процесс вывода в соттветствие
 	с соглашением PSGI.
 =cut
 sub _flush {
 	my $self = shift;
-	
+
 	$self->{responder}->([
 		200,
 		[
@@ -109,7 +109,7 @@ Parameters:
 =cut
 sub init {
 	my ($self, $env) = @_;
-	
+
 	# Запускаем секундомер как можно раньше
 	my $start = Time::Moment->now;
 
@@ -151,7 +151,7 @@ Method: listen ()
 =cut
 sub listen {
 	my $self = shift;
-	
+
 	builder {
 		mount '/' => builder {
 			sub {
@@ -196,7 +196,7 @@ sub listen {
 								warn "|ERR: Unknown return code: $rc in Handler $name";
 								last HANDLER;
 							}
-							
+
 							$handler->cleanup;
 						}
 					} else {
@@ -252,7 +252,8 @@ sub _parse_cgi {
 			# Опускаемся вниз, в только что созданный хеш
 			$target = $target->{$_};
 		}
-		$target->{$last} = decode 'utf8', $params->{$name};
+
+		$target->{$last} = $name ne 'upload' ? decode('utf8', $params->{$name}) : $params->{$name};
 	}
 }
 
