@@ -7,10 +7,11 @@ use strict;
 use warnings;
 
 use WooF::Debug;
-use DateTime; 
+use DateTime;
 use ALKO::Mob::Server;
+use ALKO::File;
 
-use ALKO::Mob::News; 
+use ALKO::Mob::News;
 
 my $Server = WooF::Server->new(output_t => 'JSON', auth => 0);
 
@@ -31,7 +32,7 @@ $Server->add_handler(DEFAULT => {
 #
 # GET
 # URL: /?
-#   action = list 
+#   action = list
 #
 $Server->add_handler(LIST => {
 	input => {
@@ -40,9 +41,9 @@ $Server->add_handler(LIST => {
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
- 
+
 		$O->{news_list} = ALKO::Mob::News->All->List;
- 
+
 		OK;
 	},
 });
@@ -51,28 +52,35 @@ $Server->add_handler(LIST => {
 #
 # GET
 # URL: /?
-#   action = add  
+#   action = add
 #   news.title       = String
 #	news.text        = String
-#   news.description = String  
+#   news.description = String
 #
 $Server->add_handler(ADD => {
-	input => {
-		allow => [
-			'action',
-			news => [qw/ title text description /],
-		],
-	},
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		ALKO::Mob::News->new({
+		my $news = ALKO::Mob::News->new({
 			title       => $I->{news}{title},
 			text        => $I->{news}{text},
 			description => $I->{news}{description},
 			ctime       => DateTime->now,
-		}); 
+		})->Save;
+
+		my $path = "$ENV{PWD}/files/news/";
+
+		if ($I->{upload}) {
+			my $file = ALKO::File->new({
+				path   => $path,
+				upload => $I->{upload},
+				name   => $news->id
+			});
+
+			my $file_name = $file->upload_file;
+			$news->img($file_name);
+		}
 
 		OK;
 	},
@@ -83,10 +91,10 @@ $Server->add_handler(ADD => {
 #
 # GET
 # URL: /?
-#   action = add  
+#   action = add
 #   news.title       = String
 #	news.text        = String
-#   news.description = String  
+#   news.description = String
 #
 $Server->add_handler(DELETE => {
 	input => {

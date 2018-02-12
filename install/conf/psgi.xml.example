@@ -64,5 +64,15 @@
 		<path>/mobile/news</path>
 		<workers>1</workers>
 		<port>9014</port>
-	</location> 
+	</location>
+	<location>
+		<path>/mobile/manager</path>
+		<workers>1</workers>
+		<port>9015</port>
+	</location>
+	<location>
+		<path>/mobile/admin/firebase</path>
+		<workers>1</workers>
+		<port>9016</port>
+	</location>
 </server>

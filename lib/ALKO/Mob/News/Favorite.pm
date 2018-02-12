@@ -1,9 +1,9 @@
-package ALKO::Mob::News::Manager;
+package ALKO::Mob::News::Favorite;
 use base qw/ WooF::Object /;
 
 =begin nd
-Class: ALKO::Mod::Manager
-	Менеджер (торговый представитель).
+Class: ALKO::Mod::Favorite
+	Избранные.
 =cut
 
 use strict;
@@ -17,6 +17,7 @@ Variable: %Attribute
 	id_mob_news    - id новости
 	id_mob_manager - id менеджера
 =cut
+
 my %Attribute = (
 	id_mob_news    => {mode => 'read/write', type => 'key'},
     id_mob_manager => {mode => 'read/write', type => 'key'}
@@ -37,8 +38,8 @@ Method: Table ( )
 	Таблица хранения сущности в базе данных.
 
 Returns:
-	Строку 'mob_news_manager'.
+	Строку 'mob_news_manager_favorite'.
 =cut
-sub Table { 'mob_news_manager' }
+sub Table { 'mob_news_manager_favorite' }
 
 1;

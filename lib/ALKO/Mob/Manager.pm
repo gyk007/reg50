@@ -25,7 +25,7 @@ my %Attribute = (
 	email    => {mode => 'read/write'},
 	name     => {mode => 'read/write'},
 	phone    => {mode => 'read/write'},
-	firebase => {mode => 'read/write'} 
+	firebase => {mode => 'read/write'}
 );
 
 =begin nd
@@ -48,3 +48,5 @@ Returns:
 	Строку 'mob_manager'.
 =cut
 sub Table { 'mob_manager' }
+
+1;
