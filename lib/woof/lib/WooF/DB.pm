@@ -10,6 +10,7 @@ use strict;
 use warnings;
 
 use DBI;
+use Scalar::Util 'blessed';
 
 use WooF::Debug;
 use WooF::Error;
@@ -89,7 +90,7 @@ sub exec {
 
 	return warn "DBASE: No query specified" unless $q;
 
-	if ($q->isa('WooF::DB::Query')) {
+	if (blessed $q && $q->isa('WooF::DB::Query')) {
 		@param = $q->val unless @param;
 		$q = $q->print;
 	}

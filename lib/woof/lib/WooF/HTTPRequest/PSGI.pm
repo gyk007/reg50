@@ -14,7 +14,7 @@ use 5.014;
 
 use strict;
 use warnings;
-no warnings 'experimental';
+no if $] >= 5.018, warnings => 'experimental';
 
 use Plack::Request;
 use WooF::DateTime;

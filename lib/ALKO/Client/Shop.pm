@@ -18,20 +18,32 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-	id_merchant - представитель
-	id_net      - сеть
-	id_official - реквизиты
-	official    - реквизиты, экземпляр класса <ALKO::Client::Official>
-	net         - организация, экземпляр класса <ALKO::Client::Net>
-	merchant    - представитель, экземпляр класса <ALKO::Client::Merchant>
+	id_merchant         - представитель
+	id_net              - сеть
+	id_official         - реквизиты
+	official            - реквизиты, экземпляр класса <ALKO::Client::Official>
+	net                 - организация, экземпляр класса <ALKO::Client::Net>
+	merchant            - представитель, экземпляр класса <ALKO::Client::Merchant>
+	merchant_name       - имя предсавителя (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
+	merchant_phone      - телефон представителя (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
+	merchant_email      - email представителя (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
+	shop_name           - название магазина (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
+	shop_taxreasoncode  - КПП магазина (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
+	shop_regaddress     - адрес магазина (данные нужны для таблицы, так как на таблица на Webix не работает с данными типа net.official.name)
 =cut
 my %Attribute = (
-	id_merchant => {mode => 'read/write'},
-	id_net      => {mode => 'read'},
-	id_official => undef,
-	official    => {mode => 'read', type => 'cache'},
-	net         => {mode => 'read', type => 'cache'},
-	merchant    => {mode => 'read', type => 'cache'},
+	id_merchant         => {mode => 'read/write'},
+	id_net              => {mode => 'read'},
+	id_official         => undef,
+	official            => {mode => 'read', type => 'cache'},
+	net                 => {mode => 'read', type => 'cache'},
+	merchant            => {mode => 'read', type => 'cache'},
+	merchant_name       => {type => 'cache'},
+	merchant_phone      => {type => 'cache'},
+	merchant_email      => {type => 'cache'},
+	shop_name           => {type => 'cache'},
+	shop_taxreasoncode  => {type => 'cache'},
+	shop_regaddress     => {type => 'cache'},
 );
 
 =begin nd
@@ -78,6 +90,12 @@ sub merchant {
 	my $merchant = ALKO::Client::Merchant->Get(id => $self->{id_merchant});
 
 	$self->{merchant} = $merchant;
+	# Это сделано из кривой работы Webix
+	$self->{merchant_name}  = $merchant->name  || '-';
+	$self->{merchant_phone} = $merchant->phone || '-';
+	$self->{merchant_email} = $merchant->email || '-';
+
+	$self->{merchant};
 }
 
 =begin nd
@@ -92,7 +110,16 @@ sub official {
 	# Если уже есть данные, то ничего не делаем
 	return $self->{official} if defined $self->{official};
 
-	$self->{official} = ALKO::Client::Official->Get(id => $self->{id_official});
+	my $official = ALKO::Client::Official->Get(id => $self->{id_official});
+
+	$self->{official} = $official;
+
+	# Это сделано из кривой работы Webix
+	$self->{shop_name}          = $official->name           || '-';
+	$self->{shop_taxreasoncode} = $official->taxreasoncode  || '-';
+	$self->{shop_address}       = $official->address        || '-';
+
+	$self->{official};
 }
 
 =begin nd

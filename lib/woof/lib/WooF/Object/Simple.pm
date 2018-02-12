@@ -12,7 +12,7 @@ Class: WooF::Object::Simple
 
 use strict;
 use warnings;
-no warnings 'experimental';
+no if $] >= 5.018, warnings => 'experimental';
 
 use WooF::Util;
 use WooF::Object::Constants;

@@ -33,7 +33,7 @@ Variable: %Attribute
 =cut
 my %Attribute = (
 	account       => undef,
-	address       => undef,
+	address       => {mode => 'read'},
 	alkoid        => undef,
 	bank          => undef,
 	bank_account  => undef,
@@ -46,7 +46,7 @@ my %Attribute = (
 	regaddress    => {mode => 'read'},
 	regcode       => undef,
 	taxcode       => {mode => 'read'},
-	taxreasoncode => undef,
+	taxreasoncode => {mode => 'read'},
 );
 
 =begin nd

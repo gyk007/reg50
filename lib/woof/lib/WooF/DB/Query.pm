@@ -15,7 +15,7 @@ use v5.12.0;
 
 use strict;
 use warnings;
-no warnings 'experimental::smartmatch';
+no if $] >= 5.018, warnings => 'experimental::smartmatch';
 use utf8;
 
 use WooF::Error;

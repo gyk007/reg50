@@ -150,6 +150,7 @@ $Server->add_handler(MERHATN_LIST => {
 			$_->net;
 			$_->{password} = 1 if     $_->{password};
 			$_->{password} = 0 unless $_->{password};
+			# $_->{password} = !!$_->{password};
 		}
 
 		$O->{merchant_list} = $merchant_list;
@@ -376,6 +377,7 @@ $Server->add_handler(SEARCH => {
 		# Достаем id official
 		my @id;
 		push @id, $_->{id} for @$search;
+		# my @id = map {$_->{id}} @$search;
 
 		# По id official получаем все организации
 		my $clients = ALKO::Client::Net->All(id_official => \@id);
@@ -551,7 +553,7 @@ $Server->add_handler(SEND_MAIL => {
 	},
 });
 
-# Получить список магазинов
+# Получить список магазинов для конкретной сети
 #
 # GET
 # URL: /client/?
@@ -579,6 +581,52 @@ $Server->add_handler(SHOPS => {
 	},
 });
 
+# Получить список магазинов
+#
+# GET
+# URL: /client/?
+#   action = shops_list
+#
+$Server->add_handler(SHOPS_LIST => {
+	input => {
+		allow => ['action'],
+	},
+	call => sub {
+		my $S = shift;
+		my ($I, $O) = ($S->I, $S->O);
+
+    my $q = qq{
+        select 
+          official_name          as shop_name,
+          official_address       as shop_address,
+          official_regaddress    as shop_regaddress,
+          official_phone         as shop_phone,
+          official_email         as shop_email,
+          official_bank          as shop_bank,
+          official_account       as shop_account,
+          official_bank_account  as shop_bank_account,
+          official_bik           as shop_bik,
+          official_taxcode       as shop_taxcode,
+          official_taxreasoncode as shop_taxreasoncode,
+          official_regcode       as shop_regcode,
+          official_alkoid        as shop_alkoid,
+          official_person        as shop_person,
+          merchant_password,
+          merchant_email,
+          merchant_name,
+          merchant_phone,
+          merchant_alkoid,
+          (select o.name as net_name from net n inner join official o on n.id_official = o.id where n.id = net_id) as net_name
+        from v_shop
+        };
+		my $search = $S->D->fetch_all($q);
+
+		$O->{shops} = $search;
+
+		OK;
+	},
+});
+
 $Server->dispatcher(sub {
 	my $S = shift;
 	my $I = $S->I;
@@ -589,6 +637,7 @@ $Server->dispatcher(sub {
 	return ['DELETE_MERCHANT_FROM'] if exists $I->{action} and $I->{action} eq 'delete_merchant_from';
 	return ['DELETE_MERCHANT']      if exists $I->{action} and $I->{action} eq 'delete_merchant';
 	return ['SHOPS']                if exists $I->{action} and $I->{action} eq 'shops';
+	return ['SHOPS_LIST']           if exists $I->{action} and $I->{action} eq 'shops_list';
 	return ['SEND_MAIL']            if exists $I->{action} and $I->{action} eq 'send_mail';
 	return ['ADD_MERCHANT_TO_NET']  if exists $I->{action} and $I->{action} eq 'add_merchant_to_net';
 	return ['ADD_MERCHANT_TO_SHOP']	if exists $I->{action} and $I->{action} eq 'add_merchant_to_shop';

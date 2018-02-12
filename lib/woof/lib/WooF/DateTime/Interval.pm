@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use WooF::Error; 
 use 5.014;
-no warnings 'experimental::smartmatch';
+no if $] >= 5.018, warnings => 'experimental::smartmatch';
 
 =begin nd
 Constant: SEC_PER_MIN

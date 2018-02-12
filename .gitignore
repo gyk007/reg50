@@ -1,4 +1,5 @@
 *.kate-swp
+*.swp
 
 install/conf/alko.log
 install/conf/global.xml
