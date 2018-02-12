@@ -1,9 +1,10 @@
-package ALKO::Server;
+
+package ALKO::Mob::Server;
 use base qw/ WooF::Server Exporter /;
 WooF::Server->import(qw/ OK FAIL REDIRECT PAGELESS /);
 our @EXPORT = qw/ OK FAIL REDIRECT /;
 =begin nd
-Class: ALKO::Server
+Class: ALKO::Mob::Server
 	Класс, наследующий WooF::Server::PSGI
 =cut
 
@@ -12,8 +13,7 @@ use warnings;
 
 use ALKO::Session;
 use ALKO::RegistrationSession;
-use ALKO::Client::Shop;
-use ALKO::Client::Merchant;
+use ALKO::Mob::Manager;
 use DateTime;
 use Digest::MD5 qw(md5_hex);
 use WooF::Debug;
@@ -41,7 +41,7 @@ Method: authenticate ()
 sub authenticate {
 	my $self = shift;
 	my ($I, $O) = ($self->I, $self->O);
-
+	  
 	return $self->_auth_by_token     if exists $I->{token};
 	return $self->_auth_by_reg_token if exists $I->{reg_token};
 	return $self->_auth_by_password  if exists $I->{password} and exists $I->{login};
@@ -124,12 +124,12 @@ sub _auth_by_password {
 	# Получаем хэш пароля (Пока это не работает)
 	#$I->{password} = md5_hex($I->{password});
 
-	$I->{login} = lc $I->{login} if $I->{login};
+	$I->{login} = lc $I->{login} if $I->{login}; 	 
 
-	my $merchant = ALKO::Client::Merchant->Get(password => $I->{password}, email => $I->{login});
-
+	my $manager = ALKO::Mob::Manager->Get(password => $I->{password}, email => $I->{login});
+	 
 	# Проверяем существование пользователя
-	return $self->fail('AUTH: Authentication failed') unless $merchant;
+	return $self->fail('AUTH: Authentication failed') unless $manager;
 
 	# Создаем токен
 	my $token;
@@ -137,19 +137,17 @@ sub _auth_by_password {
 	map { $token .= $all[rand @all]; } (0..14);
 
 	# Удаляем старые сесси
-	my $sessions = ALKO::Session->All(id_merchant => $merchant->id)->List;
+	my $sessions = ALKO::Session->All(id_mob_manager => $manager->id)->List;
 	if($sessions) {
-		for(@$sessions) {
-			$_->Remove;
-		}
+		$_->Remove for @$sessions;
 	}
 
 	# Создаем сессию
 	my $session = ALKO::Session->new({
-		token       => $token,
-		id_merchant => $merchant->id,
-		ctime       => $dt,
-		ltime       => $dt
+		token           => $token,
+		id_mob_manager  => $manager->id,
+		ctime           => $dt,
+		ltime           => $dt
 	})->Save;
 
 	delete $I->{password};

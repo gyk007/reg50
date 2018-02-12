@@ -58,7 +58,7 @@ sub new {
 		ip      => $plack->address,
 		method  => $plack->method,
 		path    => $plack->path_info,
-		qstring => join('&', map "$_=$param->{$_}", keys $param),
+		qstring => join('&', map "$_=$param->{$_}", keys %$param),
 		referer => $plack->headers->header('Referer') || undef,
 		plack   => $plack,
 		@_,

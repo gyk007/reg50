@@ -1,9 +1,9 @@
-package ALKO::Session;
+package ALKO::Mob::Manager;
 use base qw/ WooF::Object::Simple /;
 
 =begin nd
-Class: ALKO::Session
-	Cессия.
+Class: ALKO::Mod::Manager
+	Менеджер (торговый представитель).
 =cut
 
 use strict;
@@ -14,20 +14,18 @@ Variable: %Attribute
 	Описание членов класса.
 
 	Члены класса:
-    token           - куки
-    id_merchant     - представитель,
-    id_shop         - торговая точка,
-    ctime           - время создагия сессии,
-    ltime           - время последнего визита представителя,
-    id_mob_managers - менеджер для мобильного приложения
+	password - пароль
+	email    - почтовй адрес
+	name     - имя
+	phone    - телефон
+	firebase - токен firebase
 =cut
 my %Attribute = (
-	token           => undef,
-	id_merchant     => {mode => 'read'},
-	id_shop         => {mode => 'read/write'},
-	ctime           => undef,
-	ltime           => {mode => 'read/write'},
-	id_mob_manager  => {mode => 'read/write'},
+	password => {mode => 'read/write'},
+	email    => {mode => 'read/write'},
+	name     => {mode => 'read/write'},
+	phone    => {mode => 'read/write'},
+	firebase => {mode => 'read/write'} 
 );
 
 =begin nd
@@ -47,6 +45,6 @@ Method: Table ( )
 	Таблица хранения сущности в базе данных.
 
 Returns:
-	Строку 'session'.
+	Строку 'mob_manager'.
 =cut
-sub Table { 'session' }
+sub Table { 'mob_manager' }

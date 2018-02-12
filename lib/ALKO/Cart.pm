@@ -65,7 +65,7 @@ sub add_product {
 
  	if ($picked) {
  		# Если товар в корзине уже есть, то прибавляем количество
- 		$picked->quantity($picked->quantity + $quantity);
+ 		$picked->quantity($quantity);
  	} else {
  		# Если такого товара в данной корзине нет, то создаем его
 		$picked = ALKO::Cart::Pickedup->new({
@@ -78,7 +78,7 @@ sub add_product {
 
  	if (defined $self->{products}) {
 		if (my $found = $self->{products}->First_Item(id_product => $product->{id})) {
-			$found->quantity($found->quantity + $quantity);
+			$found->quantity($quantity);
 		} else {
 			$self->{products}->Push($picked);
 		}

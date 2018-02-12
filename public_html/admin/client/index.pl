@@ -449,6 +449,8 @@ $Server->add_handler(REGISTRATION => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
+		$I->{email} = lc $I->{email} if $I->{email};
+
 		my $ctime = DateTime->now;
 		my $dtime = DateTime->now->add(days => 2);
 
@@ -512,7 +514,7 @@ $Server->add_handler(REGISTRATION => {
 			send_mail({
 				template => 'reg',
 				to       => $I->{email},
-				subject  => 'REG50 Регистрация Клиента',
+				subject  => 'JT Logistic Регистрация Клиента',
 				info     => $email_data
 			});
 
@@ -543,7 +545,7 @@ $Server->add_handler(SEND_MAIL => {
 		send_mail({
 			template => 'new_client',
 			to       => 'grd77@bis100.ru',
-			subject  => 'REG50 Регистрация',
+			subject  => 'JT Logistic Регистрация',
 			info     => $I
 		});
 
