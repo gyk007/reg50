@@ -13,6 +13,7 @@ use ALKO::File;
 use ALKO::Mob::News::Favorite;
 
 use ALKO::Mob::News;
+use ALKO::Mob::Tag::News;
 
 my $Server = WooF::Server->new(output_t => 'JSON', auth => 0);
 
@@ -43,7 +44,18 @@ $Server->add_handler(LIST => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		$O->{news_list} = ALKO::Mob::News->All->List;
+		my $news = ALKO::Mob::News->All;
+
+		my $tags = ALKO::Mob::Tag::News->All(id_mob_news => [keys %{$news->Hash('id')}])->Hash('id_mob_news');
+
+		for my $item (@{$news->List}) {
+			$item->{tags} = [];
+			if ($tags->{$item->{id}}) {
+				push @{$item->{tags}}, $_->id_mob_news_tag for @{ $tags->{$item->{id}} };
+			}
+		}
+
+		$O->{news_list} = $news->List;
 
 		OK;
 	},
@@ -63,7 +75,7 @@ $Server->add_handler(ADD => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		my $news;		
+		my $news;
 		if ($I->{news}{id}) {
 			$news = ALKO::Mob::News->Get($I->{news}{id}) or return $S->fail("NOSUCH: Can\'t get News: no such news(id => $I->{news}{id})");
 			$news->title($I->{news}{title});
@@ -76,11 +88,25 @@ $Server->add_handler(ADD => {
 				description => $I->{news}{description},
 				ctime       => DateTime->now,
 			})->Save;
-		} 		 
+		}
 
-		if ($I->{upload}) {
+		my $old_tags = ALKO::Mob::Tag::News->All(id_mob_news => $news->id)->List;
+
+		$_->Remove for @$old_tags;
+
+		if ($I->{news}{tags}) {
+			my @tags  = split(',', $I->{news}{tags});
+			for (@tags) {
+				ALKO::Mob::Tag::News->new({
+					id_mob_news      =>  $news->id,
+					id_mob_news_tag  =>  $_,
+				})->Save;
+			}
+		}
+
+		if ($I->{upload} and $I->{upload} ne 'undefined') {
 			my $path = "$ENV{PWD}/files/news/";
-			
+
 			my $file = ALKO::File->new({
 				path   => $path,
 				upload => $I->{upload},
@@ -120,7 +146,7 @@ $Server->add_handler(DELETE => {
 
 		my $favorite = ALKO::Mob::News::Favorite->All(id_mob_news => $news->id)->List;
 
-		$_->Remove for @$favorite; 
+		$_->Remove for @$favorite;
 
 		$news->Remove;
 

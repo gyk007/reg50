@@ -7,12 +7,13 @@ use strict;
 use warnings;
 
 use WooF::Debug;
-use DateTime; 
+use DateTime;
 use ALKO::Mob::Server;
 
-use ALKO::Mob::Manager; 
+use ALKO::Mob::Manager;
 use ALKO::Mob::News::Favorite;
 use ALKO::Session;
+use ALKO::Mob::Tag::Manager;
 
 my $Server = WooF::Server->new(output_t => 'JSON', auth => 0);
 
@@ -43,8 +44,19 @@ $Server->add_handler(LIST => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		$O->{manager_list} = ALKO::Mob::Manager->All->List;		 
- 
+		my $manager = ALKO::Mob::Manager->All;
+
+		my $tags = ALKO::Mob::Tag::Manager->All(id_mob_manager => [keys %{$manager->Hash('id')}])->Hash('id_mob_manager');
+
+		for my $item (@{$manager->List}) {
+			$item->{tags} = [];
+			if ($tags->{$item->{id}}) {
+				push @{$item->{tags}}, $_->id_mob_news_tag for @{ $tags->{$item->{id}} };
+			}
+		}
+
+		$O->{manager_list} = $manager->List;
+
 		OK;
 	},
 });
@@ -53,48 +65,62 @@ $Server->add_handler(LIST => {
 #
 # GET
 # URL: /?
-#   action = add  
+#   action = add
 #   manger.password = String
 #	manger.email    = String
-#   manger.phone    = String  
+#   manger.phone    = String
 #
 $Server->add_handler(ADD => {
 	input => {
 		allow => [
 			'action',
-			manager => [qw/ password email phone name id/],
+			manager => [qw/ password email phone name id tags/],
 		],
 	},
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
+		my $manager;
 		if ($I->{manager}{id}) {
-			my $manager = ALKO::Mob::Manager->Get($I->{manager}{id}) or return $S->fail("NOSUCH: Can\'t get Manager: no such manager(id => $I->{manager}{id})");
+			$manager = ALKO::Mob::Manager->Get($I->{manager}{id}) or return $S->fail("NOSUCH: Can\'t get Manager: no such manager(id => $I->{manager}{id})");
 			$manager->password($I->{manager}{password});
 			$manager->email($I->{manager}{email});
 			$manager->phone($I->{manager}{phone});
 			$manager->name($I->{manager}{name});
-		} else {			
-			ALKO::Mob::Manager->new({
+		} else {
+			$manager = ALKO::Mob::Manager->new({
 				password => $I->{manager}{password},
 				email    => $I->{manager}{email},
 				phone    => $I->{manager}{phone},
-				name     => $I->{manager}{name},			 
-			}); 	
-		}   
+				name     => $I->{manager}{name},
+			})->Save;
+		}
+
+		my $old_tags = ALKO::Mob::Tag::Manager->All(id_mob_manager => $manager->id)->List;
+		$_->Remove for @$old_tags;
+
+		if ($I->{manager}{tags}) {
+			my @tags  = split(',', $I->{manager}{tags});
+			for (@tags) {
+				ALKO::Mob::Tag::Manager->new({
+					id_mob_manager      =>  $manager->id,
+					id_mob_news_tag  =>  $_,
+				})->Save;
+			}
+		}
 
 		OK;
 	},
-}); 
+});
 
 
 # Удалит менеджера
 #
 # GET
 # URL: /?
-#   action = delete  
-#   manager.id       = 1 
+#   action = delete
+#   manager.id       = 1
 #
 $Server->add_handler(DELETE => {
 	input => {

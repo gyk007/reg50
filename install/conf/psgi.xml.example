@@ -75,4 +75,9 @@
 		<workers>1</workers>
 		<port>9016</port>
 	</location>
+	<location>
+		<path>/mobile/admin/tag</path>
+		<workers>1</workers>
+		<port>9017</port>
+	</location>
 </server>
