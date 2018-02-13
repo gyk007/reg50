@@ -10,6 +10,7 @@ use WooF::Debug;
 use DateTime;
 use ALKO::Mob::Server;
 use ALKO::File;
+use ALKO::Mob::News::Favorite;
 
 use ALKO::Mob::News;
 
@@ -62,16 +63,24 @@ $Server->add_handler(ADD => {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		my $news = ALKO::Mob::News->new({
-			title       => $I->{news}{title},
-			text        => $I->{news}{text},
-			description => $I->{news}{description},
-			ctime       => DateTime->now,
-		})->Save;
-
-		my $path = "$ENV{PWD}/files/news/";
+		my $news;		
+		if ($I->{news}{id}) {
+			$news = ALKO::Mob::News->Get($I->{news}{id}) or return $S->fail("NOSUCH: Can\'t get News: no such news(id => $I->{news}{id})");
+			$news->title($I->{news}{title});
+			$news->text($I->{news}{text});
+			$news->description($I->{news}{description});
+		} else {
+			$news = ALKO::Mob::News->new({
+				title       => $I->{news}{title},
+				text        => $I->{news}{text},
+				description => $I->{news}{description},
+				ctime       => DateTime->now,
+			})->Save;
+		} 		 
 
 		if ($I->{upload}) {
+			my $path = "$ENV{PWD}/files/news/";
+			
 			my $file = ALKO::File->new({
 				path   => $path,
 				upload => $I->{upload},
@@ -108,6 +117,10 @@ $Server->add_handler(DELETE => {
 		my ($I, $O) = ($S->I, $S->O);
 
 		my $news = ALKO::Mob::News->Get($I->{news}{id}) or return $S->fail("NOSUCH: Can\'t get News: no such news(id => $I->{news}{id})");
+
+		my $favorite = ALKO::Mob::News::Favorite->All(id_mob_news => $news->id)->List;
+
+		$_->Remove for @$favorite; 
 
 		$news->Remove;
 

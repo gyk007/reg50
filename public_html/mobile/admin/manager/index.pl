@@ -11,6 +11,8 @@ use DateTime;
 use ALKO::Mob::Server;
 
 use ALKO::Mob::Manager; 
+use ALKO::Mob::News::Favorite;
+use ALKO::Session;
 
 my $Server = WooF::Server->new(output_t => 'JSON', auth => 0);
 
@@ -60,21 +62,27 @@ $Server->add_handler(ADD => {
 	input => {
 		allow => [
 			'action',
-			manager => [qw/ password email phone name /],
+			manager => [qw/ password email phone name id/],
 		],
 	},
 	call => sub {
 		my $S = shift;
 		my ($I, $O) = ($S->I, $S->O);
 
-		debug $I->{manager};
-
-		ALKO::Mob::Manager->new({
-			password => $I->{manager}{password},
-			email    => $I->{manager}{email},
-			phone    => $I->{manager}{phone},
-			name     => $I->{manager}{name},			 
-		}); 	 
+		if ($I->{manager}{id}) {
+			my $manager = ALKO::Mob::Manager->Get($I->{manager}{id}) or return $S->fail("NOSUCH: Can\'t get Manager: no such manager(id => $I->{manager}{id})");
+			$manager->password($I->{manager}{password});
+			$manager->email($I->{manager}{email});
+			$manager->phone($I->{manager}{phone});
+			$manager->name($I->{manager}{name});
+		} else {			
+			ALKO::Mob::Manager->new({
+				password => $I->{manager}{password},
+				email    => $I->{manager}{email},
+				phone    => $I->{manager}{phone},
+				name     => $I->{manager}{name},			 
+			}); 	
+		}   
 
 		OK;
 	},
@@ -100,6 +108,12 @@ $Server->add_handler(DELETE => {
 		my ($I, $O) = ($S->I, $S->O);
 
 		my $manager = ALKO::Mob::Manager->Get($I->{manager}{id}) or return $S->fail("NOSUCH: Can\'t get Manager: no such manager(id => $I->{manager}{id})");
+
+		my $favorite = ALKO::Mob::News::Favorite->All(id_mob_manager => $manager->id)->List;
+		my $session  = ALKO::Session->All(id_mob_manager => $manager->id)->List;
+
+		$_->Remove for @$favorite;
+		$_->Remove for @$session;
 
 		$manager->Remove;
 
