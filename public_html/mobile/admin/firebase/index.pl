@@ -65,9 +65,9 @@ $Server->add_handler(SEND_TO => {
 
 		for my $tag (@$news_tag) {
 			my $param = {
-				to => '/topics/'.$tag->name,
+				to => '/topics/'.$tag->id,
 				notification => {
-					body  => $send_text ,
+					body  => $send_text,
 					title => '#'.$tag->name
 				},
 				priority => 1

@@ -12,6 +12,8 @@ use ALKO::Mob::Server;
 
 use ALKO::Mob::News;
 use ALKO::Mob::News::Favorite;
+use ALKO::Mob::Tag::News;
+use ALKO::Mob::Tag;
 
 my $Server = ALKO::Mob::Server->new(output_t => 'JSON', auth => 1);
 
@@ -55,11 +57,19 @@ $Server->add_handler(LIST => {
 
 		my $favorite = ALKO::Mob::News::Favorite->All(id_mob_manager => $O->{SESSION}{id_mob_manager})->Hash('id_mob_news');
 
+		my $news;
+		$news = ALKO::Mob::News->All(ctime => {'>=', $dt_weak->ymd})  if $sort eq 'week';
+		$news = ALKO::Mob::News->All(ctime => {'>=', $dt_month->ymd}) if $sort eq 'month';
+		$news = ALKO::Mob::News->All(ctime => {'>=', $dt_year->ymd})  if $sort eq 'year';
+		$news = ALKO::Mob::News->All(id => [keys %$favorite])         if $sort eq 'favorite';
 
-		$O->{news_list} = ALKO::Mob::News->All(ctime => {'>=', $dt_weak->ymd})->List  if $sort eq 'week';
-		$O->{news_list} = ALKO::Mob::News->All(ctime => {'>=', $dt_month->ymd})->List if $sort eq 'month';
-		$O->{news_list} = ALKO::Mob::News->All(ctime => {'>=', $dt_year->ymd})->List  if $sort eq 'year';
-		$O->{news_list} = ALKO::Mob::News->All(id => [keys %$favorite])->List	      if $sort eq 'favorite';
+		my @id_news = keys %{$news->Hash('id')};
+		my $tag_ref = ALKO::Mob::Tag::News->All(id_mob_news => @id_news);
+		my @id_tags = keys %{$tag_ref->Hash('id_mob_news_tag')};
+
+
+		ALKO::Mob::Tag::News
+
 
 
 	 	for (@{$O->{news_list}}) {
