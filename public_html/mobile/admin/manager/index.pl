@@ -137,7 +137,9 @@ $Server->add_handler(DELETE => {
 
 		my $favorite = ALKO::Mob::News::Favorite->All(id_mob_manager => $manager->id)->List;
 		my $session  = ALKO::Session->All(id_mob_manager => $manager->id)->List;
+		my $tags     = ALKO::Mob::Tag::Manager->All(id_mob_manager => $manager->id)->List;
 
+		$_->Remove for @$tags;
 		$_->Remove for @$favorite;
 		$_->Remove for @$session;
 

@@ -17,6 +17,9 @@ use ALKO::Mob::Manager;
 use DateTime;
 use Digest::MD5 qw(md5_hex);
 use WooF::Debug;
+
+use ALKO::Mob::Tag;
+use ALKO::Mob::Tag::Manager;
 our @ISA;
 
 =begin nd
@@ -41,7 +44,7 @@ Method: authenticate ()
 sub authenticate {
 	my $self = shift;
 	my ($I, $O) = ($self->I, $self->O);
-	  
+
 	return $self->_auth_by_token     if exists $I->{token};
 	return $self->_auth_by_reg_token if exists $I->{reg_token};
 	return $self->_auth_by_password  if exists $I->{password} and exists $I->{login};
@@ -104,6 +107,14 @@ sub _auth_by_token {
 
 	$O->{SESSION} = $session;
 
+	# Полчаем
+	my $tags_ref  = ALKO::Mob::Tag::Manager->All(id_mob_manager => $O->{SESSION}{id_mob_manager})->Hash('id_mob_news_tag');
+	my $users_tag = ALKO::Mob::Tag->All(id => [keys %$tags_ref])->List;
+
+	$O->{SESSION}{users_tag} = $users_tag;
+
+	debug $O->{SESSION};
+
 	1;
 }
 
@@ -124,10 +135,10 @@ sub _auth_by_password {
 	# Получаем хэш пароля (Пока это не работает)
 	#$I->{password} = md5_hex($I->{password});
 
-	$I->{login} = lc $I->{login} if $I->{login}; 	 
+	$I->{login} = lc $I->{login} if $I->{login};
 
 	my $manager = ALKO::Mob::Manager->Get(password => $I->{password}, email => $I->{login});
-	 
+
 	# Проверяем существование пользователя
 	return $self->fail('AUTH: Authentication failed') unless $manager;
 

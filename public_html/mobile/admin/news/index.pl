@@ -145,7 +145,9 @@ $Server->add_handler(DELETE => {
 		my $news = ALKO::Mob::News->Get($I->{news}{id}) or return $S->fail("NOSUCH: Can\'t get News: no such news(id => $I->{news}{id})");
 
 		my $favorite = ALKO::Mob::News::Favorite->All(id_mob_news => $news->id)->List;
+		my $tags     = ALKO::Mob::Tag::News->All(id_mob_news => $news->id)->List;
 
+		$_->Remove for @$tags;
 		$_->Remove for @$favorite;
 
 		$news->Remove;
